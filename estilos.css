@@ -1,0 +1,124 @@
+:root {
+    --cor-fundo: #808080;
+    --cor-texto: #333;
+    --fonte-padrao: Arial, sans-serif;
+    --cor-fundo-botao: #555;
+    --cor-texto-botao: white;
+    --cor-hover-botao: #444;
+    --sombra-padrao: 5px 5px 10px rgba(0, 0, 0, 0.2);
+    --sombra-hover: 2px 2px 5px rgba(0, 0, 0, 0.25);
+}
+
+body {
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+    font-family: var(--fonte-padrao);
+    zoom: 120%;
+}
+
+.button-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 5px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 15px;
+    font-size: 16px;
+    color: var(--cor-texto-botao);
+    background-color: var(--cor-fundo-botao);
+    border: none;
+    border-radius: 10px;
+    box-shadow: var(--sombra-padrao);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    touch-action: manipulation; /* Desativa o zoom de dois toques */
+}
+
+.button:hover {
+    background-color: var(--cor-hover-botao);
+    box-shadow: var(--sombra-hover);
+}
+
+.button img {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
+}
+
+.button-text {
+    text-align: center;
+}
+
+@media only screen and (max-width: 600px) {
+    .button {
+        font-size: 14px;
+    }
+
+    .button img {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+/* Estilos para o menu responsivo */
+.menu-toggle {
+    display: none; /* Escondido por padrão, será mostrado via JavaScript em telas menores */
+    background-color: var(--cor-fundo-botao);
+    color: var(--cor-texto-botao);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    touch-action: manipulation; /* Desativa o zoom de dois toques */
+}
+
+.genesis-responsive-menu {
+    display: none; /* Escondido por padrão, será mostrado quando o botão do menu for clicado */
+    background-color: var(--cor-fundo-botao);
+    color: var(--cor-texto-botao);
+    padding: 10px 0;
+}
+
+.genesis-responsive-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.genesis-responsive-menu li {
+    padding: 10px 15px;
+    border-bottom: 1px solid #666;
+}
+
+.genesis-responsive-menu a {
+    color: var(--cor-texto-botao);
+    text-decoration: none;
+    display: block;
+}
+
+/* Classe para mostrar o menu quando o botão do menu é clicado */
+.menu-open {
+    display: block;
+}
+
+/* Mostrar o botão do menu em telas menores */
+@media only screen and (max-width: 600px) {
+    .menu-toggle {
+        display: block;
+    }
+}
+
+/* Ocultar o conteúdo principal por padrão */
+#conteudoPrincipal {
+    display: none;
+}
