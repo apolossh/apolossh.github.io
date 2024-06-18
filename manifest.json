@@ -1,8 +1,8 @@
 {
   "name": "Snake Game",
   "short_name": "Snake",
-  "description": "Classic Snake game built with HTML, CSS, and JavaScript",
-  "start_url": "/",
+  "description": "Jogo clássico da Cobra desenvolvido com HTML, CSS e JavaScript",
+  "start_url": "snake.html",
   "display": "standalone",
   "background_color": "#f0f0f0",
   "theme_color": "#333",
@@ -12,5 +12,7 @@
       "sizes": "192x192",
       "type": "image/png"
     }
-  ]
+  ],
+  "scope": "/",
+  "lang": "pt-BR"
 }
