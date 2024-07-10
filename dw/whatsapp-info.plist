@@ -29,9 +29,9 @@
 			<key>metadata</key>
 			<dict>
 				<key>bundle-identifier</key>
-				<string>com.fouadraheb.watusi</string>
+				<string>net.whatsapp.WhatsApp</string>
 				<key>bundle-version</key>
-				<string>24.7.79</string>
+				<string>24.13.78</string>
 				<key>kind</key>
 				<string>software</string>
 				<key>title</key>
