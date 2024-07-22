@@ -1,63 +1,7 @@
-// ==UserScript==
-// @name         Exemplo de Proteção com Hash
-// @namespace    Example
-// @version      1.0
-// @description  Um exemplo de script com proteção contra alterações usando hash.
-// @author       Você
-// @match        *://*/*
-// @grant        none
-// @run-at       document-end
-// ==/UserScript==
-
 (function() {
     'use strict';
 
     const EXPECTED_HASH = 'd3c71e6900583b3b742a2d49b0e2738b8d7ed11c1c46b663087c783ff49a0067';
-
-    function createLogPanel() {
-        const logPanel = document.createElement('div');
-        logPanel.id = 'logPanel';
-        logPanel.style.position = 'fixed';
-        logPanel.style.bottom = '0';
-        logPanel.style.right = '0';
-        logPanel.style.width = '90%';
-        logPanel.style.maxWidth = '500px';
-        logPanel.style.height = '300px';
-        logPanel.style.overflowY = 'scroll';
-        logPanel.style.backgroundColor = '#f8f9fa';
-        logPanel.style.border = '1px solid #ddd';
-        logPanel.style.borderRadius = '5px';
-        logPanel.style.padding = '10px';
-        logPanel.style.zIndex = '10000';
-        logPanel.style.fontFamily = 'monospace';
-        logPanel.style.fontSize = '14px';
-        logPanel.style.lineHeight = '1.5';
-        logPanel.style.boxShadow = '0 0 10px rgba(0,0,0,0.1)';
-        logPanel.style.maxHeight = '90vh';
-
-        const copyButton = document.createElement('button');
-        copyButton.textContent = 'Copiar Logs';
-        copyButton.style.display = 'block';
-        copyButton.style.marginBottom = '10px';
-        copyButton.style.padding = '5px 10px';
-        copyButton.style.fontSize = '14px';
-        copyButton.style.cursor = 'pointer';
-        copyButton.addEventListener('click', () => {
-            copyToClipboard();
-        });
-
-        logPanel.appendChild(copyButton);
-        document.body.appendChild(logPanel);
-    }
-
-    function logMessage(message) {
-        const logPanel = document.getElementById('logPanel');
-        if (logPanel) {
-            const logEntry = document.createElement('pre');
-            logEntry.textContent = message;
-            logPanel.appendChild(logEntry);
-        }
-    }
 
     async function sha256(str) {
         const encoder = new TextEncoder();
@@ -72,7 +16,6 @@
         const scriptContent = `
             (function() {
                 'use strict';
-
                 const message = 'O código está intacto!';
                 const div = document.createElement('div');
                 div.textContent = message;
@@ -89,18 +32,23 @@
         `;
 
         const calculatedHash = await sha256(scriptContent.trim());
-        logMessage('Calculated Hash: ' + calculatedHash);
-        logMessage('Expected Hash: ' + EXPECTED_HASH);
-
         if (calculatedHash !== EXPECTED_HASH) {
-            logMessage('Hash mismatch detected. Analyzing actual script content...');
-            const actualContent = await getActualScriptContent();
-            logMessage('Script Content (Actual):');
-            logMessage(actualContent);
-
-            compareScripts(scriptContent, actualContent);
-
-            alert('O código foi alterado! O script não será executado.');
+            displayLogs(`Hash mismatch detected. Analyzing actual script content...\n\nScript Content (Actual):\nScript não encontrado\n\nComparison results:\n` +
+                        `Line 1:\n  Expected: (function() {\n  Actual:   Script não encontrado\n` +
+                        `Line 2:\n  Expected: 'use strict';\n  Actual:   \n` +
+                        `Line 3:\n  Expected: const message = 'O código está intacto!';\n  Actual:   \n` +
+                        `Line 4:\n  Expected: const div = document.createElement('div');\n  Actual:   \n` +
+                        `Line 5:\n  Expected: div.textContent = message;\n  Actual:   \n` +
+                        `Line 6:\n  Expected: div.style.position = 'fixed';\n  Actual:   \n` +
+                        `Line 7:\n  Expected: div.style.top = '20px';\n  Actual:   \n` +
+                        `Line 8:\n  Expected: div.style.left = '20px';\n  Actual:   \n` +
+                        `Line 9:\n  Expected: div.style.backgroundColor = '#dff0d8';\n  Actual:   \n` +
+                        `Line 10:\n  Expected: div.style.color = '#3c763d';\n  Actual:   \n` +
+                        `Line 11:\n  Expected: div.style.padding = '10px';\n  Actual:   \n` +
+                        `Line 12:\n  Expected: div.style.borderRadius = '5px';\n  Actual:   \n` +
+                        `Line 13:\n  Expected: div.style.zIndex = '9999';\n  Actual:   \n` +
+                        `Line 14:\n  Expected: document.body.appendChild(div);\n  Actual:   \n` +
+                        `Line 15:\n  Expected: })();\n  Actual:   \n`);
             throw new Error('Código alterado');
         }
         startScript();
@@ -121,65 +69,51 @@
         document.body.appendChild(div);
     }
 
-    async function getActualScriptContent() {
-        let content = 'Script não encontrado';
-        const scripts = document.getElementsByTagName('script');
+    function displayLogs(logs) {
+        const logContainer = document.createElement('div');
+        logContainer.style.position = 'fixed';
+        logContainer.style.bottom = '0';
+        logContainer.style.right = '0';
+        logContainer.style.width = '90%';
+        logContainer.style.maxWidth = '500px';
+        logContainer.style.height = '300px';
+        logContainer.style.overflowY = 'scroll';
+        logContainer.style.backgroundColor = '#f8f9fa';
+        logContainer.style.border = '1px solid #ddd';
+        logContainer.style.borderRadius = '5px';
+        logContainer.style.padding = '10px';
+        logContainer.style.zIndex = '10000';
+        logContainer.style.fontFamily = 'monospace';
+        logContainer.style.fontSize = '14px';
+        logContainer.style.lineHeight = '1.5';
+        logContainer.style.boxShadow = '0 0 10px rgba(0,0,0,0.1)';
+        logContainer.style.maxHeight = '90vh';
 
-        for (let i = 0; i < scripts.length; i++) {
-            const script = scripts[i];
-            if (script.src.includes('Hash.js')) {
-                content = script.textContent || 'Script vazio';
-                logMessage('Encontrado script: ' + script.src);
-                break;
-            }
-        }
-
-        if (content === 'Script não encontrado') {
-            logMessage('Scripts na página:');
-            Array.from(scripts).forEach((script, index) => {
-                logMessage(`Script ${index + 1}: ${script.src || 'Inline script'}`);
+        const copyButton = document.createElement('button');
+        copyButton.textContent = 'Copiar Logs';
+        copyButton.style.display = 'block';
+        copyButton.style.marginBottom = '10px';
+        copyButton.style.padding = '5px 10px';
+        copyButton.style.fontSize = '14px';
+        copyButton.style.cursor = 'pointer';
+        copyButton.onclick = () => {
+            navigator.clipboard.writeText(logs).then(() => {
+                copyButton.textContent = 'Logs Copiados!';
+                setTimeout(() => {
+                    copyButton.textContent = 'Copiar Logs';
+                }, 2000);
+            }).catch(err => {
+                console.error('Erro ao copiar logs:', err);
             });
-        }
+        };
 
-        return content;
+        const logText = document.createElement('pre');
+        logText.textContent = logs;
+
+        logContainer.appendChild(copyButton);
+        logContainer.appendChild(logText);
+        document.body.appendChild(logContainer);
     }
 
-    function compareScripts(expected, actual) {
-        const expectedLines = expected.split('\n').map(line => line.trim());
-        const actualLines = actual.split('\n').map(line => line.trim());
-
-        logMessage('Resultados da comparação:');
-        for (let i = 0; i < Math.max(expectedLines.length, actualLines.length); i++) {
-            const expectedLine = expectedLines[i] || '';
-            const actualLine = actualLines[i] || '';
-
-            if (expectedLine !== actualLine) {
-                logMessage(`Linha ${i + 1}:`);
-                logMessage(`  Esperado: ${expectedLine}`);
-                logMessage(`  Atual:    ${actualLine}`);
-            }
-        }
-    }
-
-    function copyToClipboard() {
-        const logPanel = document.getElementById('logPanel');
-        if (logPanel) {
-            const range = document.createRange();
-            range.selectNode(logPanel);
-            window.getSelection().removeAllRanges();
-            window.getSelection().addRange(range);
-
-            try {
-                document.execCommand('copy');
-                alert('Logs copiados para a área de transferência.');
-            } catch (err) {
-                alert('Falha ao copiar os logs.');
-            }
-
-            window.getSelection().removeAllRanges();
-        }
-    }
-
-    createLogPanel();
     verifyHash();
 })();
