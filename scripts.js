@@ -1,1 +1,82 @@
-var _0x196b08=_0x1a45;(function(_0x5a8cc0,_0x52a59e){var _0x1cfc5b=_0x1a45,_0x46aeac=_0x5a8cc0();while(!![]){try{var _0x50e5eb=parseInt(_0x1cfc5b(0x181))/0x1+-parseInt(_0x1cfc5b(0x17c))/0x2*(-parseInt(_0x1cfc5b(0x180))/0x3)+parseInt(_0x1cfc5b(0x167))/0x4*(-parseInt(_0x1cfc5b(0x179))/0x5)+parseInt(_0x1cfc5b(0x178))/0x6+parseInt(_0x1cfc5b(0x174))/0x7*(parseInt(_0x1cfc5b(0x16d))/0x8)+parseInt(_0x1cfc5b(0x166))/0x9+-parseInt(_0x1cfc5b(0x183))/0xa*(parseInt(_0x1cfc5b(0x175))/0xb);if(_0x50e5eb===_0x52a59e)break;else _0x46aeac['push'](_0x46aeac['shift']());}catch(_0x230a6f){_0x46aeac['push'](_0x46aeac['shift']());}}}(_0x2ff2,0x54b8d),document[_0x196b08(0x168)](_0x196b08(0x16f),function(){var _0x1f21c1=_0x196b08;document[_0x1f21c1(0x16b)]('1')[_0x1f21c1(0x168)](_0x1f21c1(0x171),function(){var _0x40e5ab=_0x1f21c1;window[_0x40e5ab(0x170)][_0x40e5ab(0x177)]=_0x40e5ab(0x17f);}),document[_0x1f21c1(0x16b)]('1')['addEventListener'](_0x1f21c1(0x182),function(_0x157b01){var _0x2e629e=_0x1f21c1;_0x157b01[_0x2e629e(0x161)]();}),document[_0x1f21c1(0x16b)]('2')[_0x1f21c1(0x168)]('click',function(){var _0x4a7219=_0x1f21c1;window[_0x4a7219(0x170)][_0x4a7219(0x177)]=_0x4a7219(0x163);}),document[_0x1f21c1(0x16b)]('2')['addEventListener']('contextmenu',function(_0x47b791){var _0x54ef22=_0x1f21c1;_0x47b791[_0x54ef22(0x161)]();}),document['getElementById']('3')['addEventListener']('click',function(){var _0x8253ce=_0x1f21c1;window[_0x8253ce(0x170)]['href']=_0x8253ce(0x165);}),document[_0x1f21c1(0x16b)]('3')[_0x1f21c1(0x168)]('contextmenu',function(_0x569e54){var _0x329164=_0x1f21c1;_0x569e54[_0x329164(0x161)]();}),document[_0x1f21c1(0x16b)]('4')['addEventListener']('click',function(){var _0x23bf77=_0x1f21c1;window['location']['href']=_0x23bf77(0x17a);}),document[_0x1f21c1(0x16b)]('4')['addEventListener']('contextmenu',function(_0x31f9fd){var _0x30ed9a=_0x1f21c1;_0x31f9fd[_0x30ed9a(0x161)]();}),document[_0x1f21c1(0x16b)]('5')[_0x1f21c1(0x168)](_0x1f21c1(0x171),function(){var _0x2707ae=_0x1f21c1;window[_0x2707ae(0x170)][_0x2707ae(0x177)]=_0x2707ae(0x162);}),document['getElementById']('5')[_0x1f21c1(0x168)](_0x1f21c1(0x182),function(_0x506acd){var _0x4b4c45=_0x1f21c1;_0x506acd[_0x4b4c45(0x161)]();}),document[_0x1f21c1(0x16b)]('6')[_0x1f21c1(0x168)]('click',function(){var _0x1c7fb7=_0x1f21c1;window[_0x1c7fb7(0x170)][_0x1c7fb7(0x177)]=_0x1c7fb7(0x169);}),document['getElementById']('6')[_0x1f21c1(0x168)](_0x1f21c1(0x182),function(_0x37bb0d){var _0x2bdeca=_0x1f21c1;_0x37bb0d[_0x2bdeca(0x161)]();}),document[_0x1f21c1(0x16b)]('7')[_0x1f21c1(0x168)](_0x1f21c1(0x171),function(){var _0x56caff=_0x1f21c1;window[_0x56caff(0x170)][_0x56caff(0x177)]=_0x56caff(0x172);}),document[_0x1f21c1(0x16b)]('7')['addEventListener']('contextmenu',function(_0x4fd234){var _0x3651d2=_0x1f21c1;_0x4fd234[_0x3651d2(0x161)]();});}));var menuToggle=document[_0x196b08(0x164)]('.menu-toggle');menuToggle&&menuToggle['addEventListener'](_0x196b08(0x171),function(){var _0xbc3ca6=_0x196b08,_0x34000a=document[_0xbc3ca6(0x164)](_0xbc3ca6(0x17d));_0x34000a&&_0x34000a[_0xbc3ca6(0x176)][_0xbc3ca6(0x17e)](_0xbc3ca6(0x173));});var subMenuToggles=document[_0x196b08(0x16e)](_0x196b08(0x17b));function _0x1a45(_0x4891fc,_0x40996e){var _0x2ff229=_0x2ff2();return _0x1a45=function(_0x1a455f,_0xb0cd4){_0x1a455f=_0x1a455f-0x161;var _0xa73b15=_0x2ff229[_0x1a455f];return _0xa73b15;},_0x1a45(_0x4891fc,_0x40996e);}subMenuToggles[_0x196b08(0x16c)](function(_0x365ba6){var _0x411881=_0x196b08;_0x365ba6[_0x411881(0x168)]('click',function(){var _0x176842=_0x411881,_0x363f47=this['nextElementSibling'];_0x363f47&&_0x363f47['classList'][_0x176842(0x17e)](_0x176842(0x16a));});});function _0x2ff2(){var _0x7ed1be=['89506UhfZhw','contextmenu','10eVQYnI','preventDefault','itms-services://?action=download-manifest&url=https://apolossh.online/dw/YouTube-info.plist','/dw/cert.esigncert','querySelector','itms-services://?action=download-manifest&url=https://apolossh.online/dw/ESign-info.plist','5031999wjwuJi','4ojkMvx','addEventListener','itms-services://?action=download-manifest&url=https://apolossh.online/dw/whatsapp-info.plist','sub-menu-open','getElementById','forEach','16xxVqXH','querySelectorAll','DOMContentLoaded','location','click','itms-services://?action=download-manifest&url=https://apolossh.online/dw/trollinstaler.plist','menu-open','1683857RpjPet','21238316aXhGjw','classList','href','4030134fTeJDM','741050mpkVCK','itms-services://?action=download-manifest&url=https://apolossh.online/dw/Instagram-info.plist','.sub-menu-toggle','1249158RFPTRQ','.genesis-responsive-menu','toggle','/dw/dns.mobileconfig','3SCTHZA'];_0x2ff2=function(){return _0x7ed1be;};return _0x2ff2();}
+// scripts.js
+
+document.addEventListener('DOMContentLoaded', function() {
+    
+
+document.getElementById("1").addEventListener("click", function() {
+        window.location.href = "/dw/dns.mobileconfig";
+    });
+
+    document.getElementById("1").addEventListener("contextmenu", function(event) {
+        event.preventDefault();
+    });
+
+    document.getElementById("2").addEventListener("click", function() {
+        window.location.href = "/dw/cert.esigncert";
+    });
+
+    document.getElementById("2").addEventListener("contextmenu", function(event) {
+        event.preventDefault();
+    });
+
+    document.getElementById("3").addEventListener("click", function() {
+        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.online/dw/ESign-info.plist";
+    });
+
+    document.getElementById("3").addEventListener("contextmenu", function(event) {
+        event.preventDefault();
+    });
+
+    document.getElementById("4").addEventListener("click", function() {
+        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.online/dw/Instagram-info.plist";
+    });
+
+    document.getElementById("4").addEventListener("contextmenu", function(event) {
+        event.preventDefault();
+    });
+
+    document.getElementById("5").addEventListener("click", function() {
+        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.online/dw/YouTube-info.plist";
+    });
+
+    document.getElementById("5").addEventListener("contextmenu", function(event) {
+        event.preventDefault();
+    });
+
+document.getElementById("6").addEventListener("click", function() {
+        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.online/dw/whatsapp-info.plist";
+    });
+
+    document.getElementById("6").addEventListener("contextmenu", function(event) {
+        event.preventDefault();
+    });
+
+document.getElementById("7").addEventListener("click", function() {
+        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.online/dw/trollinstaler.plist";
+    });
+
+    document.getElementById("7").addEventListener("contextmenu", function(event) {
+        event.preventDefault();
+    });
+
+});
+
+var menuToggle = document.querySelector('.menu-toggle');
+if (menuToggle) {
+    menuToggle.addEventListener('click', function() {
+        var menu = document.querySelector('.genesis-responsive-menu');
+        if (menu) {
+            menu.classList.toggle('menu-open');
+        }
+    });
+}
+
+var subMenuToggles = document.querySelectorAll('.sub-menu-toggle');
+subMenuToggles.forEach(function(toggle) {
+    toggle.addEventListener('click', function() {
+        var subMenu = this.nextElementSibling;
+        if (subMenu) {
+            subMenu.classList.toggle('sub-menu-open');
+        }
+    });
+});
