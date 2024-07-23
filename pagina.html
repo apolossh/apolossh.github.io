@@ -3,11 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Executar Script</title>
-    <script src="f.js"></script>
+    <title>Página Original</title>
 </head>
 <body>
-    <h1>Executando o Script</h1>
-    <p>Verifique o console para possíveis mensagens de erro ou sucesso.</p>
+    <h1>Bem-vindo à Página Original!</h1>
+    <p>Esta é uma página de exemplo antes da criptografia.</p>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+        const content = `<h1>Bem-vindo à Página Original!</h1>
+                         <p>Esta é uma página de exemplo antes da criptografia.</p>`;
+        
+        // Criptografa o conteúdo
+        const password = 'senha-secreta';
+        const encrypted = CryptoJS.AES.encrypt(content, password).toString();
+        
+        // Armazena o conteúdo criptografado em uma variável
+        localStorage.setItem('encryptedContent', encrypted);
+
+        // Função para exibir o conteúdo descriptografado
+        function showDecryptedContent() {
+            const encryptedContent = localStorage.getItem('encryptedContent');
+            const bytes = CryptoJS.AES.decrypt(encryptedContent, password);
+            const decryptedContent = bytes.toString(CryptoJS.enc.Utf8);
+            document.body.innerHTML = decryptedContent;
+        }
+
+        // Exibe o conteúdo descriptografado ao carregar a página
+        window.onload = showDecryptedContent;
+    </script>
 </body>
 </html>
