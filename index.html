@@ -14,11 +14,7 @@
             <p>JavaScript está desativado no seu navegador. Por favor, ative o JavaScript para acessar esta página.</p>
         </div>
     </noscript>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('conteudoPrincipal').style.display = 'none';
-        });
-    </script>
+    <script src="a.js"></script>
 </head>
 <body>
     <button class="menu-toggle disable-dbl-tap-zoom" aria-expanded="false" aria-controls="menuPrincipal">☰ MENU</button>
@@ -58,7 +54,13 @@
             <div class="button-text">TrollInstallerX</div>
         </a>
     </div>        
-    <div id="conteudoPrincipal"></div>
+    <div id="conteudoPrincipal">
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('conteudoPrincipal').style.display = 'block';
+        });
+    </script>
     <script src="scripts.js"></script>
 </body>
 </html>
