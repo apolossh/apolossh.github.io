@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function redirecionarComVerificacao(url) {
-        verificarDominio('https://fast.com')
+        verificarDominio('https://ocsp.apple.com')
             .then(acessivel => {
                 if (acessivel) {
                     alert("Por favor, instale primeiro o perfil DNS.");
