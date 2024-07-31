@@ -1,9 +1,22 @@
-// scripts.js
-
 document.addEventListener('DOMContentLoaded', function() {
-    
+    function verificarDominio(url) {
+        return fetch(url, { method: 'HEAD' })
+            .then(response => response.ok)
+            .catch(() => false);
+    }
 
-document.getElementById("1").addEventListener("click", function() {
+    function redirecionarComVerificacao(botaoId, url) {
+        verificarDominio('https://ocsp.apple.com')
+            .then(acessivel => {
+                if (acessivel) {
+                    alert("Por favor, instale primeiro o perfil DNS.");
+                } else {
+                    window.location.href = url;
+                }
+            });
+    }
+
+    document.getElementById("1").addEventListener("click", function() {
         window.location.href = "/dw/dns.mobileconfig";
     });
 
@@ -12,7 +25,7 @@ document.getElementById("1").addEventListener("click", function() {
     });
 
     document.getElementById("2").addEventListener("click", function() {
-        window.location.href = "/dw/cert.esigncert";
+        redirecionarComVerificacao("2", "/dw/cert.esigncert");
     });
 
     document.getElementById("2").addEventListener("contextmenu", function(event) {
@@ -20,7 +33,7 @@ document.getElementById("1").addEventListener("click", function() {
     });
 
     document.getElementById("3").addEventListener("click", function() {
-        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/ESign-info.plist";
+        redirecionarComVerificacao("3", "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/ESign-info.plist");
     });
 
     document.getElementById("3").addEventListener("contextmenu", function(event) {
@@ -28,7 +41,7 @@ document.getElementById("1").addEventListener("click", function() {
     });
 
     document.getElementById("4").addEventListener("click", function() {
-        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/Instagram-info.plist";
+        redirecionarComVerificacao("4", "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/Instagram-info.plist");
     });
 
     document.getElementById("4").addEventListener("contextmenu", function(event) {
@@ -36,23 +49,23 @@ document.getElementById("1").addEventListener("click", function() {
     });
 
     document.getElementById("5").addEventListener("click", function() {
-        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/YouTube-info.plist";
+        redirecionarComVerificacao("5", "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/YouTube-info.plist");
     });
 
     document.getElementById("5").addEventListener("contextmenu", function(event) {
         event.preventDefault();
     });
 
-document.getElementById("6").addEventListener("click", function() {
-        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/whatsapp-info.plist";
+    document.getElementById("6").addEventListener("click", function() {
+        redirecionarComVerificacao("6", "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/whatsapp-info.plist");
     });
 
     document.getElementById("6").addEventListener("contextmenu", function(event) {
         event.preventDefault();
     });
 
-document.getElementById("7").addEventListener("click", function() {
-        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/trollinstaler.plist";
+    document.getElementById("7").addEventListener("click", function() {
+        redirecionarComVerificacao("7", "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/trollinstaler.plist");
     });
 
     document.getElementById("7").addEventListener("contextmenu", function(event) {
