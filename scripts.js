@@ -1,24 +1,34 @@
 document.addEventListener('DOMContentLoaded', function() {
     function verificarDominio(url) {
-        console.log(`Verificando acesso ao domínio: ${url}`);
-        return fetch(url, { method: 'HEAD' }) // Faz uma requisição HEAD para o domínio
-            .then(response => {
-                console.log(`Resposta para ${url}: ${response.status}`);
-                return response.ok; // Verifica se a resposta é bem-sucedida
-            })
-            .catch(error => {
-                console.error(`Erro ao verificar domínio ${url}:`, error);
-                return false; // Retorna false se ocorrer um erro
-            });
+        return new Promise((resolve) => {
+            // Usar `XMLHttpRequest` para teste de conectividade
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.timeout = 3000; // Tempo limite para a requisição
+            xhr.onload = function() {
+                if (xhr.status >= 200 && xhr.status < 400) {
+                    resolve(false); // Acesso bem-sucedido
+                } else {
+                    resolve(true); // Não acessível
+                }
+            };
+            xhr.onerror = function() {
+                resolve(true); // Erro ao acessar, consideramos como não acessível
+            };
+            xhr.ontimeout = function() {
+                resolve(true); // Tempo limite, consideramos como não acessível
+            };
+            xhr.send();
+        });
     }
 
     function redirecionarComVerificacao(url) {
-        verificarDominio('https://xnxx.com')
-            .then(acessivel => {
-                if (acessivel) {
-                    alert("Por favor, instale primeiro o perfil DNS.");
-                } else {
+        verificarDominio('https://github.com')
+            .then(dominioInacessivel => {
+                if (dominioInacessivel) {
                     window.location.href = url;
+                } else {
+                    alert("Por favor, instale primeiro o perfil DNS.");
                 }
             })
             .catch(error => {
