@@ -1,27 +1,29 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Função para verificar o domínio
     function verificarDominio(url) {
-        return fetch(url, { method: 'HEAD' })
-            .then(response => response.ok)
-            .catch(() => false);
+        return fetch(url, { method: 'HEAD' }) // Faz uma requisição HEAD para o domínio
+            .then(response => response.ok)     // Verifica se a resposta é bem-sucedida
+            .catch(() => false);               // Retorna false se ocorrer um erro
     }
 
+    // Função para redirecionar com verificação do domínio
     function redirecionarComVerificacao(url) {
-        verificarDominio('https://ocsp.apple.com')
+        verificarDominio('https://fast.com')
             .then(acessivel => {
                 if (acessivel) {
                     alert("Por favor, instale primeiro o perfil DNS.");
                 } else {
-                    console.log("Dominio acessível. Redirecionando para:", url);
                     window.location.href = url;
                 }
             })
             .catch(error => {
                 console.error("Erro ao verificar domínio:", error);
-                // Permitir redirecionamento se ocorrer um erro na verificação
+                // Permitir redirecionamento se ocorrer erro na verificação
                 window.location.href = url;
             });
     }
 
+    // Evento para o botão 1 (sem verificação)
     document.getElementById("1").addEventListener("click", function() {
         window.location.href = "/dw/dns.mobileconfig";
     });
@@ -30,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
     });
 
+    // Eventos para os demais botões (com verificação)
     document.getElementById("2").addEventListener("click", function() {
         redirecionarComVerificacao("/dw/cert.esigncert");
     });
