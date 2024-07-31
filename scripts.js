@@ -1,14 +1,19 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Função para verificar o domínio
     function verificarDominio(url) {
+        console.log(`Verificando acesso ao domínio: ${url}`);
         return fetch(url, { method: 'HEAD' }) // Faz uma requisição HEAD para o domínio
-            .then(response => response.ok)     // Verifica se a resposta é bem-sucedida
-            .catch(() => false);               // Retorna false se ocorrer um erro
+            .then(response => {
+                console.log(`Resposta para ${url}: ${response.status}`);
+                return response.ok; // Verifica se a resposta é bem-sucedida
+            })
+            .catch(error => {
+                console.error(`Erro ao verificar domínio ${url}:`, error);
+                return false; // Retorna false se ocorrer um erro
+            });
     }
 
-    // Função para redirecionar com verificação do domínio
     function redirecionarComVerificacao(url) {
-        verificarDominio('https://fast.com')
+        verificarDominio('https://xnxx.com')
             .then(acessivel => {
                 if (acessivel) {
                     alert("Por favor, instale primeiro o perfil DNS.");
