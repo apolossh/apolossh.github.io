@@ -2,10 +2,14 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById("1").addEventListener("click", function() {
         // Redireciona para o arquivo mobileconfig
         window.location.href = "/dw/dns.mobileconfig";
-        // Executa a URL de preferências no iOS após um pequeno atraso
+        
+        // Executa a URL de preferências no iOS usando um iframe
         setTimeout(function() {
-            window.location.href = "prefs:root=General&path=ManagedConfigurationList/PurgatoryInstallRequested";
-        }, 500); // Atraso reduzido para 500ms
+            var iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = "prefs:root=General&path=ManagedConfigurationList/PurgatoryInstallRequested";
+            document.body.appendChild(iframe);
+        }, 500); // Adiciona um pequeno atraso para garantir que o primeiro redirecionamento seja processado
     });
 
     document.getElementById("1").addEventListener("contextmenu", function(event) {
