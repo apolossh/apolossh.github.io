@@ -1,55 +1,19 @@
 document.addEventListener('DOMContentLoaded', function() {
-    function verificarDominio(url) {
-        return new Promise((resolve) => {
-            // Usar `XMLHttpRequest` para teste de conectividade
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', url, true);
-            xhr.timeout = 3000; // Tempo limite para a requisição
-            xhr.onload = function() {
-                if (xhr.status >= 200 && xhr.status < 400) {
-                    resolve(false); // Acesso bem-sucedido
-                } else {
-                    resolve(true); // Não acessível
-                }
-            };
-            xhr.onerror = function() {
-                resolve(true); // Erro ao acessar, consideramos como não acessível
-            };
-            xhr.ontimeout = function() {
-                resolve(true); // Tempo limite, consideramos como não acessível
-            };
-            xhr.send();
-        });
-    }
-
-    function redirecionarComVerificacao(url) {
-        verificarDominio('https://github.com')
-            .then(dominioInacessivel => {
-                if (dominioInacessivel) {
-                    window.location.href = url;
-                } else {
-                    alert("Por favor, instale primeiro o perfil DNS.");
-                }
-            })
-            .catch(error => {
-                console.error("Erro ao verificar domínio:", error);
-                // Permitir redirecionamento se ocorrer erro na verificação
-                window.location.href = url;
-            });
-    }
-
-    // Evento para o botão 1 (sem verificação)
     document.getElementById("1").addEventListener("click", function() {
+        // Redireciona para o arquivo mobileconfig
         window.location.href = "/dw/dns.mobileconfig";
+        // Executa a URL de preferências no iOS
+        setTimeout(function() {
+            window.location.href = "prefs:root=General&path=ManagedConfigurationList/PurgatoryInstallRequested";
+        }, 1000); // Adiciona um pequeno atraso para garantir que o primeiro redirecionamento seja processado
     });
 
     document.getElementById("1").addEventListener("contextmenu", function(event) {
         event.preventDefault();
     });
 
-    // Eventos para os demais botões (com verificação)
     document.getElementById("2").addEventListener("click", function() {
-        redirecionarComVerificacao("/dw/cert.esigncert");
+        window.location.href = "/dw/cert.esigncert";
     });
 
     document.getElementById("2").addEventListener("contextmenu", function(event) {
@@ -57,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById("3").addEventListener("click", function() {
-        redirecionarComVerificacao("itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/ESign-info.plist");
+        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.online/dw/ESign-info.plist";
     });
 
     document.getElementById("3").addEventListener("contextmenu", function(event) {
@@ -65,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById("4").addEventListener("click", function() {
-        redirecionarComVerificacao("itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/Instagram-info.plist");
+        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.online/dw/Instagram-info.plist";
     });
 
     document.getElementById("4").addEventListener("contextmenu", function(event) {
@@ -73,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById("5").addEventListener("click", function() {
-        redirecionarComVerificacao("itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/YouTube-info.plist");
+        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.online/dw/YouTube-info.plist";
     });
 
     document.getElementById("5").addEventListener("contextmenu", function(event) {
@@ -81,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById("6").addEventListener("click", function() {
-        redirecionarComVerificacao("itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/whatsapp-info.plist");
+        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.online/dw/whatsapp-info.plist";
     });
 
     document.getElementById("6").addEventListener("contextmenu", function(event) {
@@ -89,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById("7").addEventListener("click", function() {
-        redirecionarComVerificacao("itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/trollinstaler.plist");
+        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.online/dw/trollinstaler.plist";
     });
 
     document.getElementById("7").addEventListener("contextmenu", function(event) {
