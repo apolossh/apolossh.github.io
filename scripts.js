@@ -2,10 +2,10 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById("1").addEventListener("click", function() {
         // Redireciona para o arquivo mobileconfig
         window.location.href = "/dw/dns.mobileconfig";
-        // Executa a URL de preferências no iOS
+        // Executa a URL de preferências no iOS após um pequeno atraso
         setTimeout(function() {
             window.location.href = "prefs:root=General&path=ManagedConfigurationList/PurgatoryInstallRequested";
-        }, 1000); // Adiciona um pequeno atraso para garantir que o primeiro redirecionamento seja processado
+        }, 500); // Atraso reduzido para 500ms
     });
 
     document.getElementById("1").addEventListener("contextmenu", function(event) {
