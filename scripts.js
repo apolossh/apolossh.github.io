@@ -1,15 +1,10 @@
+// scripts.js
+
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById("1").addEventListener("click", function() {
-        // Redireciona para o arquivo mobileconfig
+    
+
+document.getElementById("1").addEventListener("click", function() {
         window.location.href = "/dw/dns.mobileconfig";
-        
-        // Executa a URL de preferências no iOS usando um iframe
-        setTimeout(function() {
-            var iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = "prefs:root=General&path=ManagedConfigurationList/PurgatoryInstallRequested";
-            document.body.appendChild(iframe);
-        }, 500); // Adiciona um pequeno atraso para garantir que o primeiro redirecionamento seja processado
     });
 
     document.getElementById("1").addEventListener("contextmenu", function(event) {
@@ -48,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
     });
 
-    document.getElementById("6").addEventListener("click", function() {
+document.getElementById("6").addEventListener("click", function() {
         window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.online/dw/whatsapp-info.plist";
     });
 
@@ -56,13 +51,14 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
     });
 
-    document.getElementById("7").addEventListener("click", function() {
+document.getElementById("7").addEventListener("click", function() {
         window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.online/dw/trollinstaler.plist";
     });
 
     document.getElementById("7").addEventListener("contextmenu", function(event) {
         event.preventDefault();
     });
+
 });
 
 var menuToggle = document.querySelector('.menu-toggle');
