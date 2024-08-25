@@ -1,5 +1,5 @@
 {
-    "name": "ApoloSSH Repositório",
+    "name": "ApoloSSH repo",
     "identifier": "apolossh.github.io",
     "sourceURL": "https://apolossh.github.io/repo.json",
     "apps": [
@@ -9,7 +9,7 @@
             "developerName": "Meta Platforms Inc.",
             "version": "330.0.3",
             "versionDate": "2024-01-28T21:40:00+08:00",
-            "versionDescription": "Funcionalidade otimizada injetada no dylib\nCorrigido alguns bugs",
+            "versionDescription": "Atualização para a versão",
             "downloadURL": "https://archive.org/download/instagram-326.0.3/Instagram.ipa",
             "localizedDescription": "ESign é uma ferramenta sem jailbreak para assinar arquivos IPA, com injeção de biblioteca, remoção de biblioteca e outras funções.",
             "iconURL": "https://apolossh.github.io/img/instagram.png",
@@ -30,7 +30,7 @@
             "iconURL": "https://apolossh.github.io/img/youtube.png",
             "tintColor": "FF0000",
             "isLanZouCloud": 0,
-            "size": 142560768,
+            "size": 132246405,
             "type": 1
         },
         {
@@ -45,7 +45,7 @@
             "iconURL": "https://apolossh.github.io/img/whatsapp.png",
             "tintColor": "25D366",
             "isLanZouCloud": 0,
-            "size": 138412032,
+            "size": 117849456,
             "type": 1
         },
         {
@@ -60,7 +60,7 @@
             "iconURL": "https://apolossh.github.io/img/troll.png",
             "tintColor": "FF5733",
             "isLanZouCloud": 0,
-            "size": 25000000,
+            "size": 7182745,
             "type": 1
         }
     ]
