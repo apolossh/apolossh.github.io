@@ -17,6 +17,21 @@
             "isLanZouCloud": 0,
             "size": 162539765,
             "type": 1
+        },
+        {
+            "name": "Twitter",
+            "bundleIdentifier": "com.twitter.ios",
+            "developerName": "apolossh",
+            "version": "9.5.2",
+            "versionDate": "2024-02-10T12:00:00+08:00",
+            "versionDescription": "Atualização de segurança e melhorias de desempenho",
+            "downloadURL": "https://archive.org/download/twitter-9.5.2/Twitter.ipa",
+            "localizedDescription": "Twitter é um aplicativo de mídia social para compartilhar e interagir com conteúdo em tempo real.",
+            "iconURL": "https://apolossh.github.io/img/twitter.png",
+            "tintColor": "1DA1F2",
+            "isLanZouCloud": 0,
+            "size": 134217728,
+            "type": 1
         }
     ]
 }
