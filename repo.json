@@ -4,14 +4,14 @@
     "sourceURL": "https://apolossh.github.io/repo.json",
     "apps": [
         {
-            "name": "QingSongSign-ESign",
+            "name": "Instagram",
             "bundleIdentifier": "com.burbn.instagram",
-            "developerName": "Instagram",
+            "developerName": "apolossh",
             "version": "330.0.3",
             "versionDate": "2024-01-28T21:40:00+08:00",
-            "versionDescription": "Optimized functionality injected into dylib\nFixed some bugs",
+            "versionDescription": "Funcionalidade otimizada injetada no dylib\nCorrigido alguns bugs",
             "downloadURL": "https://archive.org/download/instagram-326.0.3/Instagram.ipa",
-            "localizedDescription": "QingSongSign is a jailbreak-free tool for signing IPA files, featuring library injection, library removal, and other functions.",
+            "localizedDescription": "ESign é uma ferramenta sem jailbreak para assinar arquivos IPA, com injeção de biblioteca, remoção de biblioteca e outras funções.",
             "iconURL": "https://apolossh.github.io/img/instagram.png",
             "tintColor": "018084",
             "isLanZouCloud": 0,
