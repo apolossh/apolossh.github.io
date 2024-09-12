@@ -20,7 +20,7 @@ document.getElementById("1").addEventListener("click", function() {
     });
 
     document.getElementById("3").addEventListener("click", function() {
-        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.online/dw/ESign-info.plist";
+        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/ESign-info.plist";
     });
 
     document.getElementById("3").addEventListener("contextmenu", function(event) {
@@ -28,7 +28,7 @@ document.getElementById("1").addEventListener("click", function() {
     });
 
     document.getElementById("4").addEventListener("click", function() {
-        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.online/dw/Instagram-info.plist";
+        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/Instagram-info.plist";
     });
 
     document.getElementById("4").addEventListener("contextmenu", function(event) {
@@ -36,7 +36,7 @@ document.getElementById("1").addEventListener("click", function() {
     });
 
     document.getElementById("5").addEventListener("click", function() {
-        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.online/dw/YouTube-info.plist";
+        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/YouTube-info.plist";
     });
 
     document.getElementById("5").addEventListener("contextmenu", function(event) {
@@ -44,7 +44,7 @@ document.getElementById("1").addEventListener("click", function() {
     });
 
 document.getElementById("6").addEventListener("click", function() {
-        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.online/dw/whatsapp-info.plist";
+        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/whatsapp-info.plist";
     });
 
     document.getElementById("6").addEventListener("contextmenu", function(event) {
@@ -52,7 +52,7 @@ document.getElementById("6").addEventListener("click", function() {
     });
 
 document.getElementById("7").addEventListener("click", function() {
-        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.online/dw/trollinstaler.plist";
+        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/trollinstaler.plist";
     });
 
     document.getElementById("7").addEventListener("contextmenu", function(event) {
