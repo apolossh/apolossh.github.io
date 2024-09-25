@@ -4,7 +4,7 @@ const mainPageUrl = 'https://apolossh.github.io/';
 
 var container = document.createElement('div');
 container.style.position = 'absolute';
-container.style.top = '10px';
+container.style.top = '5px'; 
 container.style.right = '10px';
 container.style.zIndex = '9999';
 container.style.display = 'flex';
