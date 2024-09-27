@@ -4,7 +4,7 @@ let isConnectionRefused = false; // Variável global para rastrear o status da c
 
 // Função para verificar a conexão
 function verificarConexao() {
-    const urlToCheck = 'https://apolossh.github.io/img/troll.png'; // URL a ser verificada
+    const urlToCheck = 'https://ocsp.apple.com'; // URL a ser verificada
 
     return fetch(urlToCheck, { method: 'HEAD' })
         .then(response => {
