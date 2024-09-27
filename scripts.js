@@ -1,74 +1,89 @@
+// scripts.js
+
 document.addEventListener('DOMContentLoaded', function() {
-    let isConnectionSuccessful = false; // Variável para rastrear o status da conexão
+    
 
-    // Função para verificar a conexão
-    function verificarConexao() {
-        const urlToCheck = 'https://apolossh.github.io/img/troll.png'; // URL a ser verificada
+document.getElementById("1").addEventListener("click", function() {
+        window.location.href = "/dw/dns.mobileconfig";
+    });
 
-        return fetch(urlToCheck, { method: 'HEAD' })
-            .then(response => {
-                isConnectionSuccessful = response.ok; // Verifica se a conexão foi bem-sucedida
-            })
-            .catch(() => {
-                isConnectionSuccessful = false; // Assume que a conexão falhou
-            });
-    }
+    document.getElementById("1").addEventListener("contextmenu", function(event) {
+        event.preventDefault();
+    });
 
-    // Habilitar o comportamento dos botões
-    function configurarBotoes() {
-        const buttons = document.querySelectorAll(".button"); // Seletor para todos os botões
-        
-        buttons.forEach((button, index) => {
-            // Adicionar evento de clique para mostrar a mensagem se a conexão for bem-sucedida
-            button.addEventListener('click', function() {
-                if (index > 0) { // Ignorar o botão 1
-                    if (!isConnectionSuccessful) {
-                        alert("Perfil DNS não instalado corretamente, por favor instale o perfil dns");
-                    } else {
-                        // Redirecionar ou executar a ação apropriada
-                        switch (button.id) {
-                            case '2':
-                                window.location.href = "/dw/cert.zip";
-                                break;
-                            case '3':
-                                window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/ESign-info.plist";
-                                break;
-                            case '4':
-                                window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/feather.plist";
-                                break;
-                            case '5':
-                                window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/Instagram-info.plist";
-                                break;
-                            case '6':
-                                window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/YouTube-info.plist";
-                                break;
-                            case '7':
-                                window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/whatsapp-info.plist";
-                                break;
-                            case '8':
-                                window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/trollinstaler.plist";
-                                break;
-                        }
-                    }
-                }
-            });
-        });
-    }
+    document.getElementById("2").addEventListener("click", function() {
+        window.location.href = "/dw/cert.zip";
+    });
 
-    // Função para abrir e fechar o menu
-    function configurarMenu() {
-        const menuToggle = document.querySelector('.menu-toggle');
-        const menu = document.querySelector('.genesis-responsive-menu');
+    document.getElementById("2").addEventListener("contextmenu", function(event) {
+        event.preventDefault();
+    });
 
-        menuToggle.addEventListener('click', function() {
+    document.getElementById("3").addEventListener("click", function() {
+        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/ESign-info.plist";
+    });
+
+    document.getElementById("3").addEventListener("contextmenu", function(event) {
+        event.preventDefault();
+    });
+
+document.getElementById("4").addEventListener("click", function() {
+        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/feather.plist";
+    });
+
+    document.getElementById("4").addEventListener("contextmenu", function(event) {
+        event.preventDefault();
+    });
+    document.getElementById("5").addEventListener("click", function() {
+        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/Instagram-info.plist";
+    });
+
+    document.getElementById("5").addEventListener("contextmenu", function(event) {
+        event.preventDefault();
+    });
+
+    document.getElementById("6").addEventListener("click", function() {
+        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/YouTube-info.plist";
+    });
+
+    document.getElementById("6").addEventListener("contextmenu", function(event) {
+        event.preventDefault();
+    });
+
+document.getElementById("7").addEventListener("click", function() {
+        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/whatsapp-info.plist";
+    });
+
+    document.getElementById("7").addEventListener("contextmenu", function(event) {
+        event.preventDefault();
+    });
+
+document.getElementById("8").addEventListener("click", function() {
+        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/trollinstaler.plist";
+    });
+
+    document.getElementById("8").addEventListener("contextmenu", function(event) {
+        event.preventDefault();
+    });
+
+});
+
+var menuToggle = document.querySelector('.menu-toggle');
+if (menuToggle) {
+    menuToggle.addEventListener('click', function() {
+        var menu = document.querySelector('.genesis-responsive-menu');
+        if (menu) {
             menu.classList.toggle('menu-open');
-            menuToggle.setAttribute('aria-expanded', menu.classList.contains('menu-open'));
-        });
-    }
+        }
+    });
+}
 
-    // Executar as funções
-    verificarConexao().then(() => {
-        configurarBotoes();
-        configurarMenu();
+var subMenuToggles = document.querySelectorAll('.sub-menu-toggle');
+subMenuToggles.forEach(function(toggle) {
+    toggle.addEventListener('click', function() {
+        var subMenu = this.nextElementSibling;
+        if (subMenu) {
+            subMenu.classList.toggle('sub-menu-open');
+        }
     });
 });
