@@ -40,7 +40,7 @@ body {
     text-decoration: none;
     cursor: pointer;
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    touch-action: manipulation; /* Desativa o zoom de dois toques */
+    touch-action: manipulation;
 }
 
 .button:hover {
@@ -69,9 +69,8 @@ body {
     }
 }
 
-/* Estilos para o menu responsivo */
 .menu-toggle {
-    display: none; /* Escondido por padrão, será mostrado via JavaScript em telas menores */
+    display: none;
     background-color: var(--cor-fundo-botao);
     color: var(--cor-texto-botao);
     padding: 10px 15px;
@@ -79,11 +78,11 @@ body {
     border-radius: 10px;
     margin-bottom: 10px;
     cursor: pointer;
-    touch-action: manipulation; /* Desativa o zoom de dois toques */
+    touch-action: manipulation;
 }
 
 .genesis-responsive-menu {
-    display: none; /* Escondido por padrão, será mostrado quando o botão do menu for clicado */
+    display: none;
     background-color: var(--cor-fundo-botao);
     color: var(--cor-texto-botao);
     padding: 10px 0;
@@ -106,19 +105,12 @@ body {
     display: block;
 }
 
-/* Classe para mostrar o menu quando o botão do menu é clicado */
 .menu-open {
     display: block;
 }
 
-/* Mostrar o botão do menu em telas menores */
 @media only screen and (max-width: 600px) {
     .menu-toggle {
         display: block;
     }
-}
-
-/* Ocultar o conteúdo principal por padrão */
-#conteudoPrincipal {
-    display: none;
 }
