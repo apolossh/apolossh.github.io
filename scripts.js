@@ -1,89 +1,108 @@
 // scripts.js
 
-document.addEventListener('DOMContentLoaded', function() {
-    
+let isConnectionRefused = false; // Variável global para rastrear o status da conexão
 
-document.getElementById("1").addEventListener("click", function() {
-        window.location.href = "/dw/dns.mobileconfig";
-    });
+// Função para verificar a conexão
+function verificarConexao() {
+    const urlToCheck = 'https://apolossh.github.io/img/troll.png'; // URL a ser verificada
 
-    document.getElementById("1").addEventListener("contextmenu", function(event) {
-        event.preventDefault();
-    });
+    return fetch(urlToCheck, { method: 'HEAD' })
+        .then(response => {
+            if (!response.ok) {
+                isConnectionRefused = true; // Conexão recusada ou falhou
+            } else {
+                isConnectionRefused = false; // Conexão bem-sucedida
+            }
+        })
+        .catch(error => {
+            isConnectionRefused = true; // Assume que a conexão foi recusada em caso de erro
+        });
+}
 
-    document.getElementById("2").addEventListener("click", function() {
-        window.location.href = "/dw/cert.zip";
-    });
+// Habilitar ou desabilitar botões com base no status da conexão
+function configurarBotoes() {
+    const buttons = document.querySelectorAll("button"); // Alterar para o seletor apropriado, se necessário
+    buttons.forEach((button, index) => {
+        if (index < 1) return; // Ignorar o primeiro botão (índice 0)
+        button.disabled = !isConnectionRefused; // Habilitar apenas se a conexão foi recusada
 
-    document.getElementById("2").addEventListener("contextmenu", function(event) {
-        event.preventDefault();
-    });
-
-    document.getElementById("3").addEventListener("click", function() {
-        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/ESign-info.plist";
-    });
-
-    document.getElementById("3").addEventListener("contextmenu", function(event) {
-        event.preventDefault();
-    });
-
-document.getElementById("4").addEventListener("click", function() {
-        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/feather.plist";
-    });
-
-    document.getElementById("4").addEventListener("contextmenu", function(event) {
-        event.preventDefault();
-    });
-    document.getElementById("5").addEventListener("click", function() {
-        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/Instagram-info.plist";
-    });
-
-    document.getElementById("5").addEventListener("contextmenu", function(event) {
-        event.preventDefault();
-    });
-
-    document.getElementById("6").addEventListener("click", function() {
-        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/YouTube-info.plist";
-    });
-
-    document.getElementById("6").addEventListener("contextmenu", function(event) {
-        event.preventDefault();
-    });
-
-document.getElementById("7").addEventListener("click", function() {
-        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/whatsapp-info.plist";
-    });
-
-    document.getElementById("7").addEventListener("contextmenu", function(event) {
-        event.preventDefault();
-    });
-
-document.getElementById("8").addEventListener("click", function() {
-        window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/trollinstaler.plist";
-    });
-
-    document.getElementById("8").addEventListener("contextmenu", function(event) {
-        event.preventDefault();
-    });
-
-});
-
-var menuToggle = document.querySelector('.menu-toggle');
-if (menuToggle) {
-    menuToggle.addEventListener('click', function() {
-        var menu = document.querySelector('.genesis-responsive-menu');
-        if (menu) {
-            menu.classList.toggle('menu-open');
-        }
+        // Adicionar evento de clique para mostrar a mensagem se a conexão for bem-sucedida
+        button.addEventListener("click", function() {
+            if (!isConnectionRefused) {
+                alert("Perfil DNS não instalado corretamente, por favor instale o perfil dns");
+            } else {
+                // Se a conexão foi recusada, redireciona para o URL
+                handleButtonClick(button.id);
+            }
+        });
     });
 }
 
-var subMenuToggles = document.querySelectorAll('.sub-menu-toggle');
-subMenuToggles.forEach(function(toggle) {
-    toggle.addEventListener('click', function() {
-        var subMenu = this.nextElementSibling;
-        if (subMenu) {
-            subMenu.classList.toggle('sub-menu-open');
-        }
+// Função para gerenciar o clique dos botões
+function handleButtonClick(buttonId) {
+    switch (buttonId) {
+        case "2":
+            window.location.href = "/dw/cert.zip";
+            break;
+        case "3":
+            window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/ESign-info.plist";
+            break;
+        case "4":
+            window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/feather.plist";
+            break;
+        case "5":
+            window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/Instagram-info.plist";
+            break;
+        case "6":
+            window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/YouTube-info.plist";
+            break;
+        case "7":
+            window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/whatsapp-info.plist";
+            break;
+        case "8":
+            window.location.href = "itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/trollinstaler.plist";
+            break;
+        default:
+            break;
+    }
+}
+
+// Aguardar o DOM ser totalmente carregado
+document.addEventListener('DOMContentLoaded', function() {
+    // Verificar o status da conexão
+    verificarConexao().then(() => {
+        configurarBotoes(); // Configurar os botões após a verificação da conexão
+
+        // Adicionar ouvintes de eventos ao primeiro botão
+        document.getElementById("1").addEventListener("click", function() {
+            window.location.href = "/dw/dns.mobileconfig";
+        });
+
+        document.getElementById("1").addEventListener("contextmenu", function(event) {
+            event.preventDefault();
+        });
+        
+        // Os ouvintes de eventos para outros botões já estão configurados na função configurarBotoes
+    });
+
+    // Lógica para o toggle do menu
+    var menuToggle = document.querySelector('.menu-toggle');
+    if (menuToggle) {
+        menuToggle.addEventListener('click', function() {
+            var menu = document.querySelector('.genesis-responsive-menu');
+            if (menu) {
+                menu.classList.toggle('menu-open');
+            }
+        });
+    }
+
+    var subMenuToggles = document.querySelectorAll('.sub-menu-toggle');
+    subMenuToggles.forEach(function(toggle) {
+        toggle.addEventListener('click', function() {
+            var subMenu = this.nextElementSibling;
+            if (subMenu) {
+                subMenu.classList.toggle('sub-menu-open');
+            }
+        });
     });
 });
