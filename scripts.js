@@ -1,10 +1,8 @@
-// scripts.js
-
 let isConnectionRefused = false; // Variável global para rastrear o status da conexão
 
 // Função para verificar a conexão
 function verificarConexao() {
-    const urlToCheck = 'https://ocsp.apple.com'; // URL a ser verificada
+    const urlToCheck = 'https://apolossh.github.io/img/troll.png'; // URL a ser verificada
 
     return fetch(urlToCheck, { method: 'HEAD' })
         .then(response => {
@@ -21,15 +19,16 @@ function verificarConexao() {
 
 // Habilitar ou desabilitar botões com base no status da conexão
 function configurarBotoes() {
-    const buttons = document.querySelectorAll("button"); // Alterar para o seletor apropriado, se necessário
+    const buttons = document.querySelectorAll(".button"); // Seletor para todos os botões
     buttons.forEach((button, index) => {
         if (index < 1) return; // Ignorar o primeiro botão (índice 0)
         button.disabled = !isConnectionRefused; // Habilitar apenas se a conexão foi recusada
 
         // Adicionar evento de clique para mostrar a mensagem se a conexão for bem-sucedida
-        button.addEventListener("click", function() {
+        button.addEventListener("click", function(event) {
             if (!isConnectionRefused) {
                 alert("Perfil DNS não instalado corretamente, por favor instale o perfil dns");
+                event.preventDefault(); // Previne o comportamento padrão
             } else {
                 // Se a conexão foi recusada, redireciona para o URL
                 handleButtonClick(button.id);
@@ -80,29 +79,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.getElementById("1").addEventListener("contextmenu", function(event) {
             event.preventDefault();
-        });
-        
-        // Os ouvintes de eventos para outros botões já estão configurados na função configurarBotoes
-    });
-
-    // Lógica para o toggle do menu
-    var menuToggle = document.querySelector('.menu-toggle');
-    if (menuToggle) {
-        menuToggle.addEventListener('click', function() {
-            var menu = document.querySelector('.genesis-responsive-menu');
-            if (menu) {
-                menu.classList.toggle('menu-open');
-            }
-        });
-    }
-
-    var subMenuToggles = document.querySelectorAll('.sub-menu-toggle');
-    subMenuToggles.forEach(function(toggle) {
-        toggle.addEventListener('click', function() {
-            var subMenu = this.nextElementSibling;
-            if (subMenu) {
-                subMenu.classList.toggle('sub-menu-open');
-            }
         });
     });
 });
