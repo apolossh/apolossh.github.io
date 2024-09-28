@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change P12 Password</title>
+    <link rel="icon" href="/assets/images/favicon.png" type="image/x-icon">
+    <meta content='NhutGG' name='author' />
+    <meta content='15' name='revisit-after' />
+    <meta content='VN' name='language' />
+    <meta content='© 2024 NhutGG' name='copyright' />
+    <meta content='All' name='robots' />
+    <meta property="fb:app_id" content="" />
+    <meta property="fb:admins" content="" />
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+ 
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+ 
+    <!-- Custom CSS for styling -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+ 
+        .container {
+            margin-top: 50px;
+            max-width: 600px;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+ 
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
+            color: #007bff;
+        }
+ 
+        .form-label {
+            font-weight: bold;
+        }
+ 
+        #message {
+            margin-top: 20px;
+            display: none;
+        }
+ 
+        /* Thêm hiệu ứng viền cho thông báo */
+        .message-success {
+            border: 2px solid #28a745;
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+        }
+ 
+        .message-error {
+            border: 2px solid #dc3545;
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+        }
+ 
+        .btn-secondary {
+            --bs-btn-color: #fff;
+            --bs-btn-bg: #c03c3c;
+            --bs-btn-border-color: #6c757d;
+            --bs-btn-hover-color: #fff;
+            --bs-btn-hover-bg: #5c636a;
+            --bs-btn-hover-border-color: #565e64;
+        }
+    </style>
+</head>
+ 
+<body>
+ 
+    <div class="container">
+        <!-- Hàng chứa các nút -->
+        <div class="row mb-3">
+            <div class="col">
+                <a href="check-p12" class="btn btn-secondary w-100">Check Cert</a>
+            </div>
+            <div class="col">
+                <a href="https://nhutgg.com/list-certificate" class="btn btn-secondary w-100">Cert Free</a>
+            </div>
+            <div class="col">
+                <a href="https://udid.vn/" class="btn btn-secondary w-100">Buy Cert</a>
+            </div>
+        </div>
+        <!-- Form thay đổi mật khẩu -->
+        <h1>Change Password for P12 Certificate</h1>
+ 
+        <form id="change-password-form" method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="old_password" class="form-label">Current Password:</label>
+                <input type="password" id="old_password" name="old_password" class="form-control" required>
+            </div>
+ 
+            <div class="mb-3">
+                <label for="new_password" class="form-label">New Password (or leave as '1'):</label>
+                <input type="password" id="new_password" name="new_password" class="form-control" placeholder="1">
+            </div>
+ 
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="showPassword">
+                <label class="form-check-label" for="showPassword">Show Password</label>
+            </div>
+ 
+            <div class="mb-3">
+                <label for="p12_file" class="form-label">Upload .p12 file:</label>
+                <input type="file" name="p12_file" class="form-control" accept=".p12" required>
+            </div>
+ 
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Change Password</button>
+            </div>
+        </form>
+ 
+        <!-- Vùng thông báo -->
+        <div id="message"></div>
+ 
+ 
+ 
+    </div>
+ 
+    <!-- Bootstrap JS và Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+ 
+    <!-- Custom Script -->
+    <script>
+        $(document).ready(function() {
+            // Toggle show/hide password functionality
+            $('#showPassword').on('change', function() {
+                var passwordFields = ['#old_password', '#new_password'];
+                passwordFields.forEach(function(field) {
+                    var input = $(field);
+                    if (input.attr('type') === 'password') {
+                        input.attr('type', 'text');
+                    } else {
+                        input.attr('type', 'password');
+                    }
+                });
+            });
+ 
+            // Reload the page after successful password change
+            if ($('#message').hasClass('message-success')) {
+                setTimeout(function() {
+                    window.location.reload();
+                }, 2000); // Reloads the page after 2 seconds
+            }
+        });
+    </script>
+ 
+ 
+</body>
+ 
+</html>
