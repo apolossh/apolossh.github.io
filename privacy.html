@@ -4,62 +4,127 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Política de Privacidade</title>
+    <title>Política de Privacidade - App de Reprodução de Listas M3U</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 0;
+            padding: 20px;
             background-color: #f4f4f4;
-            color: #333;
         }
         .container {
-            width: 90%;
             max-width: 800px;
-            margin: 50px auto;
+            margin: 0 auto;
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         h1 {
-            text-align: center;
             color: #333;
         }
         p {
             line-height: 1.6;
+            color: #666;
         }
         h2 {
             color: #555;
             margin-top: 20px;
         }
+        .email-button {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .email-button:hover {
+            background-color: #45a049;
+        }
     </style>
+    <script>
+        function detectLanguage() {
+            var userLang = navigator.language || navigator.userLanguage;
+            if (userLang.startsWith("en")) {
+                document.getElementById("content-en").style.display = "block";
+                document.getElementById("content-pt").style.display = "none";
+            } else {
+                document.getElementById("content-en").style.display = "none";
+                document.getElementById("content-pt").style.display = "block";
+            }
+        }
+    </script>
 </head>
-<body>
-    <div class="container">
+<body onload="detectLanguage()">
+    <div class="container" id="content-pt">
         <h1>Política de Privacidade</h1>
+        <p>Esta política de privacidade descreve como o aplicativo <strong>ATIVA PLAY</strong>, desenvolvido por <strong>Laércio</strong>, lida com dados pessoais e sensíveis dos usuários em conformidade com as políticas do Google Play. Nosso compromisso é respeitar a privacidade dos nossos usuários e proteger qualquer dado pessoal que o aplicativo possa acessar.</p>
 
-        <p>Esta política de privacidade foi criada para explicar como tratamos as informações pessoais dos usuários que utilizam o aplicativo **Reprodutor de Listas M3U**.</p>
+        <h2>1. Informações Coletadas</h2>
+        <p>O aplicativo <strong>ATIVA PLAY</strong> não coleta diretamente dados pessoais ou sensíveis dos usuários. Nosso aplicativo é voltado apenas para a reprodução de listas M3U fornecidas pelos próprios usuários. Nós não armazenamos, coletamos ou processamos dados como nomes, endereços de e-mail, números de telefone ou qualquer outro tipo de dado pessoal.</p>
 
-        <h2>1. Coleta de Informações</h2>
-        <p>Nosso aplicativo **não coleta** informações pessoais automaticamente. O aplicativo permite o carregamento de arquivos e URLs pelo usuário, mas essas informações são exclusivamente armazenadas no dispositivo do usuário e não são coletadas ou transmitidas para nós.</p>
+        <h2>2. Permissões e Acesso a Dados</h2>
+        <p>Para funcionar corretamente, o aplicativo pode solicitar permissões para acessar o armazenamento do dispositivo, o que permite carregar listas M3U armazenadas localmente. Esta permissão é utilizada apenas para a funcionalidade de reprodução de arquivos e não coletamos ou compartilhamos nenhuma informação obtida dessa forma.</p>
 
-        <h2>2. Uso de Informações</h2>
-        <p>O aplicativo apenas utiliza os arquivos e URLs fornecidos pelos próprios usuários para fins de reprodução de mídia. Nenhuma informação fornecida é compartilhada com terceiros.</p>
+        <h2>3. Compartilhamento de Dados</h2>
+        <p>O aplicativo <strong>ATIVA PLAY</strong> não compartilha qualquer dado pessoal ou sensível dos usuários com terceiros. O aplicativo apenas reproduz listas de conteúdo M3U fornecidas pelos próprios usuários e não coleta ou armazena informações a respeito desse conteúdo.</p>
 
-        <h2>3. Segurança</h2>
-        <p>Valorizamos sua confiança ao nos fornecer suas informações locais, portanto estamos nos esforçando para usar meios de proteção aceitáveis. No entanto, lembre-se de que nenhum método de transmissão pela Internet ou de armazenamento eletrônico é 100% seguro e confiável, e não podemos garantir sua segurança absoluta.</p>
+        <h2>4. Compromisso Contra Pirataria</h2>
+        <p>O <strong>ATIVA PLAY</strong> tem um compromisso firme contra a pirataria. Nosso aplicativo é uma plataforma de reprodução de listas M3U fornecidas pelos próprios usuários, e não oferecemos, hospedamos ou promovemos qualquer conteúdo protegido por direitos autorais de forma ilegal. Os usuários são totalmente responsáveis pelo conteúdo das listas que utilizam e devem garantir que possuem os direitos legais para acessar e reproduzir o conteúdo incluído em suas listas.</p>
+        <p>Qualquer uso do aplicativo para fins de pirataria ou violação de direitos autorais é estritamente proibido. Se detectarmos qualquer atividade ilegal, tomaremos as medidas apropriadas, que podem incluir a remoção do conteúdo e o banimento do usuário.</p>
 
-        <h2>4. Links para Sites Externos</h2>
-        <p>Nosso aplicativo pode conter links para outros sites. Se você clicar em um link de terceiros, será direcionado para esse site. Esses sites externos não são operados por nós, e recomendamos que você reveja a política de privacidade desses sites. Não temos controle e não assumimos responsabilidade pelo conteúdo, políticas de privacidade ou práticas de sites ou serviços de terceiros.</p>
+        <h2>5. Política de Retenção de Dados</h2>
+        <p>Como o aplicativo não coleta dados pessoais ou sensíveis, não há retenção de dados a ser considerada. Todos os dados acessados temporariamente pelo aplicativo são armazenados localmente no dispositivo e não são transmitidos ou armazenados em nossos servidores.</p>
 
-        <h2>5. Alterações a Esta Política de Privacidade</h2>
-        <p>Podemos atualizar nossa política de privacidade de tempos em tempos. Recomendamos que você revise esta página periodicamente para verificar quaisquer mudanças. Alterações nesta política entram em vigor imediatamente após serem publicadas nesta página.</p>
+        <h2>6. Segurança</h2>
+        <p>Valorizamos a sua confiança em nos fornecer o acesso ao armazenamento do seu dispositivo. Utilizamos medidas padrão de segurança para proteger a integridade do aplicativo e garantir que qualquer dado acessado (como as listas M3U) não seja compartilhado ou comprometido.</p>
 
-        <h2>6. Contato</h2>
-        <p>Se você tiver alguma dúvida ou sugestão sobre nossa política de privacidade, entre em contato conosco através do e-mail: <strong>laercio230277@gmail.com</strong>.</p>
+        <h2>7. Alterações a Esta Política</h2>
+        <p>Poderemos atualizar esta política de privacidade de tempos em tempos. Assim, recomendamos que você reveja esta página periodicamente para qualquer mudança. Estas alterações entram em vigor imediatamente após serem postadas nesta página.</p>
 
-        <p>Esta política é válida a partir de 21/10/2024.</p>
+        <h2>8. Contato</h2>
+        <p>Se você tiver quaisquer perguntas ou sugestões sobre nossa política de privacidade, entre em contato com <strong>Laércio</strong> através do botão abaixo:</p>
+        
+        <a href="mailto:laercio230277@gmail.com" class="email-button">Entrar em Contato</a>
+
+        <p>Última atualização: 22 de outubro de 2024</p>
+    </div>
+
+    <div class="container" id="content-en" style="display: none;">
+        <h1>Privacy Policy</h1>
+        <p>This privacy policy describes how the <strong>ATIVA PLAY</strong> app, developed by <strong>Laércio</strong>, handles personal and sensitive user data in accordance with Google Play policies. We are committed to respecting our users' privacy and protecting any personal data the app may access.</p>
+
+        <h2>1. Information Collected</h2>
+        <p>The <strong>ATIVA PLAY</strong> app does not directly collect personal or sensitive user data. Our app is focused solely on playing M3U playlists provided by users themselves. We do not store, collect, or process any personal data such as names, email addresses, phone numbers, or any other personal information.</p>
+
+        <h2>2. Permissions and Data Access</h2>
+        <p>To function properly, the app may request permission to access the device's storage, which allows loading locally stored M3U playlists. This permission is used solely for file playback functionality, and we do not collect or share any information obtained in this way.</p>
+
+        <h2>3. Data Sharing</h2>
+        <p>The <strong>ATIVA PLAY</strong> app does not share any personal or sensitive user data with third parties. The app simply plays content from M3U playlists provided by users and does not collect or store information about this content.</p>
+
+        <h2>4. Anti-Piracy Commitment</h2>
+        <p>The <strong>ATIVA PLAY</strong> app has a strong commitment against piracy. Our app is a platform for playing M3U playlists provided by users, and we do not offer, host, or promote any illegal copyrighted content. Users are fully responsible for the content of the playlists they use and must ensure they have the legal rights to access and play the content included in their playlists.</p>
+        <p>Any use of the app for piracy or copyright infringement is strictly prohibited. If we detect any illegal activity, we will take appropriate action, which may include removing content and banning the user.</p>
+
+        <h2>5. Data Retention Policy</h2>
+        <p>Since the app does not collect personal or sensitive data, there is no data retention policy to consider. All data temporarily accessed by the app is stored locally on the device and is not transmitted or stored on our servers.</p>
+
+        <h2>6. Security</h2>
+        <p>We value your trust in providing us access to your device's storage. We use standard security measures to protect the app's integrity and ensure that any accessed data (such as M3U playlists) is not shared or compromised.</p>
+
+        <h2>7. Changes to This Policy</h2>
+        <p>We may update this privacy policy from time to time. Thus, we recommend that you review this page periodically for any changes. These changes are effective immediately after being posted on this page.</p>
+
+        <h2>8. Contact</h2>
+        <p>If you have any questions or suggestions about our privacy policy, feel free to contact <strong>Laércio</strong> using the button below:</p>
+        
+        <a href="mailto:laercio230277@gmail.com" class="email-button">Contact Us</a>
+
+        <p>Last updated: October 22, 2024</p>
     </div>
 </body>
 </html>
