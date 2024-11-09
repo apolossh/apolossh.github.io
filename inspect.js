@@ -12,23 +12,23 @@
 
         // Função para detectar a abertura do inspetor de código ou ferramentas de desenvolvedor
         function detectDevTools() {
-            // Verifica se o tamanho da janela foi alterado significativamente
-            try {
-                if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
-                    if (!devToolsOpen) {
-                        devToolsOpen = true;
-                        console.log("Inspetor de código foi aberto!");
-                        alert("Inspetor de código foi aberto!");
-                        reloadPage(); // Atualiza a página
-                    }
-                } else {
-                    if (devToolsOpen) {
-                        devToolsOpen = false;
-                        console.log("Inspetor de código foi fechado!");
-                    }
+            // Verifica mudanças no tamanho da janela
+            const widthChange = window.outerWidth - window.innerWidth;
+            const heightChange = window.outerHeight - window.innerHeight;
+            
+            // Se a diferença no tamanho da janela for maior que 100px, pode indicar que o inspetor está aberto
+            if (widthChange > 100 || heightChange > 100) {
+                if (!devToolsOpen) {
+                    devToolsOpen = true;
+                    console.log("Inspetor de código foi aberto!");
+                    alert("Inspetor de código foi aberto!");
+                    reloadPage(); // Atualiza a página
                 }
-            } catch (e) {
-                console.error("Erro ao tentar acessar propriedades de leitura", e);
+            } else {
+                if (devToolsOpen) {
+                    devToolsOpen = false;
+                    console.log("Inspetor de código foi fechado!");
+                }
             }
         }
 
