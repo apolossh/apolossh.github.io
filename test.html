@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Detecção de Inspetor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+        }
+        h1 {
+            font-size: 24px;
+        }
+        p {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bem-vindo ao Teste de Detecção de Inspetor</h1>
+        <p>A página vai verificar automaticamente quando você abrir o inspetor de código ou ativar o depurador!</p>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            let devToolsOpen = false;
+
+            // Função para verificar se o inspetor de código foi aberto
+            function detectDevTools() {
+                const widthDifference = window.outerWidth - window.innerWidth;
+                const heightDifference = window.outerHeight - window.innerHeight;
+
+                // Considerar que o inspetor foi aberto quando a diferença for maior que um limite
+                if (widthDifference > 200 || heightDifference > 100) {
+                    if (!devToolsOpen) {
+                        devToolsOpen = true;
+                        console.log("Inspetor de código aberto!");
+                        window.location.replace('about:blank'); // Redireciona para uma página em branco
+                    }
+                } else {
+                    if (devToolsOpen) {
+                        devToolsOpen = false;
+                        console.log("Inspetor de código fechado!");
+                    }
+                }
+            }
+
+            // Função para detectar se o depurador foi ativado (usando 'debugger' para interrupção da execução)
+            function detectDebugger() {
+                const start = new Date().getTime();
+                debugger; // A instrução 'debugger' faz o código parar caso o depurador esteja aberto
+                const end = new Date().getTime();
+
+                // Se a execução foi pausada por mais de 100ms, provavelmente o depurador foi ativado
+                if (end - start > 100) {
+                    console.log("Depurador detectado!");
+                    window.location.replace('about:blank'); // Redireciona para uma página em branco
+                }
+            }
+
+            // Verificação contínua de mudanças no tamanho da janela
+            window.addEventListener('resize', detectDevTools);
+
+            // Acompanhar as mudanças na abertura do inspetor
+            setInterval(detectDevTools, 1000);
+
+            // Verificar se o depurador foi ativado a cada segundo
+            setInterval(detectDebugger, 1000);
+        })();
+    </script>
+</body>
+</html>
