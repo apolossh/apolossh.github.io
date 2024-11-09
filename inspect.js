@@ -2,7 +2,7 @@
     (function() {
         'use strict';
 
-        let codeSourceOpened = false;
+        let devToolsOpen = false;
         let pageLoaded = false;
 
         // Aguardar o carregamento completo da página
@@ -10,25 +10,26 @@
             pageLoaded = true;
         });
 
-        // Função para detectar quando o código-fonte é visualizado
-        function checkCodeSource() {
-            if (pageLoaded && !codeSourceOpened) {
-                try {
-                    const htmlContent = document.documentElement.outerHTML;
-                    if (htmlContent.includes('<html>') && htmlContent.includes('</html>')) {
-                        // Se detectar que o conteúdo está sendo visualizado
-                        codeSourceOpened = true;
-                        console.log("Você abriu o código-fonte da página!");
-                        alert("Você abriu o código-fonte da página!");
-                    }
-                } catch (e) {
-                    // Ignora erros caso não consiga acessar o conteúdo da página
+        // Função para verificar se o inspetor foi aberto
+        function checkDevTools() {
+            // Verifica se a largura ou altura da janela diminui significativamente
+            if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
+                if (!devToolsOpen) {
+                    devToolsOpen = true;
+                    console.log("Inspetor de código foi aberto!");
+                    alert("Inspetor de código foi aberto!");
+                }
+            } else {
+                if (devToolsOpen) {
+                    devToolsOpen = false;
+                    console.log("Inspetor de código foi fechado!");
+                    alert("Inspetor de código foi fechado!");
                 }
             }
         }
 
-        // Verificar a cada 1000ms (1 segundo)
-        setInterval(checkCodeSource, 1000);
+        // Verificar a cada 1000ms (1 segundo) para detectar mudanças no inspetor
+        setInterval(checkDevTools, 1000);
 
     })();
 </script>
