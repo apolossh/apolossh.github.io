@@ -37,13 +37,16 @@
 
             let devToolsOpen = false;
 
-            // Função para verificar se o inspetor de código foi aberto
+            // Função para detectar se o inspetor foi aberto
             function detectDevTools() {
+                const start = new Date().getTime();
+                
+                // Usando a técnica de verificar a diferença no tamanho da janela quando o devtools está aberto
                 const widthDifference = window.outerWidth - window.innerWidth;
                 const heightDifference = window.outerHeight - window.innerHeight;
-
-                // Se a diferença de tamanho for maior do que um limite, pode indicar que o inspetor foi aberto
-                if (widthDifference > 150 || heightDifference > 150) {
+                
+                // Definindo um limite mais baixo para a diferença de largura e altura
+                if (widthDifference > 200 || heightDifference > 150) {
                     if (!devToolsOpen) {
                         devToolsOpen = true;
                         console.log("Inspetor de código aberto!");
@@ -73,10 +76,10 @@
             // Adiciona o evento de resize para verificar quando a janela é redimensionada
             window.addEventListener('resize', detectDevTools);
 
-            // Detecta continuamente alterações no inspetor a cada segundo
+            // Detecta continuamente alterações no inspetor a cada 1 segundo
             setInterval(detectDevTools, 1000);
 
-            // Verifica o depurador a cada segundo
+            // Verifica o depurador a cada 1 segundo
             setInterval(detectDebugger, 1000);
         })();
     </script>
