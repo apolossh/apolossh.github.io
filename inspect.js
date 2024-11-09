@@ -4,8 +4,6 @@
 
         let devToolsOpen = false;
         let pageLoaded = false;
-        let lastWidth = window.outerWidth;
-        let lastHeight = window.outerHeight;
 
         // Aguardar o carregamento completo da página
         window.addEventListener('load', () => {
@@ -14,19 +12,23 @@
 
         // Função para detectar a abertura do inspetor de código ou ferramentas de desenvolvedor
         function detectDevTools() {
-            // Verifica se o tamanho da janela foi reduzido, o que pode indicar que as ferramentas de desenvolvedor foram abertas
-            if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
-                if (!devToolsOpen) {
-                    devToolsOpen = true;
-                    console.log("Inspetor de código foi aberto!");
-                    alert("Inspetor de código foi aberto!");
-                    logoutUser(); // Função que desconecta o usuário
+            // Verifica se o tamanho da janela foi alterado significativamente
+            try {
+                if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 100) {
+                    if (!devToolsOpen) {
+                        devToolsOpen = true;
+                        console.log("Inspetor de código foi aberto!");
+                        alert("Inspetor de código foi aberto!");
+                        reloadPage(); // Atualiza a página
+                    }
+                } else {
+                    if (devToolsOpen) {
+                        devToolsOpen = false;
+                        console.log("Inspetor de código foi fechado!");
+                    }
                 }
-            } else {
-                if (devToolsOpen) {
-                    devToolsOpen = false;
-                    console.log("Inspetor de código foi fechado!");
-                }
+            } catch (e) {
+                console.error("Erro ao tentar acessar propriedades de leitura", e);
             }
         }
 
@@ -36,7 +38,7 @@
                 for(const mutation of mutationsList) {
                     if (mutation.type === 'attributes' || mutation.type === 'childList') {
                         console.log('Mudança detectada no DOM!', mutation);
-                        logoutUser(); // Desconecta o usuário
+                        reloadPage(); // Atualiza a página
                     }
                 }
             });
@@ -52,17 +54,14 @@
             const end = new Date().getTime();
             
             if (end - start > 100) {  // Se a execução foi pausada por mais de 100ms, provavelmente o depurador foi ativado
-                console.log("Depurador detectado! Desconectando...");
-                logoutUser(); // Função que desconecta o usuário
+                console.log("Depurador detectado! Atualizando página...");
+                reloadPage(); // Atualiza a página
             }
         }
 
-        // Função que pode ser chamada para desconectar o usuário ou realizar ações específicas
-        function logoutUser() {
-            console.log('Desconectando...');
-            // Aqui você pode implementar a desconexão do usuário ou redirecionamento
-            window.location.href = '/logout'; // Redireciona para a página de logout
-            // Ou qualquer outro comportamento que você prefira, como fechar a sessão.
+        // Função que pode ser chamada para atualizar a página
+        function reloadPage() {
+            location.reload(); // Recarrega a página
         }
 
         // Iniciar a verificação de ferramentas de desenvolvedor a cada 1 segundo
