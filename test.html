@@ -36,9 +36,21 @@
             'use strict';
 
             let devToolsOpen = false;
+            let mobileDevice = false;
 
-            // Função para verificar se o inspetor de código foi aberto
+            // Verificar se é um dispositivo móvel
+            function isMobileDevice() {
+                const userAgent = navigator.userAgent.toLowerCase();
+                return /android|iphone|ipad|mobile/.test(userAgent);
+            }
+
+            // Detectar se o inspetor de código foi aberto
             function detectDevTools() {
+                if (isMobileDevice()) {
+                    // Evitar detecção em dispositivos móveis
+                    return;
+                }
+
                 const widthDifference = window.outerWidth - window.innerWidth;
                 const heightDifference = window.outerHeight - window.innerHeight;
 
@@ -57,7 +69,7 @@
                 }
             }
 
-            // Função para detectar se o depurador foi ativado (usando 'debugger' para interrupção da execução)
+            // Detectar se o depurador foi ativado (usando 'debugger' para interrupção da execução)
             function detectDebugger() {
                 const start = new Date().getTime();
                 debugger; // A instrução 'debugger' faz o código parar caso o depurador esteja aberto
@@ -78,6 +90,7 @@
 
             // Verificar se o depurador foi ativado a cada segundo
             setInterval(detectDebugger, 1000);
+
         })();
     </script>
 </body>
