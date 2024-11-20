@@ -1,5 +1,38 @@
 // scripts.js
+(function() {
+    'use strict';
 
+    let devToolsOpen = false;
+    const threshold = 160; // Limiar de largura para detectar alterações devido ao DevTools
+
+    // Função para detectar se o DevTools foi aberto
+    const detectDevTools = () => {
+        // Verifica se a largura externa da janela é maior que a interna
+        if (window.outerWidth - window.innerWidth > threshold) {
+            if (!devToolsOpen) {
+                devToolsOpen = true;
+                console.log('DevTools foi aberto!');
+            }
+        } else {
+            devToolsOpen = false;
+        }
+    };
+
+    // Verificar periodicamente a cada 1 segundo
+    setInterval(detectDevTools, 1000);
+
+    // Detecção de console do navegador
+    const detectConsole = () => {
+        const devTools = /./;
+        devTools.toString = function() {
+            console.log('DevTools foi aberto! (detecção de console)');
+        };
+        console.log('%c ', devTools); // Aciona o método .toString()
+    };
+
+    // Tenta detectar o DevTools via console
+    detectConsole();
+})();
 document.addEventListener('DOMContentLoaded', function() {
     
 
