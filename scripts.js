@@ -1,4 +1,5 @@
 // scripts.js
+
 (function() {
     'use strict';
 
@@ -33,6 +34,8 @@
     // Tenta detectar o DevTools via console
     detectConsole();
 })();
+
+// aaa
 document.addEventListener('DOMContentLoaded', function() {
     
 
