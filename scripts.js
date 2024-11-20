@@ -12,7 +12,7 @@
         if (window.outerWidth - window.innerWidth > threshold) {
             if (!devToolsOpen) {
                 devToolsOpen = true;
-                console.log('DevTools foi aberto!');
+                alert('DevTools foi aberto!');
             }
         } else {
             devToolsOpen = false;
@@ -26,7 +26,7 @@
     const detectConsole = () => {
         const devTools = /./;
         devTools.toString = function() {
-            console.log('DevTools foi aberto! (detecção de console)');
+            alert('DevTools foi aberto! (detecção de console)');
         };
         console.log('%c ', devTools); // Aciona o método .toString()
     };
