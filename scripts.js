@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
 
 document.getElementById("1").addEventListener("click", function() {
-        window.location.href = "/dw/dns.mobileconfig";
+        window.location.href = "/dw/dns_signed.mobileconfig";
     });
 
     document.getElementById("1").addEventListener("contextmenu", function(event) {
