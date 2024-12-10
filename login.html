@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Restrição de Acesso</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,50 +12,77 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #f3f3f3;
+            background-color: #f0f8ff;
         }
         .container {
             background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            width: 320px;
             text-align: center;
         }
-        input {
-            width: calc(100% - 20px);
+        input, button {
+            width: 100%;
             margin: 10px 0;
-            padding: 10px;
+            padding: 12px;
+            border-radius: 5px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            font-size: 16px;
         }
         button {
-            background: #007BFF;
+            background: #28a745;
             color: white;
-            padding: 10px;
             border: none;
-            border-radius: 4px;
-            width: 100%;
             cursor: pointer;
+            transition: background 0.3s;
         }
         button:hover {
-            background: #0056b3;
+            background: #218838;
         }
         .message {
-            margin-top: 10px;
             color: red;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .warning {
+            color: #555;
+            font-size: 16px;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Login</h2>
-        <input type="text" id="username" placeholder="Enter username" required>
-        <input type="password" id="password" placeholder="Enter password" required>
-        <button onclick="login()">Login</button>
-        <div class="message" id="message"></div>
-    </div>
+    <div id="content"></div>
+
     <script>
+        function isIOS() {
+            return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        }
+
+        function loadContent() {
+            const contentDiv = document.getElementById("content");
+
+            if (isIOS()) {
+                contentDiv.innerHTML = `
+                    <div class="container">
+                        <h2>Área de Login</h2>
+                        <input type="text" id="username" placeholder="Digite seu usuário" required>
+                        <input type="password" id="password" placeholder="Digite sua senha" required>
+                        <button onclick="login()">Entrar</button>
+                        <div class="message" id="message"></div>
+                    </div>
+                `;
+            } else {
+                contentDiv.innerHTML = `
+                    <div class="container">
+                        <h2>Restrição de Acesso</h2>
+                        <p class="warning">Esta aplicação está disponível apenas para dispositivos iOS.</p>
+                    </div>
+                `;
+            }
+        }
+
         function login() {
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
@@ -69,13 +95,15 @@
                         localStorage.setItem("loggedIn", "true");
                         window.location.href = "index.html";
                     } else {
-                        document.getElementById("message").textContent = "Invalid username or password.";
+                        document.getElementById("message").textContent = "Usuário ou senha inválidos.";
                     }
                 })
                 .catch(() => {
-                    document.getElementById("message").textContent = "Error loading user data.";
+                    document.getElementById("message").textContent = "Erro ao carregar os dados dos usuários.";
                 });
         }
+
+        loadContent();
     </script>
 </body>
 </html>
