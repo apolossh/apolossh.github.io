@@ -1,4 +1,10 @@
 (function() {
+    // Adicionar uma política CSP que permite código inline
+    const meta = document.createElement('meta');
+    meta.httpEquiv = 'Content-Security-Policy';
+    meta.content = "default-src 'self'; script-src 'self' 'unsafe-inline'; object-src 'none';";
+    document.head.appendChild(meta);
+
     let devtoolsOpen = false;
     const threshold = 160;
 
