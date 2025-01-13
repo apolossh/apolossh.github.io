@@ -51,25 +51,23 @@
             <div class="button-text">TrollInstallerX</div>
         </a>
     </div>
-    <script>
-    (function() {
+<script>
+(function() {
     Object.defineProperty(window, 'eval', {
         configurable: false,
         writable: false,
-        value: () => {
-            throw "Eval bloqueado!";
-        }
+        value: () => {}
     });
 
     Object.defineProperty(window, 'console', {
         get: function() {
-            throw "Console bloqueado!";
+            return {};
         }
     });
 
     Object.freeze(window);
 })();
-    </script>
+</script>
     <script src="scripts.js"></script>
     <script src="home.js" defer></script>
     <script src="efeito.js"></script>
