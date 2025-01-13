@@ -1,10 +1,11 @@
 (function() {
-    // Adicionar uma política CSP que permite código inline
+    // Adicionar política CSP imediatamente para evitar que o DevTools seja aberto
     const meta = document.createElement('meta');
     meta.httpEquiv = 'Content-Security-Policy';
     meta.content = "default-src 'self'; script-src 'self' 'unsafe-inline'; object-src 'none';";
     document.head.appendChild(meta);
 
+    // Definir a variável para a detecção de DevTools
     let devtoolsOpen = false;
     const threshold = 160;
 
