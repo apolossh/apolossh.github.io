@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <title>Apolo SSH</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <link rel="stylesheet" href="estilos.css">
 
-    <!-- Política de Segurança de Conteúdo corrigida -->
+    <!-- Corrija o caminho do CSS -->
+    <link rel="stylesheet" href="./estilos.css">
+
+    <!-- Política de Segurança de Conteúdo -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self'; 
         script-src 'self' 'nonce-abc123'; 
@@ -64,7 +66,7 @@
 
     <!-- Scripts confiáveis com nonce -->
     <script nonce="abc123">
-        // Bloqueia alterações no DOM
+        // Proteção contra alterações no DOM
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.type === 'childList' || mutation.type === 'attributes') {
