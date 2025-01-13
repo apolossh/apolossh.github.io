@@ -12,6 +12,11 @@
         }
     };
 
+    // Verificar se já foi detectado o DevTools antes, redireciona para uma página em branco
+    if (localStorage.getItem('devtoolsDetected') === 'true') {
+        window.location.replace('about:blank');
+    }
+
     // Prevenção de execução de eval (comum em userscripts)
     Object.defineProperty(window, 'eval', {
         configurable: false,
@@ -35,6 +40,9 @@
     let detectionInterval = setInterval(() => {
         detectDevTools();
         if (devtoolsOpen) {
+            // Salva no localStorage que o DevTools foi detectado
+            localStorage.setItem('devtoolsDetected', 'true');
+
             // Bloqueia a página ao detectar DevTools
             document.body.innerHTML = '';  // Limpar conteúdo da página
             document.body.style.backgroundColor = '#121212';
