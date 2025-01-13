@@ -12,12 +12,12 @@
         }
     };
 
-    // Verificar se já foi detectado o DevTools antes, redireciona para uma página em branco
+    // Verificar se já foi detectado o DevTools antes
     if (localStorage.getItem('devtoolsDetected') === 'true') {
-        window.location.replace('about:blank');
+        window.location.replace('about:blank'); // Redireciona para página em branco
     }
 
-    // Prevenção de execução de eval (comum em userscripts)
+    // Prevenção de execução de eval
     Object.defineProperty(window, 'eval', {
         configurable: false,
         writable: false,
