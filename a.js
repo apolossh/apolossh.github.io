@@ -12,22 +12,19 @@
         }
     };
 
-    // Prevenção de execução de eval
+    // Prevenção de execução de eval (comum em userscripts)
     Object.defineProperty(window, 'eval', {
         configurable: false,
         writable: false,
-        value: () => {}
+        value: () => {
+            throw "Eval bloqueado!";
+        }
     });
 
     // Prevenir o acesso ao console
     Object.defineProperty(window, 'console', {
         get: function() {
-            return {
-                log: () => {},
-                info: () => {},
-                warn: () => {},
-                error: () => {}
-            };
+            throw "Console bloqueado!";
         }
     });
 
@@ -38,8 +35,21 @@
     let detectionInterval = setInterval(() => {
         detectDevTools();
         if (devtoolsOpen) {
-            // Limpa o conteúdo da página, mas sem mostrar nada
-            document.body.innerHTML = '';
+            // Bloqueia a página ao detectar DevTools
+            document.body.innerHTML = '';  // Limpar conteúdo da página
+            document.body.style.backgroundColor = '#121212';
+            document.body.style.color = 'white';
+            document.body.style.display = 'flex';
+            document.body.style.alignItems = 'center';
+            document.body.style.justifyContent = 'center';
+            document.body.style.height = '100vh';
+            document.body.style.textAlign = 'center';
+
+            // Exibir um aviso de bloqueio visual na página
+            document.body.innerHTML = `
+                <h1>Acesso Bloqueado</h1>
+                <p>Você tentou manipular esta página. O acesso foi bloqueado.</p>
+            `;
             clearInterval(detectionInterval);  // Parar a detecção
         }
     }, 500);
