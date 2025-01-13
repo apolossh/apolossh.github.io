@@ -56,12 +56,17 @@
     Object.defineProperty(window, 'eval', {
         configurable: false,
         writable: false,
-        value: () => {}
+        value: function() {}
     });
 
     Object.defineProperty(window, 'console', {
         get: function() {
-            return {};
+            return {
+                log: function() {},
+                info: function() {},
+                warn: function() {},
+                error: function() {}
+            };
         }
     });
 
