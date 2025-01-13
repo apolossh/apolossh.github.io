@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Apolo SSH</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="description" content="Página Apolo SSH para instalar apps no iOS usando certificado revogado.">
     <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
@@ -49,8 +50,26 @@
             <img src="/img/troll.png" alt="8">
             <div class="button-text">TrollInstallerX</div>
         </a>
-    </div>        
-    <script src="a.js"></script>
+    </div>
+    <script>
+    (function() {
+    Object.defineProperty(window, 'eval', {
+        configurable: false,
+        writable: false,
+        value: () => {
+            throw "Eval bloqueado!";
+        }
+    });
+
+    Object.defineProperty(window, 'console', {
+        get: function() {
+            throw "Console bloqueado!";
+        }
+    });
+
+    Object.freeze(window);
+})();
+    </script>
     <script src="scripts.js"></script>
     <script src="home.js" defer></script>
     <script src="efeito.js"></script>
