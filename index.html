@@ -4,8 +4,16 @@
     <meta charset="UTF-8">
     <title>Apolo SSH</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self';">
     <link rel="stylesheet" href="estilos.css">
+
+    <!-- Política de Segurança de Conteúdo -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self'; 
+        script-src 'self' 'nonce-abc123'; 
+        style-src 'self' 'unsafe-inline'; 
+        object-src 'none'; 
+        frame-ancestors 'none'; 
+        base-uri 'self';">
 </head>
 <body>
     <button class="menu-toggle disable-dbl-tap-zoom" aria-expanded="false" aria-controls="menuPrincipal">☰ MENU</button>
@@ -51,8 +59,33 @@
             <div class="button-text">TrollInstallerX</div>
         </a>
     </div>        
-    <script src="scripts.js"></script>
-    <script src="home.js" defer></script>
-    <script src="efeito.js"></script>
+
+    <!-- Scripts confiáveis com nonce -->
+    <script nonce="abc123">
+        // Bloqueia alterações no DOM
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'childList' || mutation.type === 'attributes') {
+                    console.warn("Alteração detectada e revertida:", mutation);
+                    mutation.target.remove();
+                }
+            });
+        });
+
+        observer.observe(document, { attributes: true, childList: true, subtree: true });
+
+        // Sobrescreve APIs críticas
+        document.createElement = () => {
+            throw new Error("Criação de elementos bloqueada!");
+        };
+
+        window.eval = () => {
+            throw new Error("Uso de eval bloqueado!");
+        };
+    </script>
+
+    <script src="scripts.js" nonce="abc123"></script>
+    <script src="home.js" nonce="abc123" defer></script>
+    <script src="efeito.js" nonce="abc123"></script>
 </body>
 </html>
