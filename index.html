@@ -79,6 +79,7 @@ setInterval(function() {
 // Detectar modificações no DOM (tentativas de inspeção)
 const originalAppendChild = Node.prototype.appendChild;
 Node.prototype.appendChild = function() {
+  // Redireciona para uma página em branco APENAS quando uma tentativa de modificação do DOM for feita
   window.location.replace('about:blank');  // Redireciona para uma página em branco
   return originalAppendChild.apply(this, arguments);
 };
