@@ -6,7 +6,7 @@
     <title>Histórico BTC/BRL</title>
     <style>
         body {
-            background-color: rgba(18, 18, 18, 0.9);
+            background-color: rgba(18, 18, 18, 0.9); /* Fundo transparente */
             color: #fff;
             font-family: Arial, sans-serif;
             margin: 0;
@@ -16,6 +16,13 @@
         h1 {
             text-align: center;
             margin-bottom: 20px;
+        }
+        #latest-price {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #ffcc00; /* Destaque em amarelo */
         }
         #history {
             max-width: 600px;
@@ -41,12 +48,6 @@
         }
         .price {
             font-weight: bold;
-        }
-        #latest-price {
-            font-size: 1.5em;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-align: center;
         }
     </style>
 </head>
@@ -103,7 +104,7 @@
         }
 
         // Faz uma requisição a cada segundo
-        setInterval(fetchPrice, 1000);
+        setInterval(fetchPrice, 2000);
 
         // Faz a primeira requisição imediatamente
         fetchPrice();
