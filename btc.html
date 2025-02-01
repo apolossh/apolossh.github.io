@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico BTC/BRL</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        #history {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 10px;
+            background-color: #1f1f1f;
+            border-radius: 8px;
+        }
+        .price-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid #333;
+        }
+        .price-entry:last-child {
+            border-bottom: none;
+        }
+        .timestamp {
+            font-size: 0.9em;
+            color: #bbb;
+        }
+        .price {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Histórico de Preços BTC/BRL</h1>
+    <div id="history"></div>
+
+    <script>
+        const historyContainer = document.getElementById("history");
+        const apiUrl = "https://api.binance.com/api/v3/ticker/price?symbol=BTCBRL";
+
+        let priceHistory = [];
+
+        function fetchPrice() {
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const price = parseFloat(data.price);
+                    const timestamp = new Date().toLocaleTimeString();
+
+                    // Adiciona ao histórico
+                    priceHistory.push({ price, timestamp });
+
+                    // Limita o histórico a 50 entradas
+                    if (priceHistory.length > 50) {
+                        priceHistory.shift();
+                    }
+
+                    // Atualiza a exibição
+                    updateHistory();
+                })
+                .catch(error => console.error('Erro ao buscar preço:', error));
+        }
+
+        function updateHistory() {
+            historyContainer.innerHTML = ''; // Limpa o conteúdo atual
+
+            priceHistory.forEach(entry => {
+                const entryElement = document.createElement('div');
+                entryElement.classList.add('price-entry');
+                entryElement.innerHTML = `
+                    <div class="timestamp">${entry.timestamp}</div>
+                    <div class="price">R$ ${entry.price.toFixed(2)}</div>
+                `;
+                historyContainer.appendChild(entryElement);
+            });
+        }
+
+        // Faz uma requisição a cada segundo
+        setInterval(fetchPrice, 1000);
+
+        // Faz a primeira requisição imediatamente
+        fetchPrice();
+    </script>
+</body>
+</html>
