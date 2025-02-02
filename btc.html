@@ -73,8 +73,8 @@
                     const price = parseFloat(data.price);
                     const timestamp = new Date().toLocaleTimeString();
                     priceHistory.push({ price, timestamp });
-                    if (priceHistory.length > 50) {
-                        priceHistory.shift();
+                    if (priceHistory.length > 10) {
+                        priceHistory.shift(); // Remove o preço mais antigo quando o histórico exceder 10 entradas
                     }
                     updateHistory();
                     updateLatestPrice(price);
