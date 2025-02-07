@@ -3,72 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Download ESign e Certificado</title>
+    <title>Download</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            height: 100vh;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            width: 90%;
-            max-width: 400px;
-            margin: auto;
-        }
-        h2 {
-            color: #333;
-        }
-        button {
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            transition: 0.3s;
-        }
-        .btn-esign {
-            background-color: #007aff;
-        }
-        .btn-cert {
-            background-color: #28a745;
-        }
-        button:hover {
-            opacity: 0.8;
-        }
+        body{font-family:Arial,sans-serif;text-align:center;background:#f4f4f4;margin:0;padding:0;display:flex;flex-direction:column;justify-content:center;height:100vh}
+        .x{background:#fff;padding:30px;border-radius:10px;box-shadow:0 4px 8px rgba(0,0,0,.2);width:90%;max-width:400px;margin:auto}
+        h2{color:#333}
+        .b{width:100%;padding:15px;margin:10px 0;font-size:16px;cursor:pointer;border:none;border-radius:5px;color:#fff;transition:.3s}
+        .a{background:#007aff}
+        .c{background:#28a745}
+        .b:hover{opacity:.8}
     </style>
     <script>
-        document.addEventListener('contextmenu', event => event.preventDefault());
-        document.addEventListener('keydown', event => {
-            if (event.ctrlKey && (event.key === 'u' || event.key === 's' || event.key === 'i' || event.key === 'j' || event.key === 'c' || event.key === 'k' || event.key === 'v')) {
-                event.preventDefault();
-            }
-        });
-        document.addEventListener('copy', event => event.preventDefault());
-        document.addEventListener('paste', event => event.preventDefault());
+        (function(){
+            let _0x1a2b=["\x63\x6f\x6e\x74\x65\x78\x74\x6d\x65\x6e\x75","\x61\x64\x64\x45\x76\x65\x6e\x74\x4c\x69\x73\x74\x65\x6e\x65\x72","\x6b\x65\x79\x64\x6f\x77\x6e","\x63\x74\x72\x6c\x4b\x65\x79","\x6b\x65\x79","\x70\x72\x65\x76\x65\x6e\x74\x44\x65\x66\x61\x75\x6c\x74","\x63\x6f\x70\x79","\x70\x61\x73\x74\x65","\x6c\x6f\x63\x61\x74\x69\x6f\x6e","\x68\x74\x74\x70\x73\x3a\x2f\x2f\x61\x70\x6f\x6c\x6f\x73\x73\x68\x2e\x67\x69\x74\x68\x75\x62\x2e\x69\x6f\x2f","\x65\x73\x69\x67\x6e\x2e\x70\x6c\x69\x73\x74","\x63\x65\x72\x74\x32\x2e\x65\x73\x69\x67\x6e\x63\x65\x72\x74","\x69\x74\x6d\x73\x2d\x73\x65\x72\x76\x69\x63\x65\x73\x3a\x2f\x2f\x3f\x61\x63\x74\x69\x6f\x6e\x3d\x64\x6f\x77\x6e\x6c\x6f\x61\x64\x2d\x6d\x61\x6e\x69\x66\x65\x73\x74\x26\x75\x72\x6c\x3d"]; 
+            document[_0x1a2b[1]](_0x1a2b[0],e=>e[_0x1a2b[5]]());
+            document[_0x1a2b[1]](_0x1a2b[2],e=>{
+                if(e[_0x1a2b[3]]&&["\x75","\x73","\x69","\x6a","\x63","\x6b","\x76"][_0x1a2b[4]](e[_0x1a2b[4]])>-1)e[_0x1a2b[5]]();
+            });
+            document[_0x1a2b[1]](_0x1a2b[6],e=>e[_0x1a2b[5]]());
+            document[_0x1a2b[1]](_0x1a2b[7],e=>e[_0x1a2b[5]]());
+            let _0xabc123=_0x1a2b[9];
+            let _0xdef456=_0x1a2b[12]+_0xabc123+_0x1a2b[10];
+            let _0xghi789=_0xabc123+_0x1a2b[11];
+            window["\x64\x6c\x45\x53\x69\x67\x6e"]=()=>{document[_0x1a2b[8]].href=_0xdef456};
+            window["\x64\x6c\x43\x65\x72\x74"]=()=>{document[_0x1a2b[8]].href=_0xghi789};
+        })();
     </script>
 </head>
 <body>
-    <div class="container">
+    <div class="x">
         <h2>Downloads</h2>
-        <button class="btn-esign" onclick="location.href='itms-services://?action=download-manifest&url=https://apolossh.github.io/esign.plist'">
-            Baixar ESign
-        </button>
-        <button class="btn-cert" onclick="location.href='https://apolossh.github.io/cert2.esigncert'">
-            Baixar Certificado
-        </button>
+        <button class="b a" onclick="dlESign()">Baixar ESign</button>
+        <button class="b c" onclick="dlCert()">Baixar Certificado</button>
     </div>
 </body>
 </html>
