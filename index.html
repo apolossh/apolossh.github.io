@@ -70,7 +70,7 @@
         }
 
         function isSafari() {
-            return 'WebKitMediaKeys' in window;
+            return 'share' in navigator;
         }
 
         if (isIOS()) {
