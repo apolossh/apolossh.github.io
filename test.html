@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fingerprint Completo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .fingerprint-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .fingerprint-item {
+      margin: 10px 0;
+    }
+    .label {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Fingerprint Completo</h1>
+  <div class="fingerprint-container">
+    <div class="fingerprint-item">
+      <span class="label">User Agent:</span> <span id="userAgent"></span>
+    </div>
+    <div class="fingerprint-item">
+      <span class="label">Plataforma:</span> <span id="platform"></span>
+    </div>
+    <div class="fingerprint-item">
+      <span class="label">Idioma:</span> <span id="language"></span>
+    </div>
+    <div class="fingerprint-item">
+      <span class="label">Resolução de Tela:</span> <span id="screenResolution"></span>
+    </div>
+    <div class="fingerprint-item">
+      <span class="label">Frequência de Atualização:</span> <span id="screenRefreshRate"></span>
+    </div>
+    <div class="fingerprint-item">
+      <span class="label">Plugins Disponíveis:</span> <span id="plugins"></span>
+    </div>
+    <div class="fingerprint-item">
+      <span class="label">Dispositivo Táctil:</span> <span id="touchSupport"></span>
+    </div>
+    <div class="fingerprint-item">
+      <span class="label">Localização de Fuso Horário:</span> <span id="timezone"></span>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("userAgent").textContent = navigator.userAgent;
+    document.getElementById("platform").textContent = navigator.platform;
+    document.getElementById("language").textContent = navigator.language;
+    document.getElementById("screenResolution").textContent = `${screen.width} x ${screen.height}`;
+    document.getElementById("screenRefreshRate").textContent = screen.refreshRate || "Desconhecido";
+    document.getElementById("plugins").textContent = navigator.plugins.length > 0 ? Array.from(navigator.plugins).map(p => p.name).join(", ") : "Nenhum plugin encontrado";
+    document.getElementById("touchSupport").textContent = 'ontouchstart' in window ? 'Suportado' : 'Não suportado';
+    document.getElementById("timezone").textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  </script>
+</body>
+</html>
