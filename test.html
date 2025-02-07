@@ -48,18 +48,22 @@
     <button class="button" onclick="window.location.reload()">Tentar Novamente</button>
 
     <script>
-        function isInWebView() {
+        function isInIosWebView() {
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            // Detecta WebViews no iOS
-            const isIosWebView = /iPhone|iPad|iPod/.test(userAgent) && !window.SafariViewController;
-            // Detecta WebViews no Android (Telegram, WhatsApp, etc.)
-            const isAndroidWebView = /android/i.test(userAgent) && /webview/i.test(userAgent);
 
-            return isIosWebView || isAndroidWebView;
+            // Detecta WebViews no iOS
+            const isIos = /iPhone|iPad|iPod/.test(userAgent);
+            const isIosWebView = isIos && !window.SafariViewController;
+
+            // Exclui Safari: detecta se o userAgent corresponde ao Safari
+            const isSafari = /^((?!chrome|android).)*safari/i.test(userAgent);
+
+            // Retorna true se for WebView no iOS, mas não Safari
+            return isIosWebView && !isSafari;
         }
 
-        // Exibe a mensagem se estiver em um WebView
-        if (isInWebView()) {
+        // Exibe a mensagem se estiver em um WebView no iOS
+        if (isInIosWebView()) {
             document.getElementById('webviewMessage').style.display = 'block';
         }
     </script>
