@@ -1,72 +1,68 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fingerprint Completo</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-    }
-    .fingerprint-container {
-      max-width: 800px;
-      margin: 0 auto;
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    .fingerprint-item {
-      margin: 10px 0;
-    }
-    .label {
-      font-weight: bold;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abra no Safari</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            display: none;
+        }
+        .message p {
+            margin: 0;
+            font-size: 16px;
+        }
+        .button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-  <h1>Fingerprint Completo</h1>
-  <div class="fingerprint-container">
-    <div class="fingerprint-item">
-      <span class="label">User Agent:</span> <span id="userAgent"></span>
-    </div>
-    <div class="fingerprint-item">
-      <span class="label">Plataforma:</span> <span id="platform"></span>
-    </div>
-    <div class="fingerprint-item">
-      <span class="label">Idioma:</span> <span id="language"></span>
-    </div>
-    <div class="fingerprint-item">
-      <span class="label">Resolução de Tela:</span> <span id="screenResolution"></span>
-    </div>
-    <div class="fingerprint-item">
-      <span class="label">Frequência de Atualização:</span> <span id="screenRefreshRate"></span>
-    </div>
-    <div class="fingerprint-item">
-      <span class="label">Plugins Disponíveis:</span> <span id="plugins"></span>
-    </div>
-    <div class="fingerprint-item">
-      <span class="label">Dispositivo Táctil:</span> <span id="touchSupport"></span>
-    </div>
-    <div class="fingerprint-item">
-      <span class="label">Localização de Fuso Horário:</span> <span id="timezone"></span>
-    </div>
-  </div>
 
-  <script>
-    document.getElementById("userAgent").textContent = navigator.userAgent;
-    document.getElementById("platform").textContent = navigator.platform;
-    document.getElementById("language").textContent = navigator.language;
-    document.getElementById("screenResolution").textContent = `${screen.width} x ${screen.height}`;
-    document.getElementById("screenRefreshRate").textContent = screen.refreshRate || "Desconhecido";
-    document.getElementById("plugins").textContent = navigator.plugins.length > 0 ? Array.from(navigator.plugins).map(p => p.name).join(", ") : "Nenhum plugin encontrado";
-    document.getElementById("touchSupport").textContent = 'ontouchstart' in window ? 'Suportado' : 'Não suportado';
-    document.getElementById("timezone").textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  </script>
+    <h1>Bem-vindo à nossa página</h1>
+    <p>Para uma melhor experiência, por favor, abra esta página no Safari.</p>
+
+    <div class="message" id="webviewMessage">
+        <p>Você está tentando acessar esta página dentro de um aplicativo (como o Telegram). Para uma melhor experiência, abra esta página no Safari.</p>
+    </div>
+
+    <button class="button" onclick="window.location.reload()">Tentar Novamente</button>
+
+    <script>
+        function isInWebView() {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            // Detecta WebViews no iOS
+            const isIosWebView = /iPhone|iPad|iPod/.test(userAgent) && !window.SafariViewController;
+            // Detecta WebViews no Android (Telegram, WhatsApp, etc.)
+            const isAndroidWebView = /android/i.test(userAgent) && /webview/i.test(userAgent);
+
+            return isIosWebView || isAndroidWebView;
+        }
+
+        // Exibe a mensagem se estiver em um WebView
+        if (isInWebView()) {
+            document.getElementById('webviewMessage').style.display = 'block';
+        }
+    </script>
+
 </body>
 </html>
