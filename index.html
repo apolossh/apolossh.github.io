@@ -59,33 +59,13 @@
         <p>Por favor, acesse esta página em um dispositivo iOS.</p>
     </div>
 
-    <div id="nonSafariMessage" style="display: none; text-align: center; padding: 20px;">
-        <h2>Para uma melhor experiência, abra esta página no Safari.</h2>
-        <p>Estamos detectando que você está usando um navegador diferente do Safari. Por favor, abra a página no Safari para acessar os recursos corretamente.</p>
-    </div>
-
     <script>
-        function isIOS() {
-            return /iPhone|iPad|iPod/i.test(navigator.userAgent);
-        }
-
-        function isSafari() {
-            return 'share' in navigator;
-        }
-
-        if (isIOS()) {
+        if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
             document.getElementById("iosContent").style.display = "block";
             document.getElementById("nonIosMessage").style.display = "none";
-
-            if (!isSafari()) {
-                document.getElementById("nonSafariMessage").style.display = "block";
-            } else {
-                document.getElementById("nonSafariMessage").style.display = "none";
-            }
         } else {
             document.getElementById("iosContent").style.display = "none";
             document.getElementById("nonIosMessage").style.display = "block";
-            document.getElementById("nonSafariMessage").style.display = "none";
         }
     </script>
 
