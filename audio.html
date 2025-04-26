@@ -2,12 +2,48 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Áudio</title>
+  <title>Gerador de QR Code para Áudio</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    #qrcode {
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
-  <audio autoplay hidden>
-    <source src="https://apolossh.github.io/audio.mp3" type="audio/mpeg">
-    Seu navegador não suporta áudio HTML5.
-  </audio>
+  <h1>Gerar QR Code para a criança</h1>
+  
+  <input type="text" id="nome" placeholder="Digite o nome da criança">
+  <button onclick="gerarQRCode()">Gerar QR Code</button>
+
+  <div id="resultado" style="display:none;">
+    <h2 id="nomeCriança"></h2>
+    <img id="qrcode" src="" alt="QR Code">
+  </div>
+
+  <script>
+    function gerarQRCode() {
+      var nome = document.getElementById("nome").value.trim();
+      if (nome === "") {
+        alert("Por favor, digite o nome da criança.");
+        return;
+      }
+
+      // Criar link com o nome da criança
+      var link = "https://apolossh.github.io/audios/" + encodeURIComponent(nome.toLowerCase()) + ".mp3";
+
+      // Gerar URL do QR Code
+      var qrCodeURL = "https://api.qrserver.com/v1/create-qr-code/?data=" + encodeURIComponent(link) + "&size=300x300";
+
+      // Atualizar página
+      document.getElementById("nomeCriança").innerText = nome;
+      document.getElementById("qrcode").src = qrCodeURL;
+      document.getElementById("resultado").style.display = "block";
+    }
+  </script>
 </body>
 </html>
