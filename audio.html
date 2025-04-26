@@ -2,30 +2,79 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Gerador de QR Code para Áudio</title>
+  <title>Gerador de QR Code - Feliz Dia das Mães</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      text-align: center;
+      font-family: 'Poppins', sans-serif;
+      background-color: #fef9f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
       padding: 20px;
+      text-align: center;
     }
-    #qrcode {
-      margin-top: 20px;
+    h1 {
+      color: #d17c6d;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      width: 300px;
+      border: 2px solid #d17c6d;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #d17c6d;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #c25d4f;
+    }
+    #resultado {
+      margin-top: 30px;
+      display: none;
+    }
+    #nomeCriança {
+      font-size: 24px;
+      color: #555;
+      margin-bottom: 10px;
+    }
+    canvas {
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <h1>Gerar QR Code para a criança</h1>
+  <h1>Mensagem Especial Dia das Mães</h1>
   
   <input type="text" id="nome" placeholder="Digite o nome da criança">
+  <br>
   <button onclick="gerarQRCode()">Gerar QR Code</button>
 
-  <div id="resultado" style="display:none;">
+  <div id="resultado">
     <h2 id="nomeCriança"></h2>
-    <img id="qrcode" src="" alt="QR Code">
+    <canvas id="qrcode"></canvas>
   </div>
 
+  <!-- Importa a biblioteca QRCode.js -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
   <script>
+    function removerAcentos(str) {
+      return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+
     function gerarQRCode() {
       var nome = document.getElementById("nome").value.trim();
       if (nome === "") {
@@ -33,16 +82,21 @@
         return;
       }
 
-      // Criar link com o nome da criança
-      var link = "https://apolossh.github.io/audios/" + encodeURIComponent(nome.toLowerCase()) + ".mp3";
+      // Limpar nome: minúsculas, remover acentos e substituir espaços por _
+      var nomeArquivo = removerAcentos(nome.toLowerCase()).replace(/\s+/g, "_");
 
-      // Gerar URL do QR Code
-      var qrCodeURL = "https://api.qrserver.com/v1/create-qr-code/?data=" + encodeURIComponent(link) + "&size=300x300";
+      // Criar link do áudio
+      var link = "https://apolossh.github.io/audios/" + encodeURIComponent(nomeArquivo) + ".mp3";
 
-      // Atualizar página
+      // Atualizar na página
       document.getElementById("nomeCriança").innerText = nome;
-      document.getElementById("qrcode").src = qrCodeURL;
       document.getElementById("resultado").style.display = "block";
+
+      // Gerar QR Code no canvas
+      var canvas = document.getElementById('qrcode');
+      QRCode.toCanvas(canvas, link, { width: 300 }, function (error) {
+        if (error) console.error(error);
+      });
     }
   </script>
 </body>
