@@ -56,8 +56,12 @@
           .replace(/\s+/g, "_") + '.mp3';
         const caminhoCompleto = pasta + nomeArquivo;
 
+        // Use o CORS Anywhere Proxy aqui
+        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+        const apiUrl = `https://api.github.com/repos/${repo}/contents/${caminhoCompleto}`;
+        
         try {
-          const resposta = await fetch(`https://api.github.com/repos/${repo}/contents/${caminhoCompleto}`, {
+          const resposta = await fetch(proxyUrl + apiUrl, {
             method: 'PUT',
             headers: {
               'Authorization': `token ${token}`,
