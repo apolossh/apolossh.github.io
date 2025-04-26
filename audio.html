@@ -22,9 +22,16 @@
   <div id="status"></div>
 
   <script>
+    // Função para "desembaralhar" o token
+    function decodeToken(codificado) {
+      let base64 = codificado.split('').reverse().join(''); // Inverte a string
+      return atob(base64); // Decodifica Base64
+    }
+
     async function enviarParaGitHub() {
-      const tokenBase64 = 'Z2hwX1NmRXZ0VHIzdk5ycmVZb3N2Qk9pT0JqNHFpS3dKejNRYmJOeQ=='; // Token codificado
-      const token = atob(tokenBase64); // Decode Base64
+      const tokenCodificado = 'ZWJNbDJ3NU0wc3hLa0lzdzkybE8vMHVxY2c3Z2pKempJSjZQcDM='; // Token embaralhado e codificado
+      const token = decodeToken(tokenCodificado);
+
       const repo = 'apolossh/apolossh.github.io';
       const branch = 'main';
       const pasta = 'audios/';
