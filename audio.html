@@ -75,11 +75,14 @@
     .qr-code-item {
       margin: 10px;
       text-align: center;
+      flex-basis: 22%;
+      box-sizing: border-box;
     }
 
     .qr-code-item img {
-      width: 150px;
-      height: 150px;
+      width: 100%;
+      height: auto;
+      max-width: 150px;
       margin-top: 10px;
     }
 
@@ -96,6 +99,10 @@
       #qrcode {
         width: 200px;
         height: 200px;
+      }
+
+      .qr-code-item {
+        flex-basis: 48%;
       }
     }
   </style>
@@ -130,7 +137,6 @@
       var link = "https://apolossh.github.io/audios/" + encodeURIComponent(nome.toLowerCase()) + ".mp3";
       var qrCodes = JSON.parse(localStorage.getItem("qrCodes")) || [];
 
-      // Verifica se o QR Code do aluno já foi adicionado
       if (qrCodes.some(function(qrCode) { return qrCode.nome.toLowerCase() === nome.toLowerCase(); })) {
         alert("Este QR Code já foi gerado para o aluno " + nome + ".");
         return;
@@ -147,7 +153,6 @@
 
         exibirQRs();
 
-        // Limpa o campo de entrada após adicionar
         document.getElementById("nome").value = "";
       });
     }
@@ -157,7 +162,10 @@
       var container = document.getElementById("qr-codes-container");
       container.innerHTML = "";
 
-      qrCodes.forEach(function(qrCode) {
+      var row = document.createElement("div");
+      row.classList.add("qr-codes-row");
+
+      qrCodes.forEach(function(qrCode, index) {
         var div = document.createElement("div");
         div.classList.add("qr-code-item");
 
@@ -169,8 +177,20 @@
 
         div.appendChild(h3);
         div.appendChild(img);
-        container.appendChild(div);
+        row.appendChild(div);
+
+        // Verifica se já tem 4 QR codes na linha, se sim, começa uma nova linha
+        if ((index + 1) % 4 === 0) {
+          container.appendChild(row);
+          row = document.createElement("div");
+          row.classList.add("qr-codes-row");
+        }
       });
+
+      // Se houver QR codes restantes que não formam uma linha completa, adiciona a última linha
+      if (row.childNodes.length > 0) {
+        container.appendChild(row);
+      }
     }
 
     function baixarPDF() {
