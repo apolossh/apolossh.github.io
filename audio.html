@@ -179,7 +179,6 @@
         div.appendChild(img);
         row.appendChild(div);
 
-        // Verifica se já tem 4 QR codes na linha, se sim, começa uma nova linha
         if ((index + 1) % 4 === 0) {
           container.appendChild(row);
           row = document.createElement("div");
@@ -187,7 +186,6 @@
         }
       });
 
-      // Se houver QR codes restantes que não formam uma linha completa, adiciona a última linha
       if (row.childNodes.length > 0) {
         container.appendChild(row);
       }
