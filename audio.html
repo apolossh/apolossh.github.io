@@ -92,6 +92,7 @@
       const nome = document.getElementById('nome').value.trim();
       const qrCodeContainer = document.getElementById('qr-code');
       
+      // Verificar se o nome foi inserido
       if (!nome) {
         alert("Por favor, insira o nome da criança!");
         return;
@@ -104,12 +105,17 @@
 
       // Link gerado para o arquivo de áudio
       const link = `https://apolossh.github.io/audios/${nomeArquivo}`;
+      
+      // Depuração do link gerado
+      console.log("Link gerado: ", link);
 
       // Gera o QR Code para o link do áudio
       QRCode.toCanvas(qrCodeContainer, link, function (error) {
         if (error) {
           console.error("Erro ao gerar QR Code: ", error);
           alert("Erro ao gerar QR Code.");
+        } else {
+          console.log("QR Code gerado com sucesso!");
         }
       });
     }
