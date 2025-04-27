@@ -79,7 +79,7 @@
   <h1>Gerar QR Code do Áudio</h1>
 
   <div class="form-container">
-    <input type="text" id="nome" placeholder="Nome da criança"><br>
+    <input type="text" id="nome" placeholder="Digite o nome da criança"><br>
     <button onclick="gerarQRCode()">Gerar QR Code</button>
   </div>
 
@@ -105,10 +105,7 @@
       // Link gerado para o arquivo de áudio
       const link = `https://apolossh.github.io/audios/${nomeArquivo}`;
 
-      // Mostramos o link no console para garantir que ele está correto
-      console.log("Link gerado: ", link);
-
-      // Gera o QR Code
+      // Gera o QR Code para o link do áudio
       QRCode.toCanvas(qrCodeContainer, link, function (error) {
         if (error) {
           console.error("Erro ao gerar QR Code: ", error);
