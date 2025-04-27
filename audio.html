@@ -117,7 +117,6 @@
   <button onclick="baixarPDF()">Baixar PDF com QR Codes</button>
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <script>
@@ -129,6 +128,13 @@
       }
 
       var link = "https://apolossh.github.io/audios/" + encodeURIComponent(nome.toLowerCase()) + ".mp3";
+      var qrCodes = JSON.parse(localStorage.getItem("qrCodes")) || [];
+
+      // Verifica se o QR Code do aluno já foi adicionado
+      if (qrCodes.some(function(qrCode) { return qrCode.nome.toLowerCase() === nome.toLowerCase(); })) {
+        alert("Este QR Code já foi gerado para o aluno " + nome + ".");
+        return;
+      }
 
       QRCode.toDataURL(link, { width: 300, margin: 1 }, function (err, url) {
         if (err) {
@@ -136,11 +142,13 @@
           return;
         }
 
-        var qrCodes = JSON.parse(localStorage.getItem("qrCodes")) || [];
         qrCodes.push({ nome: nome, link: url });
         localStorage.setItem("qrCodes", JSON.stringify(qrCodes));
 
         exibirQRs();
+
+        // Limpa o campo de entrada após adicionar
+        document.getElementById("nome").value = "";
       });
     }
 
@@ -198,8 +206,7 @@
     window.onload = function() {
       exibirQRs();
     };
-  <script src="efeito.js"></script>
-</script>
+  </script>
 
 </body>
 </html>
