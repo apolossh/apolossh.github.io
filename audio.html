@@ -53,7 +53,7 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
-    #nomeCriança {
+    #nomeAluno {
       font-size: 24px;
       color: #555;
       margin-bottom: 15px;
@@ -102,13 +102,13 @@
 </head>
 <body>
 
-  <h1>Gerar QR Code para a criança</h1>
+  <h1>Gerar QR Code para o aluno</h1>
 
-  <input type="text" id="nome" placeholder="Digite o nome da criança">
+  <input type="text" id="nome" placeholder="Digite o nome do aluno">
   <button onclick="gerarQRCode()">Gerar QR Code</button>
 
   <div id="resultado" style="display:none;">
-    <h2 id="nomeCriança"></h2>
+    <h2 id="nomeAluno"></h2>
     <div id="qrcode"></div>
   </div>
 
@@ -116,45 +116,38 @@
 
   <button onclick="baixarPDF()">Baixar PDF com QR Codes</button>
 
-  <!-- Biblioteca QRCode.js -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <script>
-    // Função para gerar QR Code localmente usando qrcode.js
     function gerarQRCode() {
       var nome = document.getElementById("nome").value.trim();
       if (nome === "") {
-        alert("Por favor, digite o nome da criança.");
+        alert("Por favor, digite o nome do aluno.");
         return;
       }
 
-      // Criar link com o nome da criança
       var link = "https://apolossh.github.io/audios/" + encodeURIComponent(nome.toLowerCase()) + ".mp3";
 
-      // Gerar QR Code localmente
       QRCode.toDataURL(link, { width: 300, margin: 1 }, function (err, url) {
         if (err) {
           alert("Erro ao gerar QR Code: " + err);
           return;
         }
 
-        // Salvar QR Code no localStorage
         var qrCodes = JSON.parse(localStorage.getItem("qrCodes")) || [];
         qrCodes.push({ nome: nome, link: url });
         localStorage.setItem("qrCodes", JSON.stringify(qrCodes));
 
-        // Exibir QR Code na seção de QR Codes salvos
         exibirQRs();
       });
     }
 
-    // Função para exibir os QR Codes salvos
     function exibirQRs() {
       var qrCodes = JSON.parse(localStorage.getItem("qrCodes")) || [];
       var container = document.getElementById("qr-codes-container");
-      container.innerHTML = ""; // Limpar o container
+      container.innerHTML = "";
 
       qrCodes.forEach(function(qrCode) {
         var div = document.createElement("div");
@@ -166,13 +159,12 @@
         var img = document.createElement("img");
         img.src = qrCode.link;
 
-        div.appendChild(h3);  // Nome vem antes da imagem
+        div.appendChild(h3);
         div.appendChild(img);
         container.appendChild(div);
       });
     }
 
-    // Função para baixar os QR Codes em um PDF
     function baixarPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
@@ -182,31 +174,27 @@
       let rowCount = 0;
 
       qrCodes.forEach(function(qrCode, index) {
-        if (rowCount > 3) {  // Quatro QR Codes por linha
+        if (rowCount > 3) {
           rowCount = 0;
-          y += 70;  // Distância entre as linhas
+          y += 70;
         }
 
-        // Calcular a largura do nome para centralizar em relação ao QR Code
         const nomeWidth = doc.getStringUnitWidth(qrCode.nome) * doc.internal.getFontSize() / doc.internal.scaleFactor;
-        const nomeX = x + (40 - nomeWidth / 2); // Ajuste de centralização em cima do QR Code
+        const nomeX = x + (40 - nomeWidth / 2);
 
-        // Centralizar o nome acima do QR Code
         doc.text(qrCode.nome, nomeX, y);
 
-        // Adicionar QR Code
-        doc.addImage(qrCode.link, 'PNG', x + 10, y + 10, 40, 40);  // Adiciona QR Code abaixo do nome
+        doc.addImage(qrCode.link, 'PNG', x + 10, y + 10, 40, 40);
 
-        x += 50;  // Distância entre os QR Codes na linha
+        x += 50;
         rowCount++;
 
         if (index === qrCodes.length - 1) {
-          doc.save('qr-codes.pdf'); // Salvar PDF
+          doc.save('qr-codes.pdf');
         }
       });
     }
 
-    // Carregar os QR Codes salvos ao abrir a página
     window.onload = function() {
       exibirQRs();
     };
