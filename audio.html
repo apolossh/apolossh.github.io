@@ -187,9 +187,11 @@
           y += 70;  // Distância entre as linhas
         }
 
-        // Centralizar o nome
+        // Calcular a largura do nome para centralizar em relação ao QR Code
         const nomeWidth = doc.getStringUnitWidth(qrCode.nome) * doc.internal.getFontSize() / doc.internal.scaleFactor;
-        const nomeX = (doc.internal.pageSize.width - nomeWidth) / 2;
+        const nomeX = x + (40 - nomeWidth / 2); // Ajuste de centralização em cima do QR Code
+
+        // Centralizar o nome acima do QR Code
         doc.text(qrCode.nome, nomeX, y);
 
         // Adicionar QR Code
