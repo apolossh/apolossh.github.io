@@ -97,21 +97,21 @@
         return;
       }
 
-      // Verifique e modifique o nome da criança para o nome do arquivo
+      // Modifica o nome da criança para o nome do arquivo
       const nomeArquivo = nome.toLowerCase()
         .normalize("NFD").replace(/[\u0300-\u036f]/g, "")  // Remove acentos
         .replace(/\s+/g, "_") + '.mp3';  // Substitui espaços por underscore
-      
-      // Aqui é onde verificamos se o link é válido
+
+      // Link gerado para o arquivo de áudio
       const link = `https://apolossh.github.io/audios/${nomeArquivo}`;
-      
+
       // Mostramos o link no console para garantir que ele está correto
       console.log("Link gerado: ", link);
 
       // Gera o QR Code
       QRCode.toCanvas(qrCodeContainer, link, function (error) {
         if (error) {
-          console.error(error);
+          console.error("Erro ao gerar QR Code: ", error);
           alert("Erro ao gerar QR Code.");
         }
       });
