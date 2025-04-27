@@ -107,7 +107,7 @@
   <input type="text" id="nome" placeholder="Digite o nome da criança">
   <button onclick="gerarQRCode()">Gerar QR Code</button>
 
-  <div id="resultado">
+  <div id="resultado" style="display:none;">
     <h2 id="nomeCriança"></h2>
     <div id="qrcode"></div>
   </div>
@@ -139,14 +139,6 @@
           alert("Erro ao gerar QR Code: " + err);
           return;
         }
-
-        // Atualizar página com QR Code gerado
-        document.getElementById("nomeCriança").innerText = nome;
-        var qrcodeImage = new Image();
-        qrcodeImage.src = url;
-        document.getElementById("qrcode").innerHTML = "";
-        document.getElementById("qrcode").appendChild(qrcodeImage);
-        document.getElementById("resultado").style.display = "block";
 
         // Salvar QR Code no localStorage
         var qrCodes = JSON.parse(localStorage.getItem("qrCodes")) || [];
