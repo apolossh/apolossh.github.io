@@ -195,9 +195,13 @@
           y += 70;  // Distância entre as linhas
         }
 
-        // Nome vem antes do QR Code
-        doc.text(qrCode.nome, x, y);
-        doc.addImage(qrCode.link, 'PNG', x, y + 10, 40, 40);  // Adiciona QR Code abaixo do nome
+        // Centralizar o nome
+        const nomeWidth = doc.getStringUnitWidth(qrCode.nome) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+        const nomeX = (doc.internal.pageSize.width - nomeWidth) / 2;
+        doc.text(qrCode.nome, nomeX, y);
+
+        // Adicionar QR Code
+        doc.addImage(qrCode.link, 'PNG', x + 10, y + 10, 40, 40);  // Adiciona QR Code abaixo do nome
 
         x += 50;  // Distância entre os QR Codes na linha
         rowCount++;
