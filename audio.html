@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gerador de QR Code para Áudio</title>
   <style>
-    /* Estilos globais */
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
@@ -66,6 +65,24 @@
       margin-top: 20px;
     }
 
+    .qr-codes-container {
+      margin-top: 40px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .qr-code-item {
+      margin: 10px;
+      text-align: center;
+    }
+
+    .qr-code-item img {
+      width: 150px;
+      height: 150px;
+      margin-bottom: 10px;
+    }
+
     @media (max-width: 600px) {
       h1 {
         font-size: 24px;
@@ -84,8 +101,9 @@
   </style>
 </head>
 <body>
+
   <h1>Gerar QR Code para a criança</h1>
-  
+
   <input type="text" id="nome" placeholder="Digite o nome da criança">
   <button onclick="gerarQRCode()">Gerar QR Code</button>
 
@@ -94,7 +112,15 @@
     <img id="qrcode" src="" alt="QR Code">
   </div>
 
+  <div id="qr-codes-container" class="qr-codes-container"></div>
+
+  <button onclick="baixarPDF()">Baixar PDF com QR Codes</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
   <script>
+    // Função para gerar QR Code
     function gerarQRCode() {
       var nome = document.getElementById("nome").value.trim();
       if (nome === "") {
@@ -112,7 +138,70 @@
       document.getElementById("nomeCriança").innerText = nome;
       document.getElementById("qrcode").src = qrCodeURL;
       document.getElementById("resultado").style.display = "block";
+
+      // Salvar QR Code no localStorage
+      var qrCodes = JSON.parse(localStorage.getItem("qrCodes")) || [];
+      qrCodes.push({ nome: nome, link: qrCodeURL });
+      localStorage.setItem("qrCodes", JSON.stringify(qrCodes));
+
+      // Exibir QR Code na seção de QR Codes salvos
+      exibirQRs();
     }
+
+    // Função para exibir os QR Codes salvos
+    function exibirQRs() {
+      var qrCodes = JSON.parse(localStorage.getItem("qrCodes")) || [];
+      var container = document.getElementById("qr-codes-container");
+      container.innerHTML = ""; // Limpar o container
+
+      qrCodes.forEach(function(qrCode) {
+        var div = document.createElement("div");
+        div.classList.add("qr-code-item");
+
+        var img = document.createElement("img");
+        img.src = qrCode.link;
+
+        var h3 = document.createElement("h3");
+        h3.textContent = qrCode.nome;
+
+        div.appendChild(img);
+        div.appendChild(h3);
+        container.appendChild(div);
+      });
+    }
+
+    // Função para baixar os QR Codes em um PDF
+    function baixarPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const qrCodes = JSON.parse(localStorage.getItem("qrCodes")) || [];
+
+      let x = 10, y = 20;
+      let rowCount = 0;
+
+      qrCodes.forEach(function(qrCode, index) {
+        if (rowCount > 3) {  // Quatro QR Codes por linha
+          rowCount = 0;
+          y += 70;  // Distância entre as linhas
+        }
+
+        doc.addImage(qrCode.link, 'PNG', x, y, 40, 40);
+        doc.text(qrCode.nome, x, y + 50);  // Nome abaixo do QR Code
+
+        x += 50;  // Distância entre os QR Codes na linha
+        rowCount++;
+
+        if (index === qrCodes.length - 1) {
+          doc.save('qr-codes.pdf'); // Salvar PDF
+        }
+      });
+    }
+
+    // Carregar os QR Codes salvos ao abrir a página
+    window.onload = function() {
+      exibirQRs();
+    };
   </script>
+
 </body>
 </html>
