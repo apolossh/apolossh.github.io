@@ -3,44 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gerar QR Code - Áudio</title>
+  <title>Gerador de QR Code para Áudio</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    /* Estilos globais */
     body {
       font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
+      background-color: #f4f4f4;
       text-align: center;
-      padding: 20px;
+      padding: 40px;
     }
 
     h1 {
-      font-size: 24px;
+      font-size: 28px;
       color: #333;
       margin-bottom: 20px;
     }
 
-    .form-container {
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      max-width: 500px;
-      width: 100%;
-      margin: 0 auto;
-    }
-
     input, button {
       padding: 12px;
-      margin: 10px 0;
+      margin: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
-      width: 100%;
       font-size: 16px;
+      width: 80%;
+      max-width: 400px;
     }
 
     input {
@@ -48,78 +34,85 @@
     }
 
     button {
-      background-color: #d17c6d;
+      background-color: #4CAF50;
       color: white;
       font-weight: bold;
       cursor: pointer;
+      transition: background-color 0.3s ease;
     }
 
     button:hover {
-      background-color: #c25d4f;
+      background-color: #45a049;
     }
 
-    #qr-code {
+    #resultado {
+      margin-top: 30px;
+      display: none;
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    #nomeCriança {
+      font-size: 24px;
+      color: #555;
+      margin-bottom: 15px;
+    }
+
+    #qrcode {
+      width: 300px;
+      height: 300px;
       margin-top: 20px;
     }
 
     @media (max-width: 600px) {
       h1 {
-        font-size: 20px;
+        font-size: 24px;
       }
 
       input, button {
         font-size: 14px;
         padding: 10px;
       }
+
+      #qrcode {
+        width: 200px;
+        height: 200px;
+      }
     }
   </style>
 </head>
 <body>
+  <h1>Gerar QR Code para a criança</h1>
+  
+  <input type="text" id="nome" placeholder="Digite o nome da criança">
+  <button onclick="gerarQRCode()">Gerar QR Code</button>
 
-  <h1>Gerar QR Code do Áudio</h1>
-
-  <div class="form-container">
-    <input type="text" id="nome" placeholder="Digite o nome da criança"><br>
-    <button onclick="gerarQRCode()">Gerar QR Code</button>
+  <div id="resultado">
+    <h2 id="nomeCriança"></h2>
+    <img id="qrcode" src="" alt="QR Code">
   </div>
-
-  <div id="qr-code"></div>
-
-  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
   <script>
     function gerarQRCode() {
-      const nome = document.getElementById('nome').value.trim();
-      const qrCodeContainer = document.getElementById('qr-code');
-      
-      // Verificar se o nome foi inserido
-      if (!nome) {
-        alert("Por favor, insira o nome da criança!");
+      var nome = document.getElementById("nome").value.trim();
+      if (nome === "") {
+        alert("Por favor, digite o nome da criança.");
         return;
       }
 
-      // Modifica o nome da criança para o nome do arquivo
-      const nomeArquivo = nome.toLowerCase()
-        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")  // Remove acentos
-        .replace(/\s+/g, "_") + '.mp3';  // Substitui espaços por underscore
+      // Criar link com o nome da criança
+      var link = "https://apolossh.github.io/audios/" + encodeURIComponent(nome.toLowerCase()) + ".mp3";
 
-      // Link gerado para o arquivo de áudio
-      const link = `https://apolossh.github.io/audios/${nomeArquivo}`;
-      
-      // Depuração do link gerado
-      console.log("Link gerado: ", link);
+      // Gerar URL do QR Code
+      var qrCodeURL = "https://api.qrserver.com/v1/create-qr-code/?data=" + encodeURIComponent(link) + "&size=300x300";
 
-      // Gera o QR Code para o link do áudio
-      QRCode.toCanvas(qrCodeContainer, link, function (error) {
-        if (error) {
-          console.error("Erro ao gerar QR Code: ", error);
-          alert("Erro ao gerar QR Code.");
-        } else {
-          console.log("QR Code gerado com sucesso!");
-        }
-      });
+      // Atualizar página
+      document.getElementById("nomeCriança").innerText = nome;
+      document.getElementById("qrcode").src = qrCodeURL;
+      document.getElementById("resultado").style.display = "block";
     }
   </script>
-
 </body>
 </html>
