@@ -12,7 +12,7 @@ document.getElementById("1").addEventListener("click", function() {
     });
 
     document.getElementById("2").addEventListener("click", function() {
-        window.location.href = "/dw/cert.zip";
+        window.location.href = "/dw/cert.esigncert";
     });
 
     document.getElementById("2").addEventListener("contextmenu", function(event) {
