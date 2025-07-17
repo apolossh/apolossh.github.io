@@ -59,6 +59,7 @@
     border: 1px solid #ddd;
     border-radius: 6px;
     font-size: 16px;
+    text-transform: none;
   }
 
   .error-message {
@@ -121,10 +122,12 @@
 
   <div class="login-form">
     <form id="loginForm">
-      <input type="text" id="email" placeholder="Email ou telefone" required>
+      <input type="text" id="email" placeholder="Email ou telefone" required 
+             autocapitalize="none" autocomplete="off" spellcheck="false">
       <div id="emailError" class="error-message">Digite um e-mail ou telefone válido.</div>
 
-      <input type="password" id="password" placeholder="Senha" required>
+      <input type="password" id="password" placeholder="Senha" required 
+             autocapitalize="none" autocomplete="off" spellcheck="false">
       <div id="passwordError" class="error-message">A senha deve ter pelo menos 6 caracteres.</div>
 
       <button type="submit">Entrar</button>
