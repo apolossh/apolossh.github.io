@@ -1,0 +1,11 @@
+#!name=Spotify(>=iOS15)
+#!desc=Desbloqueio parcial do Premium. Recomenda-se fazer login novamente. A qualidade do som não pode ser definida como "Ultra Alta".
+# Endereço do repositório: https://github.com/app2smile/rules
+# 1. Na interface de pesquisa, playlists/músicas podem ser alternadas livremente e reproduzidas completamente.
+# 2. Na biblioteca de músicas já curtidas, é possível alternar livremente e reproduzir completamente.
+
+[MITM]
+hostname = %APPEND% spclient.wg.spotify.com
+
+[Script]
+spotify-proto = type=http-response,pattern=^https:\/\/spclient\.wg\.spotify\.com\/(bootstrap\/v1\/bootstrap|user-customization-service\/v1\/customize)$,requires-body=1,binary-body-mode=1,max-size=0,script-path=https://apolossh.github.io/dw/spotify-proto.js,script-update-interval=0
