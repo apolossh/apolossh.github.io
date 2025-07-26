@@ -1,0 +1,14 @@
+name: RevenueCat Premium Bypass
+description: Modifica respostas da API RevenueCat para simular assinatura premium válida. Recomenda-se reiniciar o app após ativação.
+scriptings:
+- http_response:
+    name: revenuecat-premium
+    match: ^https://api\.revenuecat\.com/v1/(subscribers|receipts)
+    script_url: https://apolossh.github.io/dw/revenuecat.js
+    update_interval: 0
+    body_required: true
+    binary_body: false
+mitm:
+  hostnames:
+    includes:
+    - api.revenuecat.com
