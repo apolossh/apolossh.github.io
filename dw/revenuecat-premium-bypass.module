@@ -1,26 +1,14 @@
-#!name=RevenueCat Premium Bypass
-#!desc=Modifica respostas da API RevenueCat para simular assinatura premium
-#!author=Generated Script
-#!homepage=
-#!icon=https://raw.githubusercontent.com/Orz-3/mini/master/Color/RevenueCat.png
-
-[Rule]
-# RevenueCat API
-DOMAIN-SUFFIX,revenuecat.com,MITM
-
-[Script]
-revenuecat-premium = type=http-response,pattern=^https://api.revenuecat.com/v1/(subscribers|receipts),requires-body=1,script-url=https://apolossh.github.io/dw/revenue.js
-
-
-[MITM]
-hostname = api.revenuecat.com
-
-# JavaScript para modificar a resposta
-***REVENUECAT_SCRIPT_START***
-// RevenueCat Premium Bypass Script
-// Modifica as respostas para simular assinatura premium ativa
-
-
-
-modifyRevenueCatResponse($response);
-***REVENUECAT_SCRIPT_END***
+name: RevenueCat Premium Bypass
+description: Modifica respostas da API RevenueCat para simular assinatura premium válida. Recomenda-se reiniciar o app após ativação.
+scriptings:
+- http_response:
+    name: revenuecat-premium
+    match: ^https://api.revenuecat.com/v1/(subscribers|receipts)
+    script_url: https://apolossh.github.io/dw/revenue.js
+    update_interval: 0
+    body_required: true
+    binary_body: false
+mitm:
+  hostnames:
+    includes:
+    - api.revenuecat.com
