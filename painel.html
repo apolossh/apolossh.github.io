@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Gerador de Painel com Moldura</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      background: #f0f0f0;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .painel {
+      width: 800px;
+      padding: 40px;
+      background: white;
+      border: 40px solid transparent;
+      box-shadow: 0 0 15px rgba(0,0,0,0.25);
+      margin-top: 20px;
+    }
+
+    .painel h2 {
+      text-align: center;
+    }
+
+    .config {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.2);
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    input[type="number"] {
+      width: 80px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Gerador de Painel com Moldura</h1>
+
+  <div class="config">
+    <label>Selecione a imagem da moldura:</label>
+    <input type="file" id="upload" accept="image/*">
+
+    <label>Defina a largura do corte (em pixels):</label>
+    <input type="number" id="slice" value="60" min="1">
+
+    <button onclick="aplicarMoldura()">Aplicar Moldura</button>
+  </div>
+
+  <div class="painel" id="painel">
+    <h2>Educação e Transformação</h2>
+    <p>Aqui vai o conteúdo do painel. Você pode colar links, textos ou atividades.</p>
+  </div>
+
+  <script>
+    let imagemURL = null;
+
+    document.getElementById("upload").addEventListener("change", function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        imagemURL = URL.createObjectURL(file);
+      }
+    });
+
+    function aplicarMoldura() {
+      const slice = document.getElementById("slice").value;
+      const painel = document.getElementById("painel");
+
+      if (!imagemURL) {
+        alert("Por favor, selecione uma imagem primeiro.");
+        return;
+      }
+
+      painel.style.borderImageSource = `url(${imagemURL})`;
+      painel.style.borderImageSlice = slice;
+      painel.style.borderImageRepeat = "round";
+    }
+  </script>
+
+</body>
+</html>
