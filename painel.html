@@ -4,26 +4,33 @@
 <meta charset="utf-8">
 <title>Gerador de Painel para Imprimir e Colar</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
   :root {
     --paper-w: 210mm; /* A4 */
     --paper-h: 297mm;
+    --bg: #121212;
+    --card: #1e1e1e;
+    --text: #e0e0e0;
+    --accent: #2196f3;
+    --border: #333;
   }
   body {
     margin: 0;
     font-family: system-ui, sans-serif;
-    background: #f0f0f0;
+    background: var(--bg);
+    color: var(--text);
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 16px;
   }
-  h1 { font-size: 20px; margin-bottom: 8px; }
+  h1 { font-size: 22px; margin-bottom: 12px; }
   .panel {
-    background: #fff;
+    background: var(--card);
     padding: 16px;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
     max-width: 800px;
     width: 100%;
     margin-bottom: 20px;
@@ -31,31 +38,34 @@
   label { font-weight: 600; display: block; margin-top: 10px; }
   input, select, button {
     width: 100%;
-    padding: 8px;
+    padding: 10px;
     margin-top: 4px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border);
     border-radius: 6px;
+    background: #2a2a2a;
+    color: var(--text);
   }
   button {
-    background: #0a66c2;
+    background: var(--accent);
     color: #fff;
     font-weight: bold;
-    border: none;
     cursor: pointer;
+    border: none;
   }
-  button:disabled { opacity: .6; cursor: not-allowed; }
-  .row { display: flex; gap: 10px; }
-  .row > div { flex: 1; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .row > div { flex: 1; min-width: 120px; }
+  .btns { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
   .preview {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 12px;
   }
   .page {
     width: var(--paper-w);
     height: var(--paper-h);
     background: #fff;
-    border: 1px dashed #aaa;
+    border: 1px dashed #555;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -64,7 +74,7 @@
   .page canvas { width: 100%; height: auto; }
   @media print {
     @page { size: A4; margin: 0 }
-    body { background: #fff; padding: 0; }
+    body { background: #fff; color: #000; padding: 0; }
     .panel { display: none; }
     .preview { grid-template-columns: 1fr; }
     .page { border: none; break-after: page; }
@@ -95,13 +105,20 @@
   <label>Tamanho da marca de corte (mm):</label>
   <input id="markMm" type="number" min="2" value="6">
 
-  <button id="gen" disabled>Gerar páginas</button>
-  <button id="print" disabled>Imprimir / Salvar PDF</button>
+  <div class="btns">
+    <button id="gen" disabled>Gerar páginas</button>
+    <button id="print" disabled>Imprimir</button>
+    <button id="download" disabled>Baixar PDF</button>
+  </div>
 </div>
 
 <div id="preview" class="preview"></div>
 
+<!-- jsPDF para exportar PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <script>
+const { jsPDF } = window.jspdf;
 const MM_TO_PX = mm => mm * (96/25.4); // 96 dpi CSS
 
 function loadImage(file){
@@ -114,6 +131,7 @@ function loadImage(file){
 }
 
 let sourceImage = null;
+let generatedPages = [];
 
 document.getElementById('file').addEventListener('change', async e=>{
   const file = e.target.files[0];
@@ -139,21 +157,17 @@ document.getElementById('gen').addEventListener('click', ()=>{
 
   const preview = document.getElementById('preview');
   preview.innerHTML = '';
+  generatedPages = [];
 
   for(let r=0; r<rows; r++){
     for(let c=0; c<cols; c++){
-      const page = document.createElement('div');
-      page.className = 'page';
-
       const canvas = document.createElement('canvas');
       canvas.width = pageW;
       canvas.height = pageH;
       const ctx = canvas.getContext('2d');
 
-      // fundo branco
-      ctx.fillStyle="#fff"; ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle="#fff"; ctx.fillRect(0,0,pageW,pageH);
 
-      // calcular tamanho máximo dentro da folha
       let availW = pageW - (c < cols-1 ? tabPx : 0);
       let availH = pageH - (r < rows-1 ? tabPx : 0);
       const sliceAspect = sliceWsrc/sliceHsrc;
@@ -163,26 +177,23 @@ document.getElementById('gen').addEventListener('click', ()=>{
       const dx = (pageW - (c < cols-1 ? tabPx : 0) - drawW)/2;
       const dy = (pageH - (r < rows-1 ? tabPx : 0) - drawH)/2;
 
-      // desenhar fatia da imagem
       ctx.drawImage(sourceImage,
         c*sliceWsrc, r*sliceHsrc, sliceWsrc, sliceHsrc,
         dx, dy, drawW, drawH);
 
-      // desenhar moldura da peça
-      ctx.strokeStyle="#000"; ctx.lineWidth=1; ctx.strokeRect(dx,dy,drawW,drawH);
+      ctx.strokeStyle="#000"; ctx.strokeRect(dx,dy,drawW,drawH);
 
-      // desenhar abas
-      if(c<cols-1 && tabPx>0){ // direita
+      // abas
+      if(c<cols-1 && tabPx>0){
         ctx.fillStyle="#fff"; ctx.fillRect(dx+drawW,dy,tabPx,drawH);
         ctx.strokeRect(dx+drawW,dy,tabPx,drawH);
       }
-      if(r<rows-1 && tabPx>0){ // baixo
+      if(r<rows-1 && tabPx>0){
         ctx.fillStyle="#fff"; ctx.fillRect(dx,dy+drawH,drawW,tabPx);
         ctx.strokeRect(dx,dy+drawH,drawW,tabPx);
       }
 
-      // marcas de corte nos cantos
-      ctx.strokeStyle="#000"; ctx.lineWidth=1;
+      // marcas de corte
       ctx.beginPath();
       ctx.moveTo(dx-markPx,dy); ctx.lineTo(dx,dy);
       ctx.moveTo(dx,dy-markPx); ctx.lineTo(dx,dy);
@@ -194,15 +205,32 @@ document.getElementById('gen').addEventListener('click', ()=>{
       ctx.moveTo(dx+drawW,dy+drawH+markPx); ctx.lineTo(dx+drawW,dy+drawH);
       ctx.stroke();
 
+      // preview
+      const page = document.createElement('div');
+      page.className = 'page';
       page.appendChild(canvas);
       preview.appendChild(page);
+
+      generatedPages.push(canvas);
     }
   }
 
   document.getElementById('print').disabled = false;
+  document.getElementById('download').disabled = false;
 });
 
 document.getElementById('print').addEventListener('click', ()=>window.print());
+
+document.getElementById('download').addEventListener('click', ()=>{
+  if(generatedPages.length === 0) return;
+  const pdf = new jsPDF({orientation:"portrait", unit:"mm", format:"a4"});
+  generatedPages.forEach((canvas,i)=>{
+    const imgData = canvas.toDataURL("image/jpeg",1.0);
+    if(i>0) pdf.addPage();
+    pdf.addImage(imgData,"JPEG",0,0,210,297);
+  });
+  pdf.save("painel.pdf");
+});
 </script>
 
 </body>
