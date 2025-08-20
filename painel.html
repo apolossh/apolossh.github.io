@@ -4,56 +4,54 @@
 <meta charset="utf-8">
 <title>Gerador de Painel para Imprimir e Colar</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <style>
-  :root {
-    --bg: #121212;
-    --card: #1e1e1e;
-    --text: #e0e0e0;
-    --accent: #2196f3;
-    --border: #333;
-  }
-  body {
-    margin: 0;
-    font-family: system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 16px;
-  }
-  h1 { font-size: 22px; margin-bottom: 12px; }
-  .panel {
-    background: var(--card);
-    padding: 16px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-    max-width: 600px;
-    width: 100%;
-    margin-bottom: 20px;
-  }
-  label { font-weight: 600; display: block; margin-top: 10px; }
-  input, select, button {
-    width: 100%;
-    padding: 10px;
-    margin-top: 4px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: #2a2a2a;
-    color: var(--text);
-  }
-  button {
-    background: var(--accent);
-    color: #fff;
-    font-weight: bold;
-    cursor: pointer;
-    border: none;
-  }
-  button:disabled { opacity: .5; cursor: not-allowed; }
-  .row { display: flex; gap: 10px; flex-wrap: wrap; }
-  .row > div { flex: 1; min-width: 120px; }
-  .btns { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+:root {
+  --bg: #121212;
+  --card: #1e1e1e;
+  --text: #e0e0e0;
+  --accent: #2196f3;
+  --border: #333;
+}
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+}
+h1 { font-size: 22px; margin-bottom: 12px; }
+.panel {
+  background: var(--card);
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  max-width: 600px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+label { font-weight: 600; display: block; margin-top: 10px; }
+input, select, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #2a2a2a;
+  color: var(--text);
+}
+button {
+  background: var(--accent);
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+}
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.row > div { flex: 1; min-width: 120px; }
+.btns { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
 </style>
 </head>
 <body>
@@ -98,17 +96,23 @@
   <input id="markMm" type="number" min="2" value="6">
 
   <div class="btns">
-    <button id="gen" disabled>Gerar PDF</button>
-    <button id="print" disabled>Imprimir</button>
-    <button id="download" disabled>Baixar PDF</button>
+    <button id="gen">Gerar PDF</button>
+    <button id="print">Imprimir</button>
+    <button id="download">Baixar PDF</button>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <script>
 const { jsPDF } = window.jspdf;
 const MM_TO_PX = mm => mm * (96/25.4);
+
+let sourceImage = null;
+let generatedPages = [];
+
+const btnGen = document.getElementById('gen');
+const btnPrint = document.getElementById('print');
+const btnDownload = document.getElementById('download');
 
 function loadImage(file){
   return new Promise((res, rej)=>{
@@ -119,8 +123,19 @@ function loadImage(file){
   });
 }
 
-let sourceImage = null;
-let generatedPages = [];
+function updateButtons(state){
+  if(state === 'init'){
+    btnGen.style.display = 'block';
+    btnPrint.style.display = 'none';
+    btnDownload.style.display = 'none';
+  } else if(state === 'generated'){
+    btnGen.style.display = 'none';
+    btnPrint.style.display = 'block';
+    btnDownload.style.display = 'block';
+  }
+}
+
+updateButtons('init');
 
 document.getElementById('file').addEventListener('change', async e=>{
   const file = e.target.files[0];
@@ -131,25 +146,22 @@ document.getElementById('file').addEventListener('change', async e=>{
     } else {
       document.getElementById('orient').value = "portrait";
     }
-    document.getElementById('gen').disabled = false;
+    updateButtons('init');
   }
 });
 
 document.getElementById('preset').addEventListener('change', e=>{
-  document.getElementById('customGrid').style.display = 
-    (e.target.value === 'custom') ? 'flex' : 'none';
+  document.getElementById('customGrid').style.display = (e.target.value === 'custom') ? 'flex' : 'none';
 });
 
-document.getElementById('gen').addEventListener('click', ()=>{
+btnGen.addEventListener('click', ()=>{
   if(!sourceImage) return;
 
   const orient = document.getElementById('orient').value;
   let pageWmm = orient === "portrait" ? 210 : 297;
   let pageHmm = orient === "portrait" ? 297 : 210;
-
-  const SCALE = 2;
-  const pageW = Math.round(MM_TO_PX(pageWmm) * SCALE);
-  const pageH = Math.round(MM_TO_PX(pageHmm) * SCALE);
+  const pageW = Math.round(MM_TO_PX(pageWmm));
+  const pageH = Math.round(MM_TO_PX(pageHmm));
 
   let rows, cols;
   const preset = document.getElementById('preset').value;
@@ -160,8 +172,8 @@ document.getElementById('gen').addEventListener('click', ()=>{
     cols = parseInt(document.getElementById('cols').value);
   }
 
-  const tabPx = MM_TO_PX(parseFloat(document.getElementById('tabMm').value)) * SCALE;
-  const markPx = MM_TO_PX(parseFloat(document.getElementById('markMm').value)) * SCALE;
+  const tabPx = MM_TO_PX(parseFloat(document.getElementById('tabMm').value));
+  const markPx = MM_TO_PX(parseFloat(document.getElementById('markMm').value));
 
   const sliceWsrc = sourceImage.naturalWidth / cols;
   const sliceHsrc = sourceImage.naturalHeight / rows;
@@ -186,22 +198,21 @@ document.getElementById('gen').addEventListener('click', ()=>{
       const dx = (pageW - ((c < cols-1) ? tabPx : 0) - drawW)/2;
       const dy = (pageH - ((r < rows-1) ? tabPx : 0) - drawH)/2;
 
-      ctx.drawImage(sourceImage,
-        c*sliceWsrc, r*sliceHsrc, sliceWsrc, sliceHsrc,
-        dx, dy, drawW, drawH);
+      ctx.drawImage(sourceImage, c*sliceWsrc, r*sliceHsrc, sliceWsrc, sliceHsrc, dx, dy, drawW, drawH);
 
-      ctx.strokeStyle="#000"; ctx.lineWidth=3;
+      ctx.strokeStyle="#000"; ctx.lineWidth=1.5;
       ctx.setLineDash([]);
       ctx.strokeRect(dx,dy,drawW,drawH);
 
       if(c<cols-1 && tabPx>0){
-        ctx.fillStyle="rgba(255,255,255,0.8)"; 
-        ctx.fillRect(dx+drawW,dy,tabPx,drawH);
-        ctx.strokeStyle="#000"; ctx.lineWidth=1.5;
-        ctx.setLineDash([10,5]);
-        ctx.strokeRect(dx+drawW,dy,tabPx,drawH);
+        ctx.fillStyle="#fff"; ctx.fillRect(dx+drawW,dy,tabPx,drawH);
+        ctx.strokeStyle="#000"; ctx.strokeRect(dx+drawW,dy,tabPx,drawH);
+        ctx.setLineDash([5,3]);
+        ctx.beginPath();
+        ctx.moveTo(dx+drawW,dy); ctx.lineTo(dx+drawW,dy+drawH);
+        ctx.stroke();
         ctx.setLineDash([]);
-        ctx.fillStyle="#000"; ctx.font=`bold ${13*SCALE}px sans-serif`;
+        ctx.fillStyle="#000"; ctx.font="bold 13px sans-serif";
         ctx.save();
         ctx.translate(dx+drawW+tabPx/2, dy+drawH/2);
         ctx.rotate(-Math.PI/2);
@@ -211,18 +222,19 @@ document.getElementById('gen').addEventListener('click', ()=>{
       }
 
       if(r<rows-1 && tabPx>0){
-        ctx.fillStyle="rgba(255,255,255,0.8)";
-        ctx.fillRect(dx,dy+drawH,drawW,tabPx);
-        ctx.strokeStyle="#000"; ctx.lineWidth=1.5;
-        ctx.setLineDash([10,5]);
-        ctx.strokeRect(dx,dy+drawH,drawW,tabPx);
+        ctx.fillStyle="#fff"; ctx.fillRect(dx,dy+drawH,drawW,tabPx);
+        ctx.strokeStyle="#000"; ctx.strokeRect(dx,dy+drawH,drawW,tabPx);
+        ctx.setLineDash([5,3]);
+        ctx.beginPath();
+        ctx.moveTo(dx,dy+drawH); ctx.lineTo(dx+drawW,dy+drawH);
+        ctx.stroke();
         ctx.setLineDash([]);
-        ctx.fillStyle="#000"; ctx.font=`bold ${13*SCALE}px sans-serif`;
+        ctx.fillStyle="#000"; ctx.font="bold 13px sans-serif";
         ctx.textAlign="center";
-        ctx.fillText("COLE AQUI", dx+drawW/2, dy+drawH+tabPx/2+4*SCALE);
+        ctx.fillText("COLE AQUI", dx+drawW/2, dy+drawH+tabPx/2+4);
       }
 
-      ctx.strokeStyle="#000"; ctx.lineWidth=2;
+      ctx.strokeStyle="#000"; ctx.lineWidth=1.2;
       ctx.beginPath();
       ctx.moveTo(dx-markPx,dy); ctx.lineTo(dx,dy);
       ctx.moveTo(dx,dy-markPx); ctx.lineTo(dx,dy);
@@ -238,11 +250,10 @@ document.getElementById('gen').addEventListener('click', ()=>{
     }
   }
 
-  document.getElementById('print').disabled = false;
-  document.getElementById('download').disabled = false;
+  updateButtons('generated');
 });
 
-document.getElementById('print').addEventListener('click', ()=>{
+btnPrint.addEventListener('click', ()=>{
   if(generatedPages.length === 0) return;
   const w = generatedPages[0].pageWmm;
   const h = generatedPages[0].pageHmm;
@@ -252,10 +263,11 @@ document.getElementById('print').addEventListener('click', ()=>{
     if(i>0) pdf.addPage([pg.pageWmm,pg.pageHmm], w>h?"landscape":"portrait");
     pdf.addImage(img,"JPEG",0,0,pg.pageWmm,pg.pageHmm);
   });
+  pdf.autoPrint();
   window.open(pdf.output("bloburl"),"_blank");
 });
 
-document.getElementById('download').addEventListener('click', ()=>{
+btnDownload.addEventListener('click', ()=>{
   if(generatedPages.length === 0) return;
   const w = generatedPages[0].pageWmm;
   const h = generatedPages[0].pageHmm;
@@ -268,6 +280,5 @@ document.getElementById('download').addEventListener('click', ()=>{
   pdf.save("painel.pdf");
 });
 </script>
-
 </body>
 </html>
