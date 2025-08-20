@@ -92,7 +92,7 @@
     <option value="portrait">Vertical (A4 retrato)</option>
     <option value="landscape">Horizontal (A4 paisagem)</option>
   </select>
-  <small style="opacity:0.7;">Sugestão automática com base na imagem</small>
+  <small style="opacity:0.7;">Ajuste automático pela imagem</small>
 
   <label>Divisão em partes:</label>
   <select id="preset">
@@ -153,14 +153,11 @@ document.getElementById('file').addEventListener('change', async e=>{
   const file = e.target.files[0];
   if(file){
     sourceImage = await loadImage(file);
-
-    // detectar orientação da imagem
     if(sourceImage.naturalWidth > sourceImage.naturalHeight){
       document.getElementById('orient').value = "landscape";
     } else {
       document.getElementById('orient').value = "portrait";
     }
-
     document.getElementById('gen').disabled = false;
   }
 });
@@ -220,35 +217,49 @@ document.getElementById('gen').addEventListener('click', ()=>{
         c*sliceWsrc, r*sliceHsrc, sliceWsrc, sliceHsrc,
         dx, dy, drawW, drawH);
 
-      // borda sólida
-      ctx.strokeStyle="#000"; ctx.lineWidth=1.2;
+      // borda sólida da imagem
+      ctx.strokeStyle="#000"; ctx.lineWidth=1.5;
+      ctx.setLineDash([]);
       ctx.strokeRect(dx,dy,drawW,drawH);
 
       // aba direita
       if(c<cols-1 && tabPx>0){
         ctx.fillStyle="#fff"; ctx.fillRect(dx+drawW,dy,tabPx,drawH);
-        ctx.strokeRect(dx+drawW,dy,tabPx,drawH);
-        ctx.fillStyle="#000";
-        ctx.font="12px sans-serif";
+        ctx.strokeStyle="#000"; ctx.strokeRect(dx+drawW,dy,tabPx,drawH);
+        // linha de dobra
+        ctx.setLineDash([5,3]);
+        ctx.beginPath();
+        ctx.moveTo(dx+drawW,dy); ctx.lineTo(dx+drawW,dy+drawH);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        // texto
+        ctx.fillStyle="#000"; ctx.font="bold 13px sans-serif";
         ctx.save();
         ctx.translate(dx+drawW+tabPx/2, dy+drawH/2);
         ctx.rotate(-Math.PI/2);
         ctx.textAlign="center";
-        ctx.fillText("Colar à peça da direita",0,0);
+        ctx.fillText("COLE AQUI",0,0);
         ctx.restore();
       }
 
       // aba inferior
       if(r<rows-1 && tabPx>0){
         ctx.fillStyle="#fff"; ctx.fillRect(dx,dy+drawH,drawW,tabPx);
-        ctx.strokeRect(dx,dy+drawH,drawW,tabPx);
-        ctx.fillStyle="#000";
-        ctx.font="12px sans-serif";
+        ctx.strokeStyle="#000"; ctx.strokeRect(dx,dy+drawH,drawW,tabPx);
+        // linha de dobra
+        ctx.setLineDash([5,3]);
+        ctx.beginPath();
+        ctx.moveTo(dx,dy+drawH); ctx.lineTo(dx+drawW,dy+drawH);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        // texto
+        ctx.fillStyle="#000"; ctx.font="bold 13px sans-serif";
         ctx.textAlign="center";
-        ctx.fillText("Colar à peça de baixo", dx+drawW/2, dy+drawH+tabPx/2+4);
+        ctx.fillText("COLE AQUI", dx+drawW/2, dy+drawH+tabPx/2+4);
       }
 
       // marcas de corte
+      ctx.strokeStyle="#000"; ctx.lineWidth=1.2;
       ctx.beginPath();
       ctx.moveTo(dx-markPx,dy); ctx.lineTo(dx,dy);
       ctx.moveTo(dx,dy-markPx); ctx.lineTo(dx,dy);
