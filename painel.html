@@ -92,6 +92,7 @@
     <option value="portrait">Vertical (A4 retrato)</option>
     <option value="landscape">Horizontal (A4 paisagem)</option>
   </select>
+  <small style="opacity:0.7;">Sugestão automática com base na imagem</small>
 
   <label>Divisão em partes:</label>
   <select id="preset">
@@ -134,7 +135,8 @@
 
 <script>
 const { jsPDF } = window.jspdf;
-const MM_TO_PX = mm => mm * (96/25.4); // 96 dpi CSS
+const MM_TO_PX = mm => mm * (96/25.4);
+
 function loadImage(file){
   return new Promise((res, rej)=>{
     const img = new Image();
@@ -151,6 +153,14 @@ document.getElementById('file').addEventListener('change', async e=>{
   const file = e.target.files[0];
   if(file){
     sourceImage = await loadImage(file);
+
+    // detectar orientação da imagem
+    if(sourceImage.naturalWidth > sourceImage.naturalHeight){
+      document.getElementById('orient').value = "landscape";
+    } else {
+      document.getElementById('orient').value = "portrait";
+    }
+
     document.getElementById('gen').disabled = false;
   }
 });
