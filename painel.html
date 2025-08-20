@@ -2,62 +2,64 @@
 <html lang="pt-br">
 <head>
 <meta charset="utf-8">
-<title>Gerador de Painel para Imprimir e Colar</title>
+<title>Gerador de Painel com Encaixe Jigsaw</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-  :root {
-    --bg: #121212;
-    --card: #1e1e1e;
-    --text: #e0e0e0;
-    --accent: #2196f3;
-    --border: #333;
-  }
-  body {
-    margin: 0;
-    font-family: system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 16px;
-  }
-  h1 { font-size: 22px; margin-bottom: 12px; }
-  .panel {
-    background: var(--card);
-    padding: 16px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-    max-width: 600px;
-    width: 100%;
-    margin-bottom: 20px;
-  }
-  label { font-weight: 600; display: block; margin-top: 10px; }
-  input, select, button {
-    width: 100%;
-    padding: 10px;
-    margin-top: 4px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: #2a2a2a;
-    color: var(--text);
-  }
-  button {
-    background: var(--accent);
-    color: #fff;
-    font-weight: bold;
-    cursor: pointer;
-    border: none;
-  }
-  button:disabled { opacity: .5; cursor: not-allowed; }
-  .row { display: flex; gap: 10px; flex-wrap: wrap; }
-  .row > div { flex: 1; min-width: 120px; }
-  .btns { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+:root {
+  --bg: #121212;
+  --card: #1e1e1e;
+  --text: #e0e0e0;
+  --accent: #2196f3;
+  --border: #333;
+}
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+}
+h1 { font-size: 22px; margin-bottom: 12px; }
+.panel {
+  background: var(--card);
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  max-width: 600px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+label { font-weight: 600; display: block; margin-top: 10px; }
+input, select, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #2a2a2a;
+  color: var(--text);
+}
+button {
+  background: var(--accent);
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.3s;
+}
+button:disabled { opacity: 0; cursor: default; pointer-events: none; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.row > div { flex: 1; min-width: 120px; }
+.btns { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
 </style>
 </head>
 <body>
+
 <div class="panel">
-  <h1>Gerador de Painel</h1>
+  <h1>Gerador de Painel com Encaixe Jigsaw</h1>
   <label>Imagem do painel:</label>
   <input id="file" type="file" accept="image/*">
 
@@ -66,7 +68,6 @@
     <option value="portrait">Vertical (A4 retrato)</option>
     <option value="landscape">Horizontal (A4 paisagem)</option>
   </select>
-  <small style="opacity:0.7;">Ajuste automático pela imagem</small>
 
   <label>Divisão em partes:</label>
   <select id="preset">
@@ -89,7 +90,7 @@
     </div>
   </div>
 
-  <label>Aba de cola (mm):</label>
+  <label>Tamanho da aba (mm):</label>
   <input id="tabMm" type="number" min="0" value="10">
 
   <label>Tamanho da marca de corte (mm):</label>
@@ -97,8 +98,8 @@
 
   <div class="btns">
     <button id="gen" disabled>Gerar PDF</button>
-    <button id="print" style="display:none;">Imprimir</button>
-    <button id="download" style="display:none;">Baixar/Compartilhar PDF</button>
+    <button id="print" disabled>Imprimir</button>
+    <button id="download" disabled>Baixar PDF</button>
   </div>
 </div>
 
@@ -106,6 +107,32 @@
 <script>
 const { jsPDF } = window.jspdf;
 const MM_TO_PX = mm => mm * (96/25.4);
+let sourceImage = null;
+let generatedPages = [];
+
+const fileInput = document.getElementById('file');
+const genBtn = document.getElementById('gen');
+const printBtn = document.getElementById('print');
+const downloadBtn = document.getElementById('download');
+
+function resetButtons(){
+  genBtn.disabled = !sourceImage;
+  printBtn.disabled = true;
+  downloadBtn.disabled = true;
+}
+
+fileInput.addEventListener('change', async e=>{
+  const file = e.target.files[0];
+  if(file){
+    sourceImage = await loadImage(file);
+    if(sourceImage.naturalWidth > sourceImage.naturalHeight){
+      document.getElementById('orient').value = "landscape";
+    } else {
+      document.getElementById('orient').value = "portrait";
+    }
+    resetButtons();
+  }
+});
 
 function loadImage(file){
   return new Promise((res, rej)=>{
@@ -116,42 +143,17 @@ function loadImage(file){
   });
 }
 
-let sourceImage = null;
-let generatedPages = [];
-let pdfGenerated = false;
-
-const btnGen = document.getElementById('gen');
-const btnPrint = document.getElementById('print');
-const btnDownload = document.getElementById('download');
-
-document.getElementById('file').addEventListener('change', async e=>{
-  const file = e.target.files[0];
-  if(file){
-    sourceImage = await loadImage(file);
-    pdfGenerated = false;
-    btnGen.style.display = "inline-block";
-    btnPrint.style.display = "none";
-    btnDownload.style.display = "none";
-    if(sourceImage.naturalWidth > sourceImage.naturalHeight){
-      document.getElementById('orient').value = "landscape";
-    } else {
-      document.getElementById('orient').value = "portrait";
-    }
-    btnGen.disabled = false;
-  }
-});
-
 document.getElementById('preset').addEventListener('change', e=>{
   document.getElementById('customGrid').style.display = 
     (e.target.value === 'custom') ? 'flex' : 'none';
 });
 
-btnGen.addEventListener('click', ()=>{
+function generatePages(){
   if(!sourceImage) return;
 
   const orient = document.getElementById('orient').value;
-  let pageWmm = orient === "portrait" ? 210 : 297;
-  let pageHmm = orient === "portrait" ? 297 : 210;
+  const pageWmm = orient === "portrait" ? 210 : 297;
+  const pageHmm = orient === "portrait" ? 297 : 210;
   const pageW = Math.round(MM_TO_PX(pageWmm));
   const pageH = Math.round(MM_TO_PX(pageHmm));
 
@@ -198,35 +200,48 @@ btnGen.addEventListener('click', ()=>{
       ctx.setLineDash([]);
       ctx.strokeRect(dx,dy,drawW,drawH);
 
-      if(c<cols-1 && tabPx>0){
-        ctx.fillStyle="#fff"; ctx.fillRect(dx+drawW,dy,tabPx,drawH);
-        ctx.strokeStyle="#000"; ctx.strokeRect(dx+drawW,dy,tabPx,drawH);
-        ctx.setLineDash([5,3]);
+      function drawJigsaw(x, y, w, h, horizontal=true){
+        const radius = tabPx/2;
+        ctx.strokeStyle="#000";
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.moveTo(dx+drawW,dy); ctx.lineTo(dx+drawW,dy+drawH);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.fillStyle="#000"; ctx.font="bold 13px sans-serif";
-        ctx.save();
-        ctx.translate(dx+drawW+tabPx/2, dy+drawH/2);
-        ctx.rotate(-Math.PI/2);
-        ctx.textAlign="center";
-        ctx.fillText("COLE AQUI",0,0);
-        ctx.restore();
+        if(horizontal){
+          ctx.moveTo(x, y);
+          ctx.lineTo(x+w/4, y);
+          ctx.arc(x+w/2, y-radius/2, radius, Math.PI, 0, true);
+          ctx.lineTo(x+3*w/4, y);
+          ctx.lineTo(x+w, y);
+          ctx.stroke();
+
+          ctx.save();
+          ctx.translate(x + w/2, y - radius/2 - radius/4);
+          ctx.rotate(-Math.PI/2);
+          ctx.font = `${radius/1.8}px Arial`;
+          ctx.fillStyle = "#000";
+          ctx.textAlign = "center";
+          ctx.fillText("COLE AQUI", 0, 0);
+          ctx.restore();
+        } else {
+          ctx.moveTo(x, y);
+          ctx.lineTo(x, y+h/4);
+          ctx.arc(x+radius/2, y+h/2, radius, -Math.PI/2, Math.PI/2, true);
+          ctx.lineTo(x, y+3*h/4);
+          ctx.lineTo(x, y+h);
+          ctx.stroke();
+
+          ctx.save();
+          ctx.translate(x + radius/2 + radius/4, y + h/2);
+          ctx.rotate(0);
+          ctx.font = `${radius/1.8}px Arial`;
+          ctx.fillStyle = "#000";
+          ctx.textAlign = "center";
+          ctx.fillText("COLE AQUI", 0, 0);
+          ctx.restore();
+        }
       }
 
-      if(r<rows-1 && tabPx>0){
-        ctx.fillStyle="#fff"; ctx.fillRect(dx,dy+drawH,drawW,tabPx);
-        ctx.strokeStyle="#000"; ctx.strokeRect(dx,dy+drawH,drawW,tabPx);
-        ctx.setLineDash([5,3]);
-        ctx.beginPath();
-        ctx.moveTo(dx,dy+drawH); ctx.lineTo(dx+drawW,dy+drawH);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.fillStyle="#000"; ctx.font="bold 13px sans-serif";
-        ctx.textAlign="center";
-        ctx.fillText("COLE AQUI", dx+drawW/2, dy+drawH+tabPx/2+4);
-      }
+      if(c<cols-1 && tabPx>0){ drawJigsaw(dx+drawW, dy, drawW, drawH, true); }
+      if(r<rows-1 && tabPx>0){ drawJigsaw(dx, dy+drawH, drawW, drawH, false); }
 
       ctx.strokeStyle="#000"; ctx.lineWidth=1.2;
       ctx.beginPath();
@@ -244,13 +259,14 @@ btnGen.addEventListener('click', ()=>{
     }
   }
 
-  pdfGenerated = true;
-  btnGen.style.display = "none";
-  btnPrint.style.display = "inline-block";
-  btnDownload.style.display = "inline-block";
-});
+  printBtn.disabled = false;
+  downloadBtn.disabled = false;
+  genBtn.disabled = true;
+}
 
-btnPrint.addEventListener('click', ()=>{
+genBtn.addEventListener('click', generatePages);
+
+printBtn.addEventListener('click', ()=>{
   if(generatedPages.length === 0) return;
   const w = generatedPages[0].pageWmm;
   const h = generatedPages[0].pageHmm;
@@ -264,7 +280,7 @@ btnPrint.addEventListener('click', ()=>{
   window.open(pdf.output("bloburl"),"_blank");
 });
 
-btnDownload.addEventListener('click', async ()=>{
+downloadBtn.addEventListener('click', async ()=>{
   if(generatedPages.length === 0) return;
   const w = generatedPages[0].pageWmm;
   const h = generatedPages[0].pageHmm;
@@ -275,19 +291,9 @@ btnDownload.addEventListener('click', async ()=>{
     pdf.addImage(img,"JPEG",0,0,pg.pageWmm,pg.pageHmm);
   });
 
-  const blob = pdf.output("blob");
-  const file = new File([blob], "painel.pdf", { type: "application/pdf" });
-
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try {
-      await navigator.share({
-        title: "Painel PDF",
-        text: "Aqui está o PDF do painel gerado:",
-        files: [file]
-      });
-    } catch (err) {
-      alert("Compartilhamento cancelado ou não disponível.");
-    }
+  if(navigator.canShare && navigator.canShare({files:[new File([pdf.output("blob")],"painel.pdf",{type:"application/pdf"})]})){
+    const file = new File([pdf.output("blob")], "painel.pdf", {type:"application/pdf"});
+    await navigator.share({files:[file], title:"Painel", text:"Aqui está seu PDF do painel"});
   } else {
     pdf.save("painel.pdf");
   }
