@@ -7,8 +7,6 @@
 
 <style>
   :root {
-    --paper-w: 210mm; /* A4 */
-    --paper-h: 297mm;
     --bg: #121212;
     --card: #1e1e1e;
     --text: #e0e0e0;
@@ -62,14 +60,15 @@
     gap: 12px;
   }
   .page {
-    width: var(--paper-w);
-    height: var(--paper-h);
+    width: 210mm;
+    height: 297mm;
     background: #fff;
     border: 1px dashed #555;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    position: relative;
   }
   .page canvas { width: 100%; height: auto; }
   @media print {
@@ -88,7 +87,23 @@
   <label>Imagem do painel:</label>
   <input id="file" type="file" accept="image/*">
 
-  <div class="row">
+  <label>Orientação da página:</label>
+  <select id="orient">
+    <option value="portrait">Vertical (A4 retrato)</option>
+    <option value="landscape">Horizontal (A4 paisagem)</option>
+  </select>
+
+  <label>Divisão em partes:</label>
+  <select id="preset">
+    <option value="1x2">2 (1 × 2)</option>
+    <option value="2x2">4 (2 × 2)</option>
+    <option value="2x3">6 (2 × 3)</option>
+    <option value="3x3">9 (3 × 3)</option>
+    <option value="3x4">12 (3 × 4)</option>
+    <option value="custom">Personalizar...</option>
+  </select>
+
+  <div id="customGrid" style="display:none;" class="row">
     <div>
       <label>Linhas:</label>
       <input id="rows" type="number" min="1" value="2">
@@ -114,13 +129,12 @@
 
 <div id="preview" class="preview"></div>
 
-<!-- jsPDF para exportar PDF -->
+<!-- jsPDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
 const { jsPDF } = window.jspdf;
 const MM_TO_PX = mm => mm * (96/25.4); // 96 dpi CSS
-
 function loadImage(file){
   return new Promise((res, rej)=>{
     const img = new Image();
@@ -141,16 +155,31 @@ document.getElementById('file').addEventListener('change', async e=>{
   }
 });
 
+document.getElementById('preset').addEventListener('change', e=>{
+  document.getElementById('customGrid').style.display = 
+    (e.target.value === 'custom') ? 'flex' : 'none';
+});
+
 document.getElementById('gen').addEventListener('click', ()=>{
   if(!sourceImage) return;
 
-  const rows = parseInt(document.getElementById('rows').value);
-  const cols = parseInt(document.getElementById('cols').value);
+  const orient = document.getElementById('orient').value;
+  let pageWmm = orient === "portrait" ? 210 : 297;
+  let pageHmm = orient === "portrait" ? 297 : 210;
+  const pageW = Math.round(MM_TO_PX(pageWmm));
+  const pageH = Math.round(MM_TO_PX(pageHmm));
+
+  let rows, cols;
+  const preset = document.getElementById('preset').value;
+  if(preset !== "custom"){
+    [rows, cols] = preset.split("x").map(Number);
+  } else {
+    rows = parseInt(document.getElementById('rows').value);
+    cols = parseInt(document.getElementById('cols').value);
+  }
+
   const tabPx = MM_TO_PX(parseFloat(document.getElementById('tabMm').value));
   const markPx = MM_TO_PX(parseFloat(document.getElementById('markMm').value));
-
-  const pageW = Math.round(MM_TO_PX(210));
-  const pageH = Math.round(MM_TO_PX(297));
 
   const sliceWsrc = sourceImage.naturalWidth / cols;
   const sliceHsrc = sourceImage.naturalHeight / rows;
@@ -168,29 +197,45 @@ document.getElementById('gen').addEventListener('click', ()=>{
 
       ctx.fillStyle="#fff"; ctx.fillRect(0,0,pageW,pageH);
 
-      let availW = pageW - (c < cols-1 ? tabPx : 0);
-      let availH = pageH - (r < rows-1 ? tabPx : 0);
+      let availW = pageW - ((c < cols-1) ? tabPx : 0);
+      let availH = pageH - ((r < rows-1) ? tabPx : 0);
       const sliceAspect = sliceWsrc/sliceHsrc;
       let drawW = availW, drawH = availW/sliceAspect;
       if(drawH>availH){ drawH=availH; drawW=drawH*sliceAspect; }
 
-      const dx = (pageW - (c < cols-1 ? tabPx : 0) - drawW)/2;
-      const dy = (pageH - (r < rows-1 ? tabPx : 0) - drawH)/2;
+      const dx = (pageW - ((c < cols-1) ? tabPx : 0) - drawW)/2;
+      const dy = (pageH - ((r < rows-1) ? tabPx : 0) - drawH)/2;
 
       ctx.drawImage(sourceImage,
         c*sliceWsrc, r*sliceHsrc, sliceWsrc, sliceHsrc,
         dx, dy, drawW, drawH);
 
-      ctx.strokeStyle="#000"; ctx.strokeRect(dx,dy,drawW,drawH);
+      // borda sólida
+      ctx.strokeStyle="#000"; ctx.lineWidth=1.2;
+      ctx.strokeRect(dx,dy,drawW,drawH);
 
-      // abas
+      // aba direita
       if(c<cols-1 && tabPx>0){
         ctx.fillStyle="#fff"; ctx.fillRect(dx+drawW,dy,tabPx,drawH);
         ctx.strokeRect(dx+drawW,dy,tabPx,drawH);
+        ctx.fillStyle="#000";
+        ctx.font="12px sans-serif";
+        ctx.save();
+        ctx.translate(dx+drawW+tabPx/2, dy+drawH/2);
+        ctx.rotate(-Math.PI/2);
+        ctx.textAlign="center";
+        ctx.fillText("Colar à peça da direita",0,0);
+        ctx.restore();
       }
+
+      // aba inferior
       if(r<rows-1 && tabPx>0){
         ctx.fillStyle="#fff"; ctx.fillRect(dx,dy+drawH,drawW,tabPx);
         ctx.strokeRect(dx,dy+drawH,drawW,tabPx);
+        ctx.fillStyle="#000";
+        ctx.font="12px sans-serif";
+        ctx.textAlign="center";
+        ctx.fillText("Colar à peça de baixo", dx+drawW/2, dy+drawH+tabPx/2+4);
       }
 
       // marcas de corte
@@ -205,13 +250,14 @@ document.getElementById('gen').addEventListener('click', ()=>{
       ctx.moveTo(dx+drawW,dy+drawH+markPx); ctx.lineTo(dx+drawW,dy+drawH);
       ctx.stroke();
 
-      // preview
       const page = document.createElement('div');
       page.className = 'page';
+      page.style.width = pageWmm+"mm";
+      page.style.height = pageHmm+"mm";
       page.appendChild(canvas);
       preview.appendChild(page);
 
-      generatedPages.push(canvas);
+      generatedPages.push({canvas,pageWmm,pageHmm});
     }
   }
 
@@ -223,11 +269,17 @@ document.getElementById('print').addEventListener('click', ()=>window.print());
 
 document.getElementById('download').addEventListener('click', ()=>{
   if(generatedPages.length === 0) return;
-  const pdf = new jsPDF({orientation:"portrait", unit:"mm", format:"a4"});
-  generatedPages.forEach((canvas,i)=>{
-    const imgData = canvas.toDataURL("image/jpeg",1.0);
-    if(i>0) pdf.addPage();
-    pdf.addImage(imgData,"JPEG",0,0,210,297);
+  const first = generatedPages[0];
+  const pdf = new jsPDF({
+    orientation: (first.pageWmm > first.pageHmm) ? "landscape" : "portrait",
+    unit: "mm",
+    format: [first.pageWmm, first.pageHmm]
+  });
+  generatedPages.forEach((pg,i)=>{
+    const imgData = pg.canvas.toDataURL("image/jpeg",1.0);
+    if(i>0) pdf.addPage([pg.pageWmm, pg.pageHmm], 
+      (pg.pageWmm > pg.pageHmm) ? "landscape" : "portrait");
+    pdf.addImage(imgData,"JPEG",0,0,pg.pageWmm,pg.pageHmm);
   });
   pdf.save("painel.pdf");
 });
