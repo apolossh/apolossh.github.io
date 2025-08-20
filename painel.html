@@ -5,59 +5,59 @@
 <title>Gerador de Painel para Imprimir e Colar</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-:root {
-  --bg: #121212;
-  --card: #1e1e1e;
-  --text: #e0e0e0;
-  --accent: #2196f3;
-  --border: #333;
-}
-body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 16px;
-}
-h1 { font-size: 22px; margin-bottom: 12px; }
-.panel {
-  background: var(--card);
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-  max-width: 600px;
-  width: 100%;
-  margin-bottom: 20px;
-}
-label { font-weight: 600; display: block; margin-top: 10px; }
-input, select, button {
-  width: 100%;
-  padding: 10px;
-  margin-top: 4px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: #2a2a2a;
-  color: var(--text);
-}
-button {
-  background: var(--accent);
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
-  border: none;
-}
-.row { display: flex; gap: 10px; flex-wrap: wrap; }
-.row > div { flex: 1; min-width: 120px; }
-.btns { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  :root {
+    --bg: #121212;
+    --card: #1e1e1e;
+    --text: #e0e0e0;
+    --accent: #2196f3;
+    --border: #333;
+  }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+  }
+  h1 { font-size: 22px; margin-bottom: 12px; }
+  .panel {
+    background: var(--card);
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    max-width: 600px;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  label { font-weight: 600; display: block; margin-top: 10px; }
+  input, select, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 4px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #2a2a2a;
+    color: var(--text);
+  }
+  button {
+    background: var(--accent);
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+  }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .row > div { flex: 1; min-width: 120px; }
+  .btns { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
 </style>
 </head>
 <body>
-
 <div class="panel">
-  <h1>Gerador de Painel - Leandro</h1>
+  <h1>Gerador de Painel</h1>
   <label>Imagem do painel:</label>
   <input id="file" type="file" accept="image/*">
 
@@ -96,9 +96,9 @@ button {
   <input id="markMm" type="number" min="2" value="6">
 
   <div class="btns">
-    <button id="gen">Gerar PDF</button>
-    <button id="print">Imprimir</button>
-    <button id="download">Baixar PDF</button>
+    <button id="gen" disabled>Gerar PDF</button>
+    <button id="print" style="display:none;">Imprimir</button>
+    <button id="download" style="display:none;">Baixar/Compartilhar PDF</button>
   </div>
 </div>
 
@@ -106,13 +106,6 @@ button {
 <script>
 const { jsPDF } = window.jspdf;
 const MM_TO_PX = mm => mm * (96/25.4);
-
-let sourceImage = null;
-let generatedPages = [];
-
-const btnGen = document.getElementById('gen');
-const btnPrint = document.getElementById('print');
-const btnDownload = document.getElementById('download');
 
 function loadImage(file){
   return new Promise((res, rej)=>{
@@ -123,35 +116,34 @@ function loadImage(file){
   });
 }
 
-function updateButtons(state){
-  if(state === 'init'){
-    btnGen.style.display = 'block';
-    btnPrint.style.display = 'none';
-    btnDownload.style.display = 'none';
-  } else if(state === 'generated'){
-    btnGen.style.display = 'none';
-    btnPrint.style.display = 'block';
-    btnDownload.style.display = 'block';
-  }
-}
+let sourceImage = null;
+let generatedPages = [];
+let pdfGenerated = false;
 
-updateButtons('init');
+const btnGen = document.getElementById('gen');
+const btnPrint = document.getElementById('print');
+const btnDownload = document.getElementById('download');
 
 document.getElementById('file').addEventListener('change', async e=>{
   const file = e.target.files[0];
   if(file){
     sourceImage = await loadImage(file);
+    pdfGenerated = false;
+    btnGen.style.display = "inline-block";
+    btnPrint.style.display = "none";
+    btnDownload.style.display = "none";
     if(sourceImage.naturalWidth > sourceImage.naturalHeight){
       document.getElementById('orient').value = "landscape";
     } else {
       document.getElementById('orient').value = "portrait";
     }
-    updateButtons('init');
+    btnGen.disabled = false;
   }
 });
 
 document.getElementById('preset').addEventListener('change', e=>{
-  document.getElementById('customGrid').style.display = (e.target.value === 'custom') ? 'flex' : 'none';
+  document.getElementById('customGrid').style.display = 
+    (e.target.value === 'custom') ? 'flex' : 'none';
 });
 
 btnGen.addEventListener('click', ()=>{
@@ -198,7 +190,9 @@ btnGen.addEventListener('click', ()=>{
       const dx = (pageW - ((c < cols-1) ? tabPx : 0) - drawW)/2;
       const dy = (pageH - ((r < rows-1) ? tabPx : 0) - drawH)/2;
 
-      ctx.drawImage(sourceImage, c*sliceWsrc, r*sliceHsrc, sliceWsrc, sliceHsrc, dx, dy, drawW, drawH);
+      ctx.drawImage(sourceImage,
+        c*sliceWsrc, r*sliceHsrc, sliceWsrc, sliceHsrc,
+        dx, dy, drawW, drawH);
 
       ctx.strokeStyle="#000"; ctx.lineWidth=1.5;
       ctx.setLineDash([]);
@@ -250,7 +244,10 @@ btnGen.addEventListener('click', ()=>{
     }
   }
 
-  updateButtons('generated');
+  pdfGenerated = true;
+  btnGen.style.display = "none";
+  btnPrint.style.display = "inline-block";
+  btnDownload.style.display = "inline-block";
 });
 
 btnPrint.addEventListener('click', ()=>{
@@ -267,7 +264,7 @@ btnPrint.addEventListener('click', ()=>{
   window.open(pdf.output("bloburl"),"_blank");
 });
 
-btnDownload.addEventListener('click', ()=>{
+btnDownload.addEventListener('click', async ()=>{
   if(generatedPages.length === 0) return;
   const w = generatedPages[0].pageWmm;
   const h = generatedPages[0].pageHmm;
@@ -277,7 +274,23 @@ btnDownload.addEventListener('click', ()=>{
     if(i>0) pdf.addPage([pg.pageWmm,pg.pageHmm], w>h?"landscape":"portrait");
     pdf.addImage(img,"JPEG",0,0,pg.pageWmm,pg.pageHmm);
   });
-  pdf.save("painel.pdf");
+
+  const blob = pdf.output("blob");
+  const file = new File([blob], "painel.pdf", { type: "application/pdf" });
+
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({
+        title: "Painel PDF",
+        text: "Aqui está o PDF do painel gerado:",
+        files: [file]
+      });
+    } catch (err) {
+      alert("Compartilhamento cancelado ou não disponível.");
+    }
+  } else {
+    pdf.save("painel.pdf");
+  }
 });
 </script>
 </body>
