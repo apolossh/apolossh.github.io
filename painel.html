@@ -29,7 +29,7 @@
     padding: 16px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-    max-width: 800px;
+    max-width: 600px;
     width: 100%;
     margin-bottom: 20px;
   }
@@ -54,30 +54,6 @@
   .row { display: flex; gap: 10px; flex-wrap: wrap; }
   .row > div { flex: 1; min-width: 120px; }
   .btns { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
-  .preview {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 12px;
-  }
-  .page {
-    width: 210mm;
-    height: 297mm;
-    background: #fff;
-    border: 1px dashed #555;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    position: relative;
-  }
-  .page canvas { width: 100%; height: auto; }
-  @media print {
-    @page { size: A4; margin: 0 }
-    body { background: #fff; color: #000; padding: 0; }
-    .panel { display: none; }
-    .preview { grid-template-columns: 1fr; }
-    .page { border: none; break-after: page; }
-  }
 </style>
 </head>
 <body>
@@ -122,15 +98,12 @@
   <input id="markMm" type="number" min="2" value="6">
 
   <div class="btns">
-    <button id="gen" disabled>Gerar páginas</button>
+    <button id="gen" disabled>Gerar PDF</button>
     <button id="print" disabled>Imprimir</button>
     <button id="download" disabled>Baixar PDF</button>
   </div>
 </div>
 
-<div id="preview" class="preview"></div>
-
-<!-- jsPDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
@@ -173,8 +146,10 @@ document.getElementById('gen').addEventListener('click', ()=>{
   const orient = document.getElementById('orient').value;
   let pageWmm = orient === "portrait" ? 210 : 297;
   let pageHmm = orient === "portrait" ? 297 : 210;
-  const pageW = Math.round(MM_TO_PX(pageWmm));
-  const pageH = Math.round(MM_TO_PX(pageHmm));
+
+  const SCALE = 2;
+  const pageW = Math.round(MM_TO_PX(pageWmm) * SCALE);
+  const pageH = Math.round(MM_TO_PX(pageHmm) * SCALE);
 
   let rows, cols;
   const preset = document.getElementById('preset').value;
@@ -185,14 +160,12 @@ document.getElementById('gen').addEventListener('click', ()=>{
     cols = parseInt(document.getElementById('cols').value);
   }
 
-  const tabPx = MM_TO_PX(parseFloat(document.getElementById('tabMm').value));
-  const markPx = MM_TO_PX(parseFloat(document.getElementById('markMm').value));
+  const tabPx = MM_TO_PX(parseFloat(document.getElementById('tabMm').value)) * SCALE;
+  const markPx = MM_TO_PX(parseFloat(document.getElementById('markMm').value)) * SCALE;
 
   const sliceWsrc = sourceImage.naturalWidth / cols;
   const sliceHsrc = sourceImage.naturalHeight / rows;
 
-  const preview = document.getElementById('preview');
-  preview.innerHTML = '';
   generatedPages = [];
 
   for(let r=0; r<rows; r++){
@@ -217,23 +190,18 @@ document.getElementById('gen').addEventListener('click', ()=>{
         c*sliceWsrc, r*sliceHsrc, sliceWsrc, sliceHsrc,
         dx, dy, drawW, drawH);
 
-      // borda sólida da imagem
-      ctx.strokeStyle="#000"; ctx.lineWidth=1.5;
+      ctx.strokeStyle="#000"; ctx.lineWidth=3;
       ctx.setLineDash([]);
       ctx.strokeRect(dx,dy,drawW,drawH);
 
-      // aba direita
       if(c<cols-1 && tabPx>0){
-        ctx.fillStyle="#fff"; ctx.fillRect(dx+drawW,dy,tabPx,drawH);
-        ctx.strokeStyle="#000"; ctx.strokeRect(dx+drawW,dy,tabPx,drawH);
-        // linha de dobra
-        ctx.setLineDash([5,3]);
-        ctx.beginPath();
-        ctx.moveTo(dx+drawW,dy); ctx.lineTo(dx+drawW,dy+drawH);
-        ctx.stroke();
+        ctx.fillStyle="rgba(255,255,255,0.8)"; 
+        ctx.fillRect(dx+drawW,dy,tabPx,drawH);
+        ctx.strokeStyle="#000"; ctx.lineWidth=1.5;
+        ctx.setLineDash([10,5]);
+        ctx.strokeRect(dx+drawW,dy,tabPx,drawH);
         ctx.setLineDash([]);
-        // texto
-        ctx.fillStyle="#000"; ctx.font="bold 13px sans-serif";
+        ctx.fillStyle="#000"; ctx.font=`bold ${13*SCALE}px sans-serif`;
         ctx.save();
         ctx.translate(dx+drawW+tabPx/2, dy+drawH/2);
         ctx.rotate(-Math.PI/2);
@@ -242,24 +210,19 @@ document.getElementById('gen').addEventListener('click', ()=>{
         ctx.restore();
       }
 
-      // aba inferior
       if(r<rows-1 && tabPx>0){
-        ctx.fillStyle="#fff"; ctx.fillRect(dx,dy+drawH,drawW,tabPx);
-        ctx.strokeStyle="#000"; ctx.strokeRect(dx,dy+drawH,drawW,tabPx);
-        // linha de dobra
-        ctx.setLineDash([5,3]);
-        ctx.beginPath();
-        ctx.moveTo(dx,dy+drawH); ctx.lineTo(dx+drawW,dy+drawH);
-        ctx.stroke();
+        ctx.fillStyle="rgba(255,255,255,0.8)";
+        ctx.fillRect(dx,dy+drawH,drawW,tabPx);
+        ctx.strokeStyle="#000"; ctx.lineWidth=1.5;
+        ctx.setLineDash([10,5]);
+        ctx.strokeRect(dx,dy+drawH,drawW,tabPx);
         ctx.setLineDash([]);
-        // texto
-        ctx.fillStyle="#000"; ctx.font="bold 13px sans-serif";
+        ctx.fillStyle="#000"; ctx.font=`bold ${13*SCALE}px sans-serif`;
         ctx.textAlign="center";
-        ctx.fillText("COLE AQUI", dx+drawW/2, dy+drawH+tabPx/2+4);
+        ctx.fillText("COLE AQUI", dx+drawW/2, dy+drawH+tabPx/2+4*SCALE);
       }
 
-      // marcas de corte
-      ctx.strokeStyle="#000"; ctx.lineWidth=1.2;
+      ctx.strokeStyle="#000"; ctx.lineWidth=2;
       ctx.beginPath();
       ctx.moveTo(dx-markPx,dy); ctx.lineTo(dx,dy);
       ctx.moveTo(dx,dy-markPx); ctx.lineTo(dx,dy);
@@ -271,13 +234,6 @@ document.getElementById('gen').addEventListener('click', ()=>{
       ctx.moveTo(dx+drawW,dy+drawH+markPx); ctx.lineTo(dx+drawW,dy+drawH);
       ctx.stroke();
 
-      const page = document.createElement('div');
-      page.className = 'page';
-      page.style.width = pageWmm+"mm";
-      page.style.height = pageHmm+"mm";
-      page.appendChild(canvas);
-      preview.appendChild(page);
-
       generatedPages.push({canvas,pageWmm,pageHmm});
     }
   }
@@ -286,21 +242,28 @@ document.getElementById('gen').addEventListener('click', ()=>{
   document.getElementById('download').disabled = false;
 });
 
-document.getElementById('print').addEventListener('click', ()=>window.print());
+document.getElementById('print').addEventListener('click', ()=>{
+  if(generatedPages.length === 0) return;
+  const w = generatedPages[0].pageWmm;
+  const h = generatedPages[0].pageHmm;
+  const pdf = new jsPDF({orientation: w>h?"landscape":"portrait", unit:"mm", format:[w,h]});
+  generatedPages.forEach((pg,i)=>{
+    const img = pg.canvas.toDataURL("image/jpeg",1.0);
+    if(i>0) pdf.addPage([pg.pageWmm,pg.pageHmm], w>h?"landscape":"portrait");
+    pdf.addImage(img,"JPEG",0,0,pg.pageWmm,pg.pageHmm);
+  });
+  window.open(pdf.output("bloburl"),"_blank");
+});
 
 document.getElementById('download').addEventListener('click', ()=>{
   if(generatedPages.length === 0) return;
-  const first = generatedPages[0];
-  const pdf = new jsPDF({
-    orientation: (first.pageWmm > first.pageHmm) ? "landscape" : "portrait",
-    unit: "mm",
-    format: [first.pageWmm, first.pageHmm]
-  });
+  const w = generatedPages[0].pageWmm;
+  const h = generatedPages[0].pageHmm;
+  const pdf = new jsPDF({orientation: w>h?"landscape":"portrait", unit:"mm", format:[w,h]});
   generatedPages.forEach((pg,i)=>{
-    const imgData = pg.canvas.toDataURL("image/jpeg",1.0);
-    if(i>0) pdf.addPage([pg.pageWmm, pg.pageHmm], 
-      (pg.pageWmm > pg.pageHmm) ? "landscape" : "portrait");
-    pdf.addImage(imgData,"JPEG",0,0,pg.pageWmm,pg.pageHmm);
+    const img = pg.canvas.toDataURL("image/jpeg",1.0);
+    if(i>0) pdf.addPage([pg.pageWmm,pg.pageHmm], w>h?"landscape":"portrait");
+    pdf.addImage(img,"JPEG",0,0,pg.pageWmm,pg.pageHmm);
   });
   pdf.save("painel.pdf");
 });
