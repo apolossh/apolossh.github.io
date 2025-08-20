@@ -5,165 +5,105 @@
 <title>Gerador de Painel para Imprimir e Colar</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-  :root{
-    --paper-w: 210mm;   /* A4 */
-    --paper-h: 297mm;   /* A4 */
-    --bg: #f4f6f8;
-    --card: #ffffff;
-    --ink: #111;
-    --accent: #0a66c2;
+  :root {
+    --paper-w: 210mm; /* A4 */
+    --paper-h: 297mm;
   }
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
-  header{max-width:1100px;margin:24px auto 12px;padding:0 16px}
-  h1{font-size:22px;margin:0 0 8px}
-  p.lead{margin:0;color:#333}
-  .wrap{max-width:1100px;margin:0 auto;padding:16px;display:grid;grid-template-columns:360px 1fr;gap:16px}
-  .panel{background:var(--card);border-radius:12px;box-shadow:0 2px 18px rgba(0,0,0,.08);padding:16px}
-  .panel h2{font-size:16px;margin:0 0 12px;color:#222}
-  label{display:block;font-weight:600;margin:10px 0 6px}
-  input[type="file"], select, input[type="number"]{
-    width:100%;padding:10px 12px;border:1px solid #d0d7de;border-radius:8px;background:#fff
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
   }
-  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-  button{
-    border:0;border-radius:10px;padding:10px 14px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer
+  h1 { font-size: 20px; margin-bottom: 8px; }
+  .panel {
+    background: #fff;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    max-width: 800px;
+    width: 100%;
+    margin-bottom: 20px;
   }
-  button.secondary{background:#6c757d}
-  button:disabled{opacity:.6;cursor:not-allowed}
-  canvas{max-width:100%;height:auto;display:block}
-  .preview{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
-  .page{
-    width:var(--paper-w);
-    height:var(--paper-h);
-    background:#fff;
-    border:1px dashed #cdd5df;
-    border-radius:6px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:0;
-    position:relative;
+  label { font-weight: 600; display: block; margin-top: 10px; }
+  input, select, button {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
   }
-  .page canvas{width:calc(100%);height:auto}
-  .hint{font-size:13px;color:#444;margin-top:8px}
-  footer{max-width:1100px;margin:8px auto 24px;padding:0 16px;color:#555;font-size:13px}
-  .grid-presets{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-  .preset{border:1px solid #d0d7de;border-radius:10px;padding:10px;text-align:center;background:#fff;cursor:pointer}
-  .preset.active{outline:2px solid var(--accent)}
-  .inline{display:flex;gap:10px;align-items:center}
-  .muted{color:#666;font-size:13px}
-
-  /* Impressão */
-  @media print{
-    @page{size: A4; margin: 0}
-    body{background:#fff}
-    header, .wrap > .panel:first-child, footer{display:none !important}
-    .wrap{display:block;padding:0;margin:0}
-    .preview{display:block}
-    .page{break-after:page;border:none;border-radius:0;width:var(--paper-w);height:var(--paper-h);margin:0}
+  button {
+    background: #0a66c2;
+    color: #fff;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+  }
+  button:disabled { opacity: .6; cursor: not-allowed; }
+  .row { display: flex; gap: 10px; }
+  .row > div { flex: 1; }
+  .preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+  }
+  .page {
+    width: var(--paper-w);
+    height: var(--paper-h);
+    background: #fff;
+    border: 1px dashed #aaa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .page canvas { width: 100%; height: auto; }
+  @media print {
+    @page { size: A4; margin: 0 }
+    body { background: #fff; padding: 0; }
+    .panel { display: none; }
+    .preview { grid-template-columns: 1fr; }
+    .page { border: none; break-after: page; }
   }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>Gerador de Painel (Imprimir & Colar)</h1>
-  <p class="lead">Envie uma imagem grande, escolha a divisão em partes, e gere páginas A4 com marcas de corte e abas de cola.</p>
-</header>
+<div class="panel">
+  <h1>Gerador de Painel</h1>
+  <label>Imagem do painel:</label>
+  <input id="file" type="file" accept="image/*">
 
-<div class="wrap">
-  <div class="panel">
-    <h2>Configurações</h2>
-
-    <label>Imagem do painel (PNG/JPG)</label>
-    <input id="file" type="file" accept="image/*">
-
-    <label>Partes (grid)</label>
-    <div class="grid-presets" id="presets">
-      <!-- botões de presets -->
+  <div class="row">
+    <div>
+      <label>Linhas:</label>
+      <input id="rows" type="number" min="1" value="2">
     </div>
-    <div class="row">
-      <div>
-        <label>Linhas</label>
-        <input id="rows" type="number" min="1" value="2">
-      </div>
-      <div>
-        <label>Colunas</label>
-        <input id="cols" type="number" min="1" value="2">
-      </div>
+    <div>
+      <label>Colunas:</label>
+      <input id="cols" type="number" min="1" value="2">
     </div>
-
-    <div class="row">
-      <div>
-        <label>Margem interna (mm) <span class="muted">(respiro/crop)</span></label>
-        <input id="marginMm" type="number" min="0" value="8">
-      </div>
-      <div>
-        <label>Aba de cola (mm)</label>
-        <input id="tabMm" type="number" min="0" value="10">
-      </div>
-    </div>
-
-    <div class="row">
-      <div>
-        <label>Compr. da marca de corte (mm)</label>
-        <input id="markMm" type="number" min="3" value="6">
-      </div>
-      <div>
-        <label>Espessura da linha (px)</label>
-        <input id="linePx" type="number" min="1" value="1">
-      </div>
-    </div>
-
-    <div class="row">
-      <div>
-        <label>Papel</label>
-        <select id="paper">
-          <option value="A4" selected>A4 (210 × 297 mm)</option>
-          <option value="Letter">Carta/Letter (216 × 279 mm)</option>
-        </select>
-      </div>
-      <div>
-        <label>Orientação</label>
-        <select id="orient">
-          <option value="portrait" selected>Retrato (vertical)</option>
-          <option value="landscape">Paisagem (horizontal)</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="btns">
-      <button id="gen" disabled>Gerar páginas</button>
-      <button id="print" class="secondary" disabled>Imprimir / Salvar PDF</button>
-      <button id="clear" class="secondary">Limpar</button>
-    </div>
-
-    <p class="hint">
-      Dica: normalmente 4, 6, 9 ou 12 partes funcionam melhor para painéis grandes. A aba de cola é desenhada
-      no lado direito e inferior de cada peça (exceto na última coluna/linha).
-    </p>
   </div>
 
-  <div class="panel">
-    <h2>Pré-visualização das páginas</h2>
-    <div id="preview" class="preview"></div>
-  </div>
+  <label>Aba de cola (mm):</label>
+  <input id="tabMm" type="number" min="0" value="10">
+
+  <label>Tamanho da marca de corte (mm):</label>
+  <input id="markMm" type="number" min="2" value="6">
+
+  <button id="gen" disabled>Gerar páginas</button>
+  <button id="print" disabled>Imprimir / Salvar PDF</button>
 </div>
 
-<footer>
-  Ao imprimir: selecione <strong>A4</strong> (ou Carta, se escolhido), desligue “Ajustar à página” e use margens <strong>0</strong> se possível.
-</footer>
+<div id="preview" class="preview"></div>
 
 <script>
-/* ===================== Utilidades ===================== */
 const MM_TO_PX = mm => mm * (96/25.4); // 96 dpi CSS
-function paperSizePx(kind, orientation){
-  let mm = (kind === 'Letter') ? {w: 215.9, h: 279.4} : {w:210, h:297};
-  if(orientation === 'landscape') mm = {w:mm.h, h:mm.w};
-  return {w: Math.round(MM_TO_PX(mm.w)), h: Math.round(MM_TO_PX(mm.h)), mm};
-}
+
 function loadImage(file){
   return new Promise((res, rej)=>{
     const img = new Image();
@@ -172,233 +112,97 @@ function loadImage(file){
     img.src = URL.createObjectURL(file);
   });
 }
-function clamp(v,min,max){return Math.max(min, Math.min(max,v));}
-
-/* Crop marks helpers (drawn around the tile image area) */
-function drawCropMarks(ctx, x, y, w, h, lenPx, linePx){
-  ctx.save();
-  ctx.strokeStyle = "#000";
-  ctx.lineWidth = linePx;
-
-  // corners: top-left
-  ctx.beginPath();
-  ctx.moveTo(x - lenPx, y); ctx.lineTo(x, y);
-  ctx.moveTo(x, y - lenPx); ctx.lineTo(x, y);
-  // top-right
-  ctx.moveTo(x + w + lenPx, y); ctx.lineTo(x + w, y);
-  ctx.moveTo(x + w, y - lenPx); ctx.lineTo(x + w, y);
-  // bottom-left
-  ctx.moveTo(x - lenPx, y + h); ctx.lineTo(x, y + h);
-  ctx.moveTo(x, y + h + lenPx); ctx.lineTo(x, y + h);
-  // bottom-right
-  ctx.moveTo(x + w + lenPx, y + h); ctx.lineTo(x + w, y + h);
-  ctx.moveTo(x + w, y + h + lenPx); ctx.lineTo(x + w, y + h);
-  ctx.stroke();
-  ctx.restore();
-}
-
-/* Glue tab (right/bottom) with dashed fold line and "COLA" text */
-function drawGlueTab(ctx, side, rect, tabPx, linePx){
-  const {x,y,w,h} = rect;
-  ctx.save();
-  ctx.fillStyle = "#fff";
-  ctx.strokeStyle = "#000";
-  ctx.lineWidth = linePx;
-
-  ctx.setLineDash([]); // solid for outer
-  if(side === 'right'){
-    ctx.fillRect(x + w, y, tabPx, h);
-    ctx.strokeRect(x + w, y, tabPx, h);
-    // fold line
-    ctx.setLineDash([5,4]);
-    ctx.beginPath();
-    ctx.moveTo(x + w, y); ctx.lineTo(x + w, y + h); ctx.stroke();
-    // text
-    ctx.setLineDash([]);
-    ctx.save();
-    ctx.translate(x + w + tabPx/2, y + h/2);
-    ctx.rotate(-Math.PI/2);
-    ctx.fillStyle = "#000";
-    ctx.font = "12px sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("ABA DE COLA", 0, 4);
-    ctx.restore();
-  }else if(side === 'bottom'){
-    ctx.fillRect(x, y + h, w, tabPx);
-    ctx.strokeRect(x, y + h, w, tabPx);
-    ctx.setLineDash([5,4]);
-    ctx.beginPath();
-    ctx.moveTo(x, y + h); ctx.lineTo(x + w, y + h); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = "#000";
-    ctx.font = "12px sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("ABA DE COLA", x + w/2, y + h + tabPx/2 + 4);
-  }
-  ctx.restore();
-}
-
-/* ===================== Estado/UI ===================== */
-const fileInput = document.getElementById('file');
-const rowsInput = document.getElementById('rows');
-const colsInput = document.getElementById('cols');
-const marginMm = document.getElementById('marginMm');
-const tabMm = document.getElementById('tabMm');
-const markMm = document.getElementById('markMm');
-const linePx = document.getElementById('linePx');
-const paperSel = document.getElementById('paper');
-const orientSel = document.getElementById('orient');
-const genBtn = document.getElementById('gen');
-const printBtn = document.getElementById('print');
-const clearBtn = document.getElementById('clear');
-const preview = document.getElementById('preview');
 
 let sourceImage = null;
 
-/* Presets: 2,4,6,9,12 (com layouts comuns) */
-const presetContainer = document.getElementById('presets');
-const presets = [
-  {label:'2 (1×2)', r:1, c:2},
-  {label:'2 (2×1)', r:2, c:1},
-  {label:'4 (2×2)', r:2, c:2},
-  {label:'6 (2×3)', r:2, c:3},
-  {label:'9 (3×3)', r:3, c:3},
-  {label:'12 (3×4)', r:3, c:4},
-  {label:'12 (4×3)', r:4, c:3},
-];
-function renderPresets(){
-  presetContainer.innerHTML = '';
-  presets.forEach((p,i)=>{
-    const b = document.createElement('button');
-    b.type='button';
-    b.className='preset';
-    b.textContent = p.label;
-    b.addEventListener('click',()=>{
-      document.querySelectorAll('.preset').forEach(x=>x.classList.remove('active'));
-      b.classList.add('active');
-      rowsInput.value = p.r; colsInput.value = p.c;
-    });
-    if(i===2) b.classList.add('active');
-    presetContainer.appendChild(b);
-  });
-}
-renderPresets();
-
-fileInput.addEventListener('change', async e=>{
-  const f = e.target.files?.[0];
-  if(!f) return;
-  genBtn.disabled = true; printBtn.disabled = true;
-  try{
-    sourceImage = await loadImage(f);
-    genBtn.disabled = false;
-  }catch(err){
-    alert('Não foi possível carregar a imagem.');
+document.getElementById('file').addEventListener('change', async e=>{
+  const file = e.target.files[0];
+  if(file){
+    sourceImage = await loadImage(file);
+    document.getElementById('gen').disabled = false;
   }
 });
 
-clearBtn.addEventListener('click', ()=>{
-  fileInput.value = '';
-  genBtn.disabled = true;
-  printBtn.disabled = true;
-  sourceImage = null;
-  preview.innerHTML = '';
-});
+document.getElementById('gen').addEventListener('click', ()=>{
+  if(!sourceImage) return;
 
-genBtn.addEventListener('click', ()=>{
-  if(!sourceImage){ alert('Selecione uma imagem.'); return; }
+  const rows = parseInt(document.getElementById('rows').value);
+  const cols = parseInt(document.getElementById('cols').value);
+  const tabPx = MM_TO_PX(parseFloat(document.getElementById('tabMm').value));
+  const markPx = MM_TO_PX(parseFloat(document.getElementById('markMm').value));
 
-  const r = clamp(parseInt(rowsInput.value||'1',10), 1, 20);
-  const c = clamp(parseInt(colsInput.value||'1',10), 1, 20);
-  const paper = paperSel.value;
-  const orient = orientSel.value;
+  const pageW = Math.round(MM_TO_PX(210));
+  const pageH = Math.round(MM_TO_PX(297));
 
-  const {w:pageWpx, h:pageHpx, mm:paperMm} = paperSizePx(paper, orient);
-  // Para CSS de impressão usar mm exatos
-  document.documentElement.style.setProperty('--paper-w', paperMm.w+'mm');
-  document.documentElement.style.setProperty('--paper-h', paperMm.h+'mm');
+  const sliceWsrc = sourceImage.naturalWidth / cols;
+  const sliceHsrc = sourceImage.naturalHeight / rows;
 
-  const marginPx = Math.max(0, MM_TO_PX(parseFloat(marginMm.value||'0')));
-  const tabPx    = Math.max(0, MM_TO_PX(parseFloat(tabMm.value||'0')));
-  const markPx   = Math.max(2, MM_TO_PX(parseFloat(markMm.value||'6')));
-  const strokePx = clamp(parseInt(linePx.value||'1',10), 1, 6);
-
-  // Área útil dentro da página (deixar um pequeno respiro para crop marks)
-  const safeInset = Math.max(markPx + 6, marginPx);
-  const usableW = pageWpx - 2*safeInset - tabPx; // considerar possível aba à direita
-  const usableH = pageHpx - 2*safeInset - tabPx; // considerar possível aba embaixo
-
-  // Tamanho do tile alvo (sem abas), mantendo proporção da imagem inteira dividida
-  const sliceWsrc = sourceImage.naturalWidth / c;
-  const sliceHsrc = sourceImage.naturalHeight / r;
-  const tileAspect = sliceWsrc / sliceHsrc;
-  // encaixar no retângulo (usableW x usableH)
-  let tileW = usableW, tileH = Math.round(usableW / tileAspect);
-  if(tileH > usableH){ tileH = usableH; tileW = Math.round(usableH * tileAspect); }
-
+  const preview = document.getElementById('preview');
   preview.innerHTML = '';
 
-  for(let row=0; row<r; row++){
-    for(let col=0; col<c; col++){
+  for(let r=0; r<rows; r++){
+    for(let c=0; c<cols; c++){
       const page = document.createElement('div');
       page.className = 'page';
 
-      // Canvas final = página inteira em px CSS (para nítidez no print)
       const canvas = document.createElement('canvas');
-      canvas.width = pageWpx;
-      canvas.height = pageHpx;
+      canvas.width = pageW;
+      canvas.height = pageH;
       const ctx = canvas.getContext('2d');
 
       // fundo branco
-      ctx.fillStyle = '#fff'; ctx.fillRect(0,0,canvas.width, canvas.height);
+      ctx.fillStyle="#fff"; ctx.fillRect(0,0,canvas.width,canvas.height);
 
-      // posição da imagem (tile) dentro da página
-      const tileX = Math.round((canvas.width - tabPx)/2 - tileW/2);
-      const tileY = Math.round((canvas.height - tabPx)/2 - tileH/2);
+      // calcular tamanho máximo dentro da folha
+      let availW = pageW - (c < cols-1 ? tabPx : 0);
+      let availH = pageH - (r < rows-1 ? tabPx : 0);
+      const sliceAspect = sliceWsrc/sliceHsrc;
+      let drawW = availW, drawH = availW/sliceAspect;
+      if(drawH>availH){ drawH=availH; drawW=drawH*sliceAspect; }
 
-      // Desenhar pedaço da imagem
-      const sx = Math.round(col * sliceWsrc);
-      const sy = Math.round(row * sliceHsrc);
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(
-        sourceImage,
-        sx, sy, Math.floor(sliceWsrc), Math.floor(sliceHsrc),
-        tileX, tileY, tileW, tileH
-      );
+      const dx = (pageW - (c < cols-1 ? tabPx : 0) - drawW)/2;
+      const dy = (pageH - (r < rows-1 ? tabPx : 0) - drawH)/2;
 
-      // Moldura fina ao redor do tile (guia)
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = strokePx;
-      ctx.setLineDash([]);
-      ctx.strokeRect(tileX, tileY, tileW, tileH);
+      // desenhar fatia da imagem
+      ctx.drawImage(sourceImage,
+        c*sliceWsrc, r*sliceHsrc, sliceWsrc, sliceHsrc,
+        dx, dy, drawW, drawH);
 
-      // Abas de cola (direita se não for última coluna; baixo se não for última linha)
-      if(col < c-1 && tabPx>0){
-        drawGlueTab(ctx, 'right', {x:tileX, y:tileY, w:tileW, h:tileH}, tabPx, strokePx);
+      // desenhar moldura da peça
+      ctx.strokeStyle="#000"; ctx.lineWidth=1; ctx.strokeRect(dx,dy,drawW,drawH);
+
+      // desenhar abas
+      if(c<cols-1 && tabPx>0){ // direita
+        ctx.fillStyle="#fff"; ctx.fillRect(dx+drawW,dy,tabPx,drawH);
+        ctx.strokeRect(dx+drawW,dy,tabPx,drawH);
       }
-      if(row < r-1 && tabPx>0){
-        drawGlueTab(ctx, 'bottom', {x:tileX, y:tileY, w:tileW, h:tileH}, tabPx, strokePx);
+      if(r<rows-1 && tabPx>0){ // baixo
+        ctx.fillStyle="#fff"; ctx.fillRect(dx,dy+drawH,drawW,tabPx);
+        ctx.strokeRect(dx,dy+drawH,drawW,tabPx);
       }
 
-      // Marcas de corte ao redor do retângulo do tile (considerando bordas externas)
-      drawCropMarks(ctx, tileX, tileY, tileW, tileH, markPx, strokePx);
-
-      // Rótulo (coordenada)
-      ctx.fillStyle = '#000';
-      ctx.font = "bold 14px sans-serif";
-      ctx.textAlign = "left";
-      ctx.fillText(`Peça ${row+1}×${col+1}`, Math.max(8, tileX), Math.max(20, tileY - 10));
+      // marcas de corte nos cantos
+      ctx.strokeStyle="#000"; ctx.lineWidth=1;
+      ctx.beginPath();
+      ctx.moveTo(dx-markPx,dy); ctx.lineTo(dx,dy);
+      ctx.moveTo(dx,dy-markPx); ctx.lineTo(dx,dy);
+      ctx.moveTo(dx+drawW+markPx,dy); ctx.lineTo(dx+drawW,dy);
+      ctx.moveTo(dx+drawW,dy-markPx); ctx.lineTo(dx+drawW,dy);
+      ctx.moveTo(dx-markPx,dy+drawH); ctx.lineTo(dx,dy+drawH);
+      ctx.moveTo(dx,dy+drawH+markPx); ctx.lineTo(dx,dy+drawH);
+      ctx.moveTo(dx+drawW+markPx,dy+drawH); ctx.lineTo(dx+drawW,dy+drawH);
+      ctx.moveTo(dx+drawW,dy+drawH+markPx); ctx.lineTo(dx+drawW,dy+drawH);
+      ctx.stroke();
 
       page.appendChild(canvas);
       preview.appendChild(page);
     }
   }
 
-  printBtn.disabled = false;
-  window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+  document.getElementById('print').disabled = false;
 });
 
-printBtn.addEventListener('click', ()=>window.print());
+document.getElementById('print').addEventListener('click', ()=>window.print());
 </script>
 
 </body>
