@@ -74,7 +74,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 small { opacity: 0.7; }
 
-/* Menu avançado melhorado */
+/* Menu avançado */
 .advanced {
   border-top: 1px solid var(--border);
   padding-top: 12px;
@@ -109,3 +109,106 @@ small { opacity: 0.7; }
 }
 
 .advanced-content label { margin-bottom: 6px; }
+
+/* --- Informações do usuário melhoradas --- */
+#user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #2a2a2a;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+#user-info div {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+#user-info span.name {
+  color: var(--accent);
+  font-weight: bold;
+}
+
+#user-info span.validity {
+  font-style: italic;
+  opacity: 0.85;
+  transition: all 0.3s ease;
+}
+
+/* --- Container da Key --- */
+#key-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--card);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 40px;
+}
+
+#key-container input {
+  width: 100%;
+  max-width: 300px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #2a2a2a;
+  color: var(--text);
+  font-size: 15px;
+}
+
+#key-container button {
+  width: 100%;
+  max-width: 300px;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+#key-container button:hover { background: #1976d2; }
+
+#key-container p {
+  text-align: center;
+  margin: 0;
+  font-size: 14px;
+  color: #ff4c4c;
+}
+
+/* WhatsApp button */
+#whatsapp-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #25D366;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  cursor: pointer;
+}
+#whatsapp-btn img {
+  width: 35px;
+  height: 35px;
+}
