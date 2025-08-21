@@ -1,6 +1,25 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/painel/manifest.json">
+<meta name="theme-color" content="#3367D6">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="msapplication-TileColor" content="#3367D6">
+
+<style>
+/* Simple responsive improvements added automatically */
+html,body{height:100%;margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+.container{max-width:1100px;margin:0 auto;padding:1rem;}
+img{max-width:100%;height:auto;display:block;}
+header,footer{padding:1rem 0;}
+nav{display:flex;flex-wrap:wrap;gap:.5rem;}
+@media (max-width:600px){
+  nav{flex-direction:column;}
+}
+</style>
+
 <meta charset="utf-8">
 <title>Gerador de Painel para Imprimir e Colar</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -26,13 +45,13 @@
 
     <label>Divisão em partes:</label>
     <select id="preset">
-      <option value="1x2">2 (1 × 2)</option>
-      <option value="2x2">4 (2 × 2)</option>
-      <option value="2x3">6 (2 × 3)</option>
-      <option value="3x3">9 (3 × 3)</option>
-      <option value="3x4">12 (3 × 4)</option>
-      <option value="custom">Personalizar...</option>
-    </select>
+  <option value="1x2">2 (1 × 2)</option>
+  <option value="2x2">4 (2 × 2)</option>
+  <option value="2x3">6 (2 × 3)</option>
+  <option value="3x3" selected>9 (3 × 3)</option>
+  <option value="3x4">12 (3 × 4)</option>
+  <option value="custom">Personalizar...</option>
+</select>
 
     <div id="customGrid" style="display:none;" class="row">
       <div>
@@ -70,5 +89,16 @@
 <script src="painel/jspdf.umd.min.js"></script>
 
 <script src="painel/script.js"></script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/painel/service-worker.js').catch(function(err){
+      console.warn('ServiceWorker registration failed: ', err);
+    });
+  });
+}
+</script>
+
 </body>
 </html>
