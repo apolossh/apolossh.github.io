@@ -168,8 +168,8 @@ const manifest = {
   "background_color": "#ffffff",
   "theme_color": "#2196f3",
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "/painel/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/painel/icon-512.png", "sizes": "512x512", "type": "image/png" }
   ]
 };
 const blobManifest = new Blob([JSON.stringify(manifest)], {type: "application/json"});
@@ -195,9 +195,9 @@ const swCode = `
 const CACHE_NAME = "painel-pdf-cache-v1";
 const ASSETS = [
   "/",
-  "/index.html",
-  "/script.js",
-  "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+  "/painel.html",
+  "/painel/script.js",
+  "jspdf.umd.min.js"
 ];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS)));
