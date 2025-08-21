@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="manifest" href="/painel/manifest.json">
 <meta name="theme-color" content="#3367D6">
@@ -8,30 +9,21 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="msapplication-TileColor" content="#3367D6">
 
-<style>
-/* Simple responsive improvements added automatically */
-html,body{height:100%;margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
-.container{max-width:1100px;margin:0 auto;padding:1rem;}
-img{max-width:100%;height:auto;display:block;}
-header,footer{padding:1rem 0;}
-nav{display:flex;flex-wrap:wrap;gap:.5rem;}
-@media (max-width:600px){
-  nav{flex-direction:column;}
-}
-</style>
-
-<meta charset="utf-8">
 <title>Gerador de Painel para Imprimir e Colar</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<!-- Link para o CSS externo -->
 <link rel="stylesheet" href="/painel/style.css">
+
 </head>
 <body>
 
-<div class="container">
+<div class="container protected">
   <div class="panel">
     <h1>Gerador de Painel</h1>
+
+    <!-- Bloco de informações do usuário ajustado -->
+    <div id="user-info" style="display:none;">
+      <div>Usuário: <span class="name"></span></div>
+      <div>Validade: <span class="validity"></span></div>
+    </div>
 
     <label>Imagem do painel:</label>
     <input id="file" type="file" accept="image/*">
@@ -45,36 +37,24 @@ nav{display:flex;flex-wrap:wrap;gap:.5rem;}
 
     <label>Divisão em partes:</label>
     <select id="preset">
-  <option value="1x2">2 (1 × 2)</option>
-  <option value="2x2">4 (2 × 2)</option>
-  <option value="2x3">6 (2 × 3)</option>
-  <option value="3x3" selected>9 (3 × 3)</option>
-  <option value="3x4">12 (3 × 4)</option>
-  <option value="custom">Personalizar...</option>
-</select>
+      <option value="1x2">2 (1 × 2)</option>
+      <option value="2x2">4 (2 × 2)</option>
+      <option value="2x3">6 (2 × 3)</option>
+      <option value="3x3" selected>9 (3 × 3)</option>
+      <option value="3x4">12 (3 × 4)</option>
+      <option value="custom">Personalizar...</option>
+    </select>
 
     <div id="customGrid" style="display:none;" class="row">
-      <div>
-        <label>Linhas:</label>
-        <input id="rows" type="number" min="1" value="2">
-      </div>
-      <div>
-        <label>Colunas:</label>
-        <input id="cols" type="number" min="1" value="2">
-      </div>
+      <div><label>Linhas:</label><input id="rows" type="number" min="1" value="2"></div>
+      <div><label>Colunas:</label><input id="cols" type="number" min="1" value="2"></div>
     </div>
 
     <details class="advanced">
       <summary>Opções Avançadas ▾</summary>
       <div class="advanced-content">
-        <div>
-          <label>Aba de cola (mm):</label>
-          <input id="tabMm" type="number" min="0" value="10">
-        </div>
-        <div>
-          <label>Tamanho da marca de corte (mm):</label>
-          <input id="markMm" type="number" min="2" value="6">
-        </div>
+        <div><label>Aba de cola (mm):</label><input id="tabMm" type="number" min="0" value="10"></div>
+        <div><label>Tamanho da marca de corte (mm):</label><input id="markMm" type="number" min="2" value="6"></div>
       </div>
     </details>
 
@@ -86,18 +66,136 @@ nav{display:flex;flex-wrap:wrap;gap:.5rem;}
   </div>
 </div>
 
-<script src="painel/jspdf.umd.min.js"></script>
+<div id="key-container">
+  <label for="user-key">Cole sua KEY para acessar a página:</label><br>
+  <input type="text" id="user-key"><br>
+  <button id="submit-key">Acessar</button>
+  <p id="key-message" style="color:red;margin-top:10px;"></p>
+</div>
 
+<div id="whatsapp-btn">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+</div>
+
+<script src="painel/jspdf.umd.min.js"></script>
 <script src="painel/script.js"></script>
 
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('/painel/service-worker.js').catch(function(err){
-      console.warn('ServiceWorker registration failed: ', err);
-    });
+    navigator.serviceWorker.register('/painel/service-worker.js').catch(function(err){console.warn('ServiceWorker registration failed: ', err);});
   });
 }
+
+(function(){
+  const content = document.querySelectorAll('.protected');
+  content.forEach(c => c.style.display = 'none');
+  const container = document.getElementById('key-container');
+  const userInfo = document.getElementById('user-info');
+  const input = document.getElementById('user-key');
+  let remainingMsGlobal = 0;
+  let userGlobal = '';
+
+  function base36Decode(str){
+    const chars='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let result='';
+    for(let i=0;i<str.length;i+=2){
+      let code=chars.indexOf(str[i])*36+chars.indexOf(str[i+1]);
+      result+=String.fromCharCode(code);
+    }
+    return result;
+  }
+
+  async function sha1(msg){ 
+    const buffer=new TextEncoder("utf-8").encode(msg); 
+    const hash=await crypto.subtle.digest("SHA-1", buffer); 
+    return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
+
+  async function verifyKey(key){
+    const parts = key.split('-');
+    if(parts.length !== 2) return false;
+    const payloadEnc = parts[0];
+    const checksum = parts[1];
+    let payload;
+    try { payload = base36Decode(payloadEnc); } catch(e){ return false; }
+    const hash = await sha1(payload);
+    if(hash.slice(0,8).toUpperCase() !== checksum) return false;
+
+    const lastColonIndex = payload.lastIndexOf(':');
+    if(lastColonIndex === -1) return false;
+
+    const user = payload.slice(0, lastColonIndex);
+    const expStr = payload.slice(lastColonIndex + 1);
+    let exp = parseFloat(expStr);
+    let remainingMs;
+    const now = Date.now();
+
+    if(exp < 1e10){ 
+      remainingMs = exp * 60 * 1000; // minutos
+    } else { 
+      remainingMs = exp - now; // timestamp absoluto
+    }
+
+    if(remainingMs <= 0) return false;
+    return {user, remainingMs};
+  }
+
+  function formatRemaining(ms){
+    const seconds=Math.floor(ms/1000);
+    const minutes=Math.floor(seconds/60);
+    const hours=Math.floor(minutes/60);
+    const days=Math.floor(hours/24);
+    const remH=hours%24;
+    const remM=minutes%60;
+    const remS=seconds%60;
+    if(days>=1) return days+' dias '+remH+'h '+remM+'m '+remS+'s restantes';
+    if(hours>=1) return hours+'h '+remM+'m '+remS+'s restantes';
+    if(minutes>=1) return minutes+'m '+remS+'s restantes';
+    return seconds+'s restantes';
+  }
+
+  async function checkKey(key){
+    const payload = await verifyKey(key);
+    if(payload){
+      content.forEach(c => c.style.display='block');
+      container.style.display='none';
+      localStorage.setItem('user_key', key);
+      remainingMsGlobal = payload.remainingMs;
+      userGlobal = payload.user;
+      userInfo.style.display='flex';
+      userInfo.querySelector('.name').textContent = payload.user;
+      userInfo.querySelector('.validity').textContent = formatRemaining(payload.remainingMs);
+      startCountdown();
+    } else {
+      localStorage.removeItem('user_key');
+      document.getElementById('key-message').innerText="KEY inválida ou expirada.";
+    }
+  }
+
+  function startCountdown(){
+    if(window.countdownInterval) clearInterval(window.countdownInterval);
+    window.countdownInterval = setInterval(()=>{
+      remainingMsGlobal -= 1000;
+      if(remainingMsGlobal <= 0){
+        clearInterval(window.countdownInterval);
+        alert("Sua KEY expirou!");
+        userInfo.style.display='none';
+        content.forEach(c => c.style.display='none');
+        container.style.display='block';
+        localStorage.removeItem('user_key');
+      } else {
+        userInfo.querySelector('.validity').textContent = formatRemaining(remainingMsGlobal);
+      }
+    },1000);
+  }
+
+  const storedKey = localStorage.getItem('user_key');
+  if(storedKey) checkKey(storedKey);
+  document.getElementById('submit-key').addEventListener('click', ()=>{ checkKey(input.value.trim()); });
+  input.addEventListener('keypress',function(e){if(e.key==='Enter'){checkKey(input.value.trim());}});
+  document.getElementById('whatsapp-btn').addEventListener('click',()=>{ window.open('https://wa.me/5511998248013','_blank'); });
+})();
 </script>
 
 </body>
