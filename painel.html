@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <title>Gerador de Painel para Imprimir e Colar</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="painel/style.css">
-<link rel="manifest" href="painel/manifest.json">
-<meta name="theme-color" content="#4CAF50">
+
+<!-- Link para o CSS externo -->
+<link rel="stylesheet" href="/painel/style.css">
 </head>
 <body>
 
@@ -68,14 +68,7 @@
 </div>
 
 <script src="painel/jspdf.umd.min.js"></script>
-<script src="painel/script.js"></script>
 
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('painel/sw.js')
-    .then(() => console.log('Service Worker registrado!'))
-    .catch(err => console.error('Erro ao registrar SW:', err));
-}
-</script>
+<script src="painel/script.js"></script>
 </body>
 </html>
