@@ -59,49 +59,84 @@ genBtn.addEventListener('click', ()=>{
   const sliceWsrc = sourceImage.naturalWidth / cols;
   const sliceHsrc = sourceImage.naturalHeight / rows;
 
+  let maxSliceW = 0;
+  let maxSliceH = 0;
+  for (let r=0; r<rows; r++) {
+    for (let c=0; c<cols; c++) {
+      const sliceW = (c === cols-1) ? sourceImage.naturalWidth - c*sliceWsrc : sliceWsrc;
+      const sliceH = (r === rows-1) ? sourceImage.naturalHeight - r*sliceHsrc : sliceHsrc;
+      maxSliceW = Math.max(maxSliceW, sliceW);
+      maxSliceH = Math.max(maxSliceH, sliceH);
+    }
+  }
+
+  const globalScaleX = (pageW - tabPx) / maxSliceW;
+  const globalScaleY = (pageH - tabPx) / maxSliceH;
+  const globalScale = Math.min(globalScaleX, globalScaleY);
+
   generatedPages = [];
 
   for(let r=0; r<rows; r++){
+    const sliceH = (r === rows - 1) ? sourceImage.naturalHeight - r * sliceHsrc : sliceHsrc;
+
     for(let c=0; c<cols; c++){
+      const sliceW = (c === cols - 1) ? sourceImage.naturalWidth - c * sliceWsrc : sliceWsrc;
+
       const canvas = document.createElement('canvas');
       canvas.width = pageW;
       canvas.height = pageH;
       const ctx = canvas.getContext('2d');
 
-      ctx.fillStyle="#fff"; ctx.fillRect(0,0,pageW,pageH);
+      ctx.fillStyle="#fff"; 
+      ctx.fillRect(0,0,pageW,pageH);
 
-      let availW = pageW - ((c < cols-1) ? tabPx : 0);
-      let availH = pageH - ((r < rows-1) ? tabPx : 0);
-      const sliceAspect = sliceWsrc/sliceHsrc;
-      let drawW = availW, drawH = availW/sliceAspect;
-      if(drawH>availH){ drawH=availH; drawW=drawH*sliceAspect; }
+      const drawW = sliceW * globalScale;
+      const drawH = sliceH * globalScale;
 
-      const dx = (pageW - ((c < cols-1) ? tabPx : 0) - drawW)/2;
-      const dy = (pageH - ((r < rows-1) ? tabPx : 0) - drawH)/2;
+      const dx = (pageW - drawW - (c < cols-1 ? tabPx : 0)) / 2;
+      const dy = (pageH - drawH - (r < rows-1 ? tabPx : 0)) / 2;
 
-      ctx.drawImage(sourceImage, c*sliceWsrc, r*sliceHsrc, sliceWsrc, sliceHsrc, dx, dy, drawW, drawH);
+      ctx.drawImage(sourceImage, c*sliceWsrc, r*sliceHsrc, sliceW, sliceH, dx, dy, drawW, drawH);
 
-      ctx.strokeStyle="#000"; ctx.lineWidth=1.5; ctx.setLineDash([]); ctx.strokeRect(dx,dy,drawW,drawH);
+      ctx.strokeStyle = "#888";
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.strokeRect(dx, dy, drawW, drawH);
+      ctx.setLineDash([]);
 
-      if(c<cols-1 && tabPx>0){
+      if(c < cols - 1 && tabPx > 0){
         ctx.fillStyle="#fff"; ctx.fillRect(dx+drawW,dy,tabPx,drawH);
-        ctx.strokeStyle="#000"; ctx.strokeRect(dx+drawW,dy,tabPx,drawH);
-        ctx.setLineDash([5,3]); ctx.beginPath(); ctx.moveTo(dx+drawW,dy); ctx.lineTo(dx+drawW,dy+drawH); ctx.stroke(); ctx.setLineDash([]);
-        ctx.save(); ctx.translate(dx+drawW+tabPx/2, dy+drawH/2); ctx.rotate(-Math.PI/2); ctx.fillStyle="#000"; ctx.font="bold 18px sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillText("COLE AQUI",0,0); ctx.restore();
+        ctx.strokeStyle="#000"; ctx.lineWidth=1.5; ctx.strokeRect(dx+drawW,dy,tabPx,drawH);
+        ctx.setLineDash([5,3]);
+        ctx.beginPath(); ctx.moveTo(dx+drawW,dy); ctx.lineTo(dx+drawW,dy+drawH); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.save();
+        ctx.translate(dx+drawW+tabPx/2, dy+drawH/2);
+        ctx.rotate(-Math.PI/2);
+        ctx.fillStyle="#000"; ctx.font="bold 18px sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
+        ctx.fillText("COLE AQUI",0,0);
+        ctx.restore();
       }
 
-      if(r<rows-1 && tabPx>0){
+      if(r < rows - 1 && tabPx > 0){
         ctx.fillStyle="#fff"; ctx.fillRect(dx,dy+drawH,drawW,tabPx);
-        ctx.strokeStyle="#000"; ctx.strokeRect(dx,dy+drawH,drawW,tabPx);
-        ctx.setLineDash([5,3]); ctx.beginPath(); ctx.moveTo(dx,dy+drawH); ctx.lineTo(dx+drawW,dy+drawH); ctx.stroke(); ctx.setLineDash([]);
-        ctx.fillStyle="#000"; ctx.font="bold 18px sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillText("COLE AQUI", dx+drawW/2, dy+drawH+tabPx/2);
+        ctx.strokeStyle="#000"; ctx.lineWidth=1.5; ctx.strokeRect(dx,dy+drawH,drawW,tabPx);
+        ctx.setLineDash([5,3]);
+        ctx.beginPath(); ctx.moveTo(dx,dy+drawH); ctx.lineTo(dx+drawW,dy+drawH); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle="#000"; ctx.font="bold 18px sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
+        ctx.fillText("COLE AQUI", dx+drawW/2, dy+drawH+tabPx/2);
       }
 
       ctx.strokeStyle="#000"; ctx.lineWidth=1.2; ctx.beginPath();
-      ctx.moveTo(dx-markPx,dy); ctx.lineTo(dx,dy); ctx.moveTo(dx,dy-markPx); ctx.lineTo(dx,dy);
-      ctx.moveTo(dx+drawW+markPx,dy); ctx.lineTo(dx+drawW,dy); ctx.moveTo(dx+drawW,dy-markPx); ctx.lineTo(dx+drawW,dy);
-      ctx.moveTo(dx-markPx,dy+drawH); ctx.lineTo(dx,dy+drawH); ctx.moveTo(dx,dy+drawH+markPx); ctx.lineTo(dx,dy+drawH);
-      ctx.moveTo(dx+drawW+markPx,dy+drawH); ctx.lineTo(dx+drawW,dy+drawH); ctx.moveTo(dx+drawW,dy+drawH+markPx); ctx.lineTo(dx+drawW,dy+drawH);
+      ctx.moveTo(dx-markPx,dy); ctx.lineTo(dx,dy);
+      ctx.moveTo(dx,dy-markPx); ctx.lineTo(dx,dy);
+      ctx.moveTo(dx+drawW+markPx,dy); ctx.lineTo(dx+drawW,dy);
+      ctx.moveTo(dx+drawW,dy-markPx); ctx.lineTo(dx+drawW,dy);
+      ctx.moveTo(dx-markPx,dy+drawH); ctx.lineTo(dx,dy+drawH);
+      ctx.moveTo(dx,dy+drawH+markPx); ctx.lineTo(dx,dy+drawH);
+      ctx.moveTo(dx+drawW+markPx,dy+drawH); ctx.lineTo(dx+drawW,dy+drawH);
+      ctx.moveTo(dx+drawW,dy+drawH+markPx); ctx.lineTo(dx+drawW,dy+drawH);
       ctx.stroke();
 
       generatedPages.push({canvas,pageWmm,pageHmm, row: r, col: c});
