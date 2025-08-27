@@ -2,16 +2,34 @@
 <html lang="pt-br">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <link rel="manifest" href="/painel/manifest.json">
 <meta name="theme-color" content="#3367D6">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="msapplication-TileColor" content="#3367D6">
-
 <title>Gerador de Painel para Imprimir e Colar</title>
 <link rel="stylesheet" href="/painel/style.css">
-
+<style>
+#preview-img {
+  display: none;
+  margin-top: 10px;
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+  opacity: 0;
+}
+#preview-img.show {
+  opacity: 1;
+}
+#preview-img:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+</style>
 </head>
 <body>
 
@@ -19,21 +37,24 @@
   <div class="panel">
     <h1>Gerador de Painel</h1>
 
-    <!-- Bloco de informações do usuário ajustado -->
     <div id="user-info" style="display:none;">
       <div>Usuário: <span class="name"></span></div>
       <div>Validade: <span class="validity"></span></div>
     </div>
 
     <label>Imagem do painel:</label>
-    <input id="file" type="file" accept="image/*">
+    <div class="file-upload-wrapper">
+      <input id="file" type="file" accept="image/*">
+      <button type="button" class="file-upload-btn">Escolher Imagem</button>
+      <span class="file-name">Nenhum arquivo selecionado</span>
+      <img id="preview-img" src="" alt="Preview">
+    </div>
 
     <label>Orientação da página:</label>
     <select id="orient">
       <option value="portrait">Vertical (A4 retrato)</option>
       <option value="landscape">Horizontal (A4 paisagem)</option>
     </select>
-    <small>Ajuste automático pela imagem</small>
 
     <label>Divisão em partes:</label>
     <select id="preset">
@@ -50,14 +71,6 @@
       <div><label>Colunas:</label><input id="cols" type="number" min="1" value="2"></div>
     </div>
 
-    <details class="advanced">
-      <summary>Opções Avançadas ▾</summary>
-      <div class="advanced-content">
-        <div><label>Aba de cola (mm):</label><input id="tabMm" type="number" min="0" value="10"></div>
-        <div><label>Tamanho da marca de corte (mm):</label><input id="markMm" type="number" min="2" value="6"></div>
-      </div>
-    </details>
-
     <div class="btns">
       <button id="gen" disabled>Gerar PDF</button>
       <button id="print" style="display:none;">Imprimir</button>
@@ -70,104 +83,89 @@
   <label for="user-key">Cole sua KEY para acessar a página:</label><br>
   <input type="text" id="user-key"><br>
   <button id="submit-key">Acessar</button>
-  <p id="key-message" style="color:red;margin-top:10px;"></p>
+  <p id="key-message"></p>
 </div>
 
-<div id="whatsapp-btn">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+<div id="whatsapp-btn" title="Fale conosco no WhatsApp">
+  <img src="/icons/WhatsApp.svg" alt="WhatsApp">
 </div>
 
 <script src="painel/jspdf.umd.min.js"></script>
 <script src="painel/script.js"></script>
 
 <script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('/painel/service-worker.js').catch(function(err){console.warn('ServiceWorker registration failed: ', err);});
-  });
+document.addEventListener('gesturestart', e => e.preventDefault());
+let lastTouchEnd = 0;
+document.addEventListener('touchend', e => { const now=(new Date()).getTime(); if(now-lastTouchEnd<=300)e.preventDefault(); lastTouchEnd=now; });
+document.body.addEventListener('touchmove', e=>{ e.preventDefault(); }, { passive:false });
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=> navigator.serviceWorker.register('/painel/service-worker.js').catch(err=>console.warn(err)));
 }
 
 (function(){
-  const content = document.querySelectorAll('.protected');
-  content.forEach(c => c.style.display = 'none');
-  const container = document.getElementById('key-container');
-  const userInfo = document.getElementById('user-info');
-  const input = document.getElementById('user-key');
-  let remainingMsGlobal = 0;
-  let userGlobal = '';
+  const content=document.querySelectorAll('.protected');
+  content.forEach(c=>c.style.display='none');
+  const container=document.getElementById('key-container');
+  const userInfo=document.getElementById('user-info');
+  const input=document.getElementById('user-key');
+  let remainingMsGlobal=0;
+  let userGlobal='';
 
   function base36Decode(str){
     const chars='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     let result='';
     for(let i=0;i<str.length;i+=2){
-      let code=chars.indexOf(str[i])*36+chars.indexOf(str[i+1]);
-      result+=String.fromCharCode(code);
+      result+=String.fromCharCode(chars.indexOf(str[i])*36+chars.indexOf(str[i+1]));
     }
     return result;
   }
 
-  async function sha1(msg){ 
-    const buffer=new TextEncoder("utf-8").encode(msg); 
-    const hash=await crypto.subtle.digest("SHA-1", buffer); 
+  async function sha1(msg){
+    const buffer=new TextEncoder("utf-8").encode(msg);
+    const hash=await crypto.subtle.digest("SHA-1", buffer);
     return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
   }
 
   async function verifyKey(key){
-    const parts = key.split('-');
-    if(parts.length !== 2) return false;
-    const payloadEnc = parts[0];
-    const checksum = parts[1];
+    const parts=key.split('-');
+    if(parts.length!==2) return false;
     let payload;
-    try { payload = base36Decode(payloadEnc); } catch(e){ return false; }
-    const hash = await sha1(payload);
-    if(hash.slice(0,8).toUpperCase() !== checksum) return false;
-
-    const lastColonIndex = payload.lastIndexOf(':');
-    if(lastColonIndex === -1) return false;
-
-    const user = payload.slice(0, lastColonIndex);
-    const expStr = payload.slice(lastColonIndex + 1);
-    let exp = parseFloat(expStr);
-    let remainingMs;
-    const now = Date.now();
-
-    if(exp < 1e10){ 
-      remainingMs = exp * 60 * 1000; // minutos
-    } else { 
-      remainingMs = exp - now; // timestamp absoluto
-    }
-
-    if(remainingMs <= 0) return false;
+    try{ payload=base36Decode(parts[0]); } catch(e){ return false; }
+    const hash=await sha1(payload);
+    if(hash.slice(0,8).toUpperCase()!==parts[1]) return false;
+    const idx=payload.lastIndexOf(':');
+    if(idx===-1) return false;
+    const user=payload.slice(0,idx);
+    const exp=parseFloat(payload.slice(idx+1));
+    const now=Date.now();
+    const remainingMs=exp<1e10? exp*60*1000 : exp-now;
+    if(remainingMs<=0) return false;
     return {user, remainingMs};
   }
 
   function formatRemaining(ms){
-    const seconds=Math.floor(ms/1000);
-    const minutes=Math.floor(seconds/60);
-    const hours=Math.floor(minutes/60);
-    const days=Math.floor(hours/24);
-    const remH=hours%24;
-    const remM=minutes%60;
-    const remS=seconds%60;
-    if(days>=1) return days+' dias '+remH+'h '+remM+'m '+remS+'s restantes';
-    if(hours>=1) return hours+'h '+remM+'m '+remS+'s restantes';
-    if(minutes>=1) return minutes+'m '+remS+'s restantes';
-    return seconds+'s restantes';
+    const s=Math.floor(ms/1000), m=Math.floor(s/60), h=Math.floor(m/60), d=Math.floor(h/24);
+    const remH=h%24, remM=m%60, remS=s%60;
+    if(d>=1) return d+' dias '+remH+'h '+remM+'m '+remS+'s restantes';
+    if(h>=1) return h+'h '+remM+'m '+remS+'s restantes';
+    if(m>=1) return m+'m '+remS+'s restantes';
+    return s+'s restantes';
   }
 
   async function checkKey(key){
-    const payload = await verifyKey(key);
+    const payload=await verifyKey(key);
     if(payload){
-      content.forEach(c => c.style.display='block');
+      content.forEach(c=>c.style.display='block');
       container.style.display='none';
-      localStorage.setItem('user_key', key);
-      remainingMsGlobal = payload.remainingMs;
-      userGlobal = payload.user;
+      localStorage.setItem('user_key',key);
+      remainingMsGlobal=payload.remainingMs;
+      userGlobal=payload.user;
       userInfo.style.display='flex';
-      userInfo.querySelector('.name').textContent = payload.user;
-      userInfo.querySelector('.validity').textContent = formatRemaining(payload.remainingMs);
+      userInfo.querySelector('.name').textContent=payload.user;
+      userInfo.querySelector('.validity').textContent=formatRemaining(payload.remainingMs);
       startCountdown();
-    } else {
+    } else{
       localStorage.removeItem('user_key');
       document.getElementById('key-message').innerText="KEY inválida ou expirada.";
     }
@@ -175,26 +173,69 @@ if ('serviceWorker' in navigator) {
 
   function startCountdown(){
     if(window.countdownInterval) clearInterval(window.countdownInterval);
-    window.countdownInterval = setInterval(()=>{
-      remainingMsGlobal -= 1000;
-      if(remainingMsGlobal <= 0){
+    window.countdownInterval=setInterval(()=>{
+      remainingMsGlobal-=1000;
+      if(remainingMsGlobal<=0){
         clearInterval(window.countdownInterval);
         alert("Sua KEY expirou!");
         userInfo.style.display='none';
-        content.forEach(c => c.style.display='none');
+        content.forEach(c=>c.style.display='none');
         container.style.display='block';
         localStorage.removeItem('user_key');
-      } else {
-        userInfo.querySelector('.validity').textContent = formatRemaining(remainingMsGlobal);
-      }
+      } else userInfo.querySelector('.validity').textContent=formatRemaining(remainingMsGlobal);
     },1000);
   }
 
-  const storedKey = localStorage.getItem('user_key');
+  const storedKey=localStorage.getItem('user_key');
   if(storedKey) checkKey(storedKey);
-  document.getElementById('submit-key').addEventListener('click', ()=>{ checkKey(input.value.trim()); });
-  input.addEventListener('keypress',function(e){if(e.key==='Enter'){checkKey(input.value.trim());}});
-  document.getElementById('whatsapp-btn').addEventListener('click',()=>{ window.open('https://wa.me/5511998248013','_blank'); });
+
+  document.getElementById('submit-key').addEventListener('click', ()=>checkKey(input.value.trim()));
+  input.addEventListener('keypress', e=>{ if(e.key==='Enter') checkKey(input.value.trim()); });
+
+  const whatsappBtn=document.getElementById('whatsapp-btn');
+  whatsappBtn.addEventListener('click', ()=> window.open('https://wa.me/5511998248013','_blank'));
+
+  const fileInput = document.getElementById('file');
+  const fileBtn = document.querySelector('.file-upload-btn');
+  const fileName = document.querySelector('.file-name');
+  const previewImg = document.getElementById('preview-img');
+  const genBtn = document.getElementById('gen');
+  const printBtn = document.getElementById('print');
+  const downloadBtn = document.getElementById('download');
+
+  fileBtn.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length > 0) {
+      const file = fileInput.files[0];
+      fileName.textContent = file.name;
+      const reader = new FileReader();
+      reader.onload = e => {
+        previewImg.src = e.target.result;
+        previewImg.style.display = 'block';
+        previewImg.classList.add('show');
+      };
+      reader.readAsDataURL(file);
+      genBtn.disabled = false;
+    } else {
+      fileName.textContent = 'Nenhum arquivo selecionado';
+      previewImg.style.display = 'none';
+      previewImg.classList.remove('show');
+      genBtn.disabled = true;
+    }
+  });
+
+  function resetPDFButtons() {
+    genBtn.style.display = 'inline-block';
+    genBtn.disabled = fileInput.files.length === 0;
+    printBtn.style.display = 'none';
+    downloadBtn.style.display = 'none';
+  }
+
+  document.getElementById('rows').addEventListener('input', resetPDFButtons);
+  document.getElementById('cols').addEventListener('input', resetPDFButtons);
+  document.getElementById('preset').addEventListener('change', resetPDFButtons);
+  document.getElementById('orient').addEventListener('change', resetPDFButtons);
 })();
 </script>
 
