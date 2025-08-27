@@ -53,8 +53,8 @@ genBtn.addEventListener('click', ()=>{
     cols = parseInt(document.getElementById('cols').value);
   }
 
-  const tabPx = MM_TO_PX(parseFloat(document.getElementById('tabMm').value));
-  const markPx = MM_TO_PX(parseFloat(document.getElementById('markMm').value));
+const tabPx = MM_TO_PX(10);
+const markPx = MM_TO_PX(6);
 
   const sliceWsrc = sourceImage.naturalWidth / cols;
   const sliceHsrc = sourceImage.naturalHeight / rows;
@@ -105,8 +105,22 @@ genBtn.addEventListener('click', ()=>{
       ctx.setLineDash([]);
 
       if(c < cols - 1 && tabPx > 0){
-        ctx.fillStyle="#fff"; ctx.fillRect(dx+drawW,dy,tabPx,drawH);
-        ctx.strokeStyle="#000"; ctx.lineWidth=1.5; ctx.strokeRect(dx+drawW,dy,tabPx,drawH);
+        ctx.fillStyle="#fff"; 
+        ctx.fillRect(dx+drawW, dy, tabPx, drawH);
+
+        ctx.strokeStyle = "#888"; 
+        ctx.lineWidth = 1; 
+        ctx.setLineDash([4,4]);
+        ctx.beginPath();
+        ctx.moveTo(dx+drawW, dy);
+        ctx.lineTo(dx+drawW, dy+drawH);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.strokeStyle = "#000"; 
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(dx+drawW, dy, tabPx, drawH);
+
         ctx.setLineDash([5,3]);
         ctx.beginPath(); ctx.moveTo(dx+drawW,dy); ctx.lineTo(dx+drawW,dy+drawH); ctx.stroke();
         ctx.setLineDash([]);
@@ -119,8 +133,22 @@ genBtn.addEventListener('click', ()=>{
       }
 
       if(r < rows - 1 && tabPx > 0){
-        ctx.fillStyle="#fff"; ctx.fillRect(dx,dy+drawH,drawW,tabPx);
-        ctx.strokeStyle="#000"; ctx.lineWidth=1.5; ctx.strokeRect(dx,dy+drawH,drawW,tabPx);
+        ctx.fillStyle="#fff"; 
+        ctx.fillRect(dx, dy+drawH, drawW, tabPx);
+
+        ctx.strokeStyle = "#888"; 
+        ctx.lineWidth = 1; 
+        ctx.setLineDash([4,4]);
+        ctx.beginPath();
+        ctx.moveTo(dx, dy+drawH);
+        ctx.lineTo(dx+drawW, dy+drawH);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.strokeStyle = "#000"; 
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(dx, dy+drawH, drawW, tabPx);
+
         ctx.setLineDash([5,3]);
         ctx.beginPath(); ctx.moveTo(dx,dy+drawH); ctx.lineTo(dx+drawW,dy+drawH); ctx.stroke();
         ctx.setLineDash([]);
