@@ -1,6 +1,6 @@
 {
   "name": "Criar Painel",
-  "short_name": "App",
+  "short_name": "Criar Painel",
   "start_url": "/painel.html",
   "display": "standalone",
   "background_color": "#ffffff",
