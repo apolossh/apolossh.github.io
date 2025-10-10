@@ -1,11 +1,15 @@
 #!name=Spotify(>=iOS15)
-#!desc=Desbloqueio parcial do Premium. Recomenda-se fazer login novamente. A qualidade do som não pode ser definida como "Ultra Alta".
-# Endereço do repositório: https://github.com/app2smile/rules
-# 1. Na interface de pesquisa, playlists/músicas podem ser alternadas livremente e reproduzidas completamente.
-# 2. Na biblioteca de músicas já curtidas, é possível alternar livremente e reproduzir completamente.
+#!desc=2025.06.27 Parcialmente desbloqueia premium, qualidade de áudio não pode ser definida para "muito alta" (recomenda-se fazer login antes de ativar o script; reinicie o app e aguarde o script entrar em vigor)
+# Repositório: https://github.com/app2smile/rules
+# Funcionalidade: 1. Remover anúncios de reprodução 2. Exibir corretamente listas de artistas/álbuns 3. Remover reprodução aleatória
+
+[Header Rewrite]
+# if-none-match retorna código de status 304
+http-request ^https:\/\/(spclient\.wg\.spotify\.com|.*-spclient\.spotify\.com(:443)?)\/user-customization-service\/v1\/customize$ header-del if-none-match
 
 [MITM]
-hostname = %APPEND% spclient.wg.spotify.com
+hostname = %APPEND% spclient.wg.spotify.com, *spclient.spotify.com
 
 [Script]
-spotify = type=http-response,pattern=^https:\/\/spclient\.wg\.spotify\.com\/(bootstrap\/v1\/bootstrap|user-customization-service\/v1\/customize)$,requires-body=1,binary-body-mode=1,max-size=0,script-path=https://apolossh.github.io/dw/spotify.js,script-update-interval=0
+spotify-json = type=http-request,pattern=^https:\/\/(spclient\.wg\.spotify\.com|.*-spclient\.spotify\.com(:443)?)\/(artistview\/v1\/artist|album-entity-view\/v2\/album)\/,requires-body=0,script-path=https://apolossh.github.io/dw/spotify.json.js
+spotify-proto = type=http-response,pattern=^https:\/\/(spclient\.wg\.spotify\.com|.*-spclient\.spotify\.com(:443)?)\/(bootstrap\/v1\/bootstrap|user-customization-service\/v1\/customize)$,requires-body=1,binary-body-mode=1,max-size=0,script-path=https://apolossh.github.io/dw/spotify.js,script-update-interval=0
