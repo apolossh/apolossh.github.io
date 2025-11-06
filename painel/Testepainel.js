@@ -173,10 +173,21 @@ fileInput2.addEventListener('change', async e => {
   if (!file) return;
 
   sourceImage = await loadImage(file);
+  atualizarMelhorOrientacao(); // escolhe automaticamente a melhor
+  genBtn2.disabled = false;
+  generatedPages = [];
+  printBtn2.style.display = 'none';
+  downloadBtn2.style.display = 'none';
+  genBtn2.style.display = 'inline-block';
+});
+
+// --- Função que calcula e aplica a melhor orientação ---
+function atualizarMelhorOrientacao() {
+  if (!sourceImage) return;
+
   const preset = document.getElementById('preset').value;
   let rows, cols;
 
-  // Usa o grid atual (ou padrão) para a comparação
   if (preset !== "custom") {
     [rows, cols] = preset.split("x").map(Number);
   } else {
@@ -184,30 +195,31 @@ fileInput2.addEventListener('change', async e => {
     cols = parseInt(document.getElementById('cols').value) || 2;
   }
 
-  // Função para estimar tamanho médio dos pedaços (em pixels)
-  function averagePieceSize(width, height, rows, cols) {
-    const pieceW = width / cols;
-    const pieceH = height / rows;
-    return pieceW * pieceH; // área média de cada pedaço
+  // calcula tamanho médio dos pedaços para cada orientação
+  function mediaPedaço(larg, alt, linhas, colunas) {
+    const pw = larg / colunas;
+    const ph = alt / linhas;
+    return pw * ph;
   }
 
-  // Calcula para ambas as orientações
-  const portraitScore = averagePieceSize(sourceImage.naturalWidth, sourceImage.naturalHeight, rows, cols);
-  const landscapeScore = averagePieceSize(sourceImage.naturalHeight, sourceImage.naturalWidth, rows, cols);
+  const portraitScore = mediaPedaço(sourceImage.naturalWidth, sourceImage.naturalHeight, rows, cols);
+  const landscapeScore = mediaPedaço(sourceImage.naturalHeight, sourceImage.naturalWidth, rows, cols);
 
-  // Escolhe a que tiver pedaços maiores (melhor aproveitamento)
-  const bestOrientation = landscapeScore > portraitScore ? "landscape" : "portrait";
+  const melhor = landscapeScore > portraitScore ? "landscape" : "portrait";
+  const orientSelect = document.getElementById('orient');
 
-  // Define automaticamente
-  document.getElementById('orient').value = bestOrientation;
+  // só muda se necessário (evita piscar)
+  if (orientSelect.value !== melhor) orientSelect.value = melhor;
+}
 
-  // Atualiza visual
-  genBtn2.disabled = false;
-  generatedPages = [];
-  printBtn2.style.display = 'none';
-  downloadBtn2.style.display = 'none';
-  genBtn2.style.display = 'inline-block';
+// --- Detecta mudanças no preset e nos campos personalizados ---
+document.getElementById('preset').addEventListener('change', e => {
+  document.getElementById('customGrid').style.display = (e.target.value === 'custom') ? 'flex' : 'none';
+  atualizarMelhorOrientacao(); // recalcula quando muda o preset
 });
+
+document.getElementById('rows').addEventListener('input', atualizarMelhorOrientacao);
+document.getElementById('cols').addEventListener('input', atualizarMelhorOrientacao);
 
 document.getElementById('preset').addEventListener('change', e=>{
   document.getElementById('customGrid').style.display = (e.target.value === 'custom') ? 'flex' : 'none';
