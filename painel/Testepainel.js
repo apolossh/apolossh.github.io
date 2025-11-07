@@ -150,6 +150,7 @@ if ('serviceWorker' in navigator) {
 
 const { jsPDF } = window.jspdf;
 const MM_TO_PX = mm => mm * (96/25.4);
+let currentRows=0,currentCols=0;
 
 function loadImage(file){
   return new Promise((res, rej)=>{
@@ -162,8 +163,6 @@ function loadImage(file){
 
 let sourceImage = null;
 let generatedPages = [];
-let currentRows = 0;
-let currentCols = 0;
 
 const fileInput2 = document.getElementById('file');
 const genBtn2 = document.getElementById('gen');
@@ -192,14 +191,11 @@ function atualizarMelhorOrientacao() {
     rows = parseInt(document.getElementById('rows').value) || 2;
     cols = parseInt(document.getElementById('cols').value) || 2;
   }
-  currentRows = rows;
-  currentCols = cols;
-  const ratioImg = sourceImage.naturalWidth / sourceImage.naturalHeight;
-  const ratioGrid = cols / rows;
+  const aspectImage = sourceImage.naturalWidth / sourceImage.naturalHeight;
+  const aspectGrid = cols / rows;
   const orientSelect = document.getElementById('orient');
-  const diffPortrait = Math.abs(ratioImg - (210/297) * ratioGrid);
-  const diffLandscape = Math.abs(ratioImg - (297/210) * ratioGrid);
-  orientSelect.value = diffLandscape < diffPortrait ? "landscape" : "portrait";
+  const melhor = Math.abs(aspectImage - aspectGrid) > Math.abs((1/aspectImage) - aspectGrid) ? "landscape" : "portrait";
+  if (orientSelect.value !== melhor) orientSelect.value = melhor;
 }
 
 document.getElementById('preset').addEventListener('change', e => {
@@ -225,8 +221,7 @@ genBtn2.addEventListener('click', ()=>{
     rows = parseInt(document.getElementById('rows').value);
     cols = parseInt(document.getElementById('cols').value);
   }
-  currentRows = rows;
-  currentCols = cols;
+  currentRows=rows;currentCols=cols;
   const tabPx = MM_TO_PX(10);
   const markPx = MM_TO_PX(6);
   const sliceWsrc = sourceImage.naturalWidth / cols;
@@ -264,33 +259,34 @@ genBtn2.addEventListener('click', ()=>{
       ctx.lineWidth = 1;
       ctx.setLineDash([4, 4]);
       ctx.strokeRect(dx, dy, drawW, drawH);
-      ctx.setLineDash([]);
+      ctx.setLineDash([4,4]);
       if(c < cols - 1 && tabPx > 0){
         ctx.fillStyle="#fff"; 
         ctx.fillRect(dx+drawW, dy, tabPx, drawH);
-        ctx.strokeStyle = "#888"; 
-        ctx.lineWidth = 1; 
-        ctx.setLineDash([4,4]);
         ctx.strokeRect(dx+drawW, dy, tabPx, drawH);
-        ctx.setLineDash([]);
+        ctx.fillStyle="#000"; ctx.font="bold 18px sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
         ctx.save();
         ctx.translate(dx+drawW+tabPx/2, dy+drawH/2);
         ctx.rotate(-Math.PI/2);
-        ctx.fillStyle="#000"; ctx.font="bold 18px sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
         ctx.fillText("COLE AQUI",0,0);
         ctx.restore();
       }
       if(r < rows - 1 && tabPx > 0){
         ctx.fillStyle="#fff"; 
         ctx.fillRect(dx, dy+drawH, drawW, tabPx);
-        ctx.strokeStyle = "#888"; 
-        ctx.lineWidth = 1; 
-        ctx.setLineDash([4,4]);
         ctx.strokeRect(dx, dy+drawH, drawW, tabPx);
-        ctx.setLineDash([]);
         ctx.fillStyle="#000"; ctx.font="bold 18px sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
         ctx.fillText("COLE AQUI", dx+drawW/2, dy+drawH+tabPx/2);
       }
+      ctx.moveTo(dx-markPx,dy); ctx.lineTo(dx,dy);
+      ctx.moveTo(dx,dy-markPx); ctx.lineTo(dx,dy);
+      ctx.moveTo(dx+drawW+markPx,dy); ctx.lineTo(dx+drawW,dy);
+      ctx.moveTo(dx+drawW,dy-markPx); ctx.lineTo(dx+drawW,dy);
+      ctx.moveTo(dx-markPx,dy+drawH); ctx.lineTo(dx,dy+drawH);
+      ctx.moveTo(dx,dy+drawH+markPx); ctx.lineTo(dx,dy+drawH);
+      ctx.moveTo(dx+drawW+markPx,dy+drawH); ctx.lineTo(dx+drawW,dy+drawH);
+      ctx.moveTo(dx+drawW,dy+drawH+markPx); ctx.lineTo(dx+drawW,dy+drawH);
+      ctx.stroke();
       generatedPages.push({canvas,pageWmm,pageHmm, row: r, col: c});
     }
   }
@@ -306,7 +302,7 @@ function generatePDF(){
   const h = generatedPages[0].pageHmm;
   const pdf = new jsPDF({orientation: w>h?"landscape":"portrait", unit:"mm", format:[w,h]});
   generatedPages.forEach((pg,i)=>{
-    const img = pg.canvas.toDataURL("image/jpeg",1.0);
+    const img = pg.canvas.toDataURL("image/jpeg",0.92);
     if(i>0) pdf.addPage([pg.pageWmm,pg.pageHmm], w>h?"landscape":"portrait");
     pdf.addImage(img,"JPEG",0,0,pg.pageWmm,pg.pageHmm);
   });
@@ -332,12 +328,11 @@ downloadBtn2.addEventListener('click', async ()=>{
   const hora = String(agora.getHours()).padStart(2,'0');
   const minuto = String(agora.getMinutes()).padStart(2,'0');
   const dataBr = `${dia}/${mes}/${ano}`;
-  const horaFormatada = `${hora}h${minuto}`;
-  const nomeArquivo = `Painel_${currentRows}x${currentCols}_(${dia}-${mes}-${ano}_${horaFormatada}).pdf`;
+  const nomeArquivo = `Painel_${currentRows}x${currentCols}_(${dia}-${mes}-${ano}_${hora}h${minuto}m).pdf`;
   const descricao = 
 `📄 Este painel foi criado em https://apolossh.github.io/painel
 🗓️ Data: ${dataBr}
-⏰ Hora: ${hora}:${minuto}
+⏰ Hora: ${hora}h${minuto}m
 📐 Grade: ${currentRows}x${currentCols}`;
   const file = new File([blob], nomeArquivo, {type:"application/pdf"});
   if(navigator.canShare && navigator.canShare({files:[file]})){
