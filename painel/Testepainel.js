@@ -191,14 +191,16 @@ function atualizarMelhorOrientacao() {
     rows = parseInt(document.getElementById('rows').value) || 2;
     cols = parseInt(document.getElementById('cols').value) || 2;
   }
-  function mediaPedaço(larg, alt, linhas, colunas) {
-    const pw = larg / colunas;
-    const ph = alt / linhas;
-    return pw * ph;
-  }
-  const portraitScore = mediaPedaço(sourceImage.naturalWidth, sourceImage.naturalHeight, rows, cols);
-  const landscapeScore = mediaPedaço(sourceImage.naturalHeight, sourceImage.naturalWidth, rows, cols);
-  const melhor = landscapeScore > portraitScore ? "landscape" : "portrait";
+
+  const ratioImg = sourceImage.naturalWidth / sourceImage.naturalHeight;
+  const ratioPagePortrait = 210 / 297;
+  const ratioPageLandscape = 297 / 210;
+
+  const diffPortrait = Math.abs(ratioImg - ratioPagePortrait);
+  const diffLandscape = Math.abs(ratioImg - ratioPageLandscape);
+
+  const melhor = diffLandscape < diffPortrait ? "landscape" : "portrait";
+
   const orientSelect = document.getElementById('orient');
   if (orientSelect.value !== melhor) orientSelect.value = melhor;
 }
