@@ -173,7 +173,7 @@ fileInput2.addEventListener('change', async e => {
   if (!file) return;
 
   sourceImage = await loadImage(file);
-  atualizarMelhorOrientacao(); // escolhe automaticamente a melhor
+  atualizarMelhorOrientacao();
   genBtn2.disabled = false;
   generatedPages = [];
   printBtn2.style.display = 'none';
@@ -181,41 +181,31 @@ fileInput2.addEventListener('change', async e => {
   genBtn2.style.display = 'inline-block';
 });
 
-// --- Função que calcula e aplica a melhor orientação ---
 function atualizarMelhorOrientacao() {
   if (!sourceImage) return;
-
   const preset = document.getElementById('preset').value;
   let rows, cols;
-
   if (preset !== "custom") {
     [rows, cols] = preset.split("x").map(Number);
   } else {
     rows = parseInt(document.getElementById('rows').value) || 2;
     cols = parseInt(document.getElementById('cols').value) || 2;
   }
-
-  // calcula tamanho médio dos pedaços para cada orientação
   function mediaPedaço(larg, alt, linhas, colunas) {
     const pw = larg / colunas;
     const ph = alt / linhas;
     return pw * ph;
   }
-
   const portraitScore = mediaPedaço(sourceImage.naturalWidth, sourceImage.naturalHeight, rows, cols);
   const landscapeScore = mediaPedaço(sourceImage.naturalHeight, sourceImage.naturalWidth, rows, cols);
-
   const melhor = landscapeScore > portraitScore ? "landscape" : "portrait";
   const orientSelect = document.getElementById('orient');
-
-  // só muda se necessário (evita piscar)
   if (orientSelect.value !== melhor) orientSelect.value = melhor;
 }
 
-// --- Detecta mudanças no preset e nos campos personalizados ---
 document.getElementById('preset').addEventListener('change', e => {
   document.getElementById('customGrid').style.display = (e.target.value === 'custom') ? 'flex' : 'none';
-  atualizarMelhorOrientacao(); // recalcula quando muda o preset
+  atualizarMelhorOrientacao();
 });
 
 document.getElementById('rows').addEventListener('input', atualizarMelhorOrientacao);
@@ -227,13 +217,11 @@ document.getElementById('preset').addEventListener('change', e=>{
 
 genBtn2.addEventListener('click', ()=>{
   if(!sourceImage) return;
-
   const orient = document.getElementById('orient').value;
   let pageWmm = orient === "portrait" ? 210 : 297;
   let pageHmm = orient === "portrait" ? 297 : 210;
   const pageW = Math.round(MM_TO_PX(pageWmm));
   const pageH = Math.round(MM_TO_PX(pageHmm));
-
   let rows, cols;
   const preset = document.getElementById('preset').value;
   if(preset !== "custom"){
@@ -242,13 +230,10 @@ genBtn2.addEventListener('click', ()=>{
     rows = parseInt(document.getElementById('rows').value);
     cols = parseInt(document.getElementById('cols').value);
   }
-
   const tabPx = MM_TO_PX(10);
   const markPx = MM_TO_PX(6);
-
   const sliceWsrc = sourceImage.naturalWidth / cols;
   const sliceHsrc = sourceImage.naturalHeight / rows;
-
   let maxSliceW = 0;
   let maxSliceH = 0;
   for (let r=0; r<rows; r++) {
@@ -259,61 +244,36 @@ genBtn2.addEventListener('click', ()=>{
       maxSliceH = Math.max(maxSliceH, sliceH);
     }
   }
-
   const globalScaleX = (pageW - tabPx) / maxSliceW;
   const globalScaleY = (pageH - tabPx) / maxSliceH;
   const globalScale = Math.min(globalScaleX, globalScaleY);
-
   generatedPages = [];
-
   for(let r=0; r<rows; r++){
     const sliceH = (r === rows - 1) ? sourceImage.naturalHeight - r * sliceHsrc : sliceHsrc;
-
     for(let c=0; c<cols; c++){
       const sliceW = (c === cols - 1) ? sourceImage.naturalWidth - c * sliceWsrc : sliceWsrc;
-
       const canvas = document.createElement('canvas');
       canvas.width = pageW;
       canvas.height = pageH;
       const ctx = canvas.getContext('2d');
-
       ctx.fillStyle="#fff"; 
       ctx.fillRect(0,0,pageW,pageH);
-
       const drawW = sliceW * globalScale;
       const drawH = sliceH * globalScale;
-
       const dx = (pageW - drawW - (c < cols-1 ? tabPx : 0)) / 2;
       const dy = (pageH - drawH - (r < rows-1 ? tabPx : 0)) / 2;
-
       ctx.drawImage(sourceImage, c*sliceWsrc, r*sliceHsrc, sliceW, sliceH, dx, dy, drawW, drawH);
-
       ctx.strokeStyle = "#888";
       ctx.lineWidth = 1;
       ctx.setLineDash([4, 4]);
       ctx.strokeRect(dx, dy, drawW, drawH);
-      ctx.setLineDash([]);
-
       if(c < cols - 1 && tabPx > 0){
         ctx.fillStyle="#fff"; 
         ctx.fillRect(dx+drawW, dy, tabPx, drawH);
-
         ctx.strokeStyle = "#888"; 
         ctx.lineWidth = 1; 
         ctx.setLineDash([4,4]);
-        ctx.beginPath();
-        ctx.moveTo(dx+drawW, dy);
-        ctx.lineTo(dx+drawW, dy+drawH);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        ctx.strokeStyle = "#000"; 
-        ctx.lineWidth = 1.5;
         ctx.strokeRect(dx+drawW, dy, tabPx, drawH);
-
-        ctx.setLineDash([5,3]);
-        ctx.beginPath(); ctx.moveTo(dx+drawW,dy); ctx.lineTo(dx+drawW,dy+drawH); ctx.stroke();
-        ctx.setLineDash([]);
         ctx.save();
         ctx.translate(dx+drawW+tabPx/2, dy+drawH/2);
         ctx.rotate(-Math.PI/2);
@@ -321,32 +281,18 @@ genBtn2.addEventListener('click', ()=>{
         ctx.fillText("COLE AQUI",0,0);
         ctx.restore();
       }
-
       if(r < rows - 1 && tabPx > 0){
         ctx.fillStyle="#fff"; 
         ctx.fillRect(dx, dy+drawH, drawW, tabPx);
-
         ctx.strokeStyle = "#888"; 
         ctx.lineWidth = 1; 
         ctx.setLineDash([4,4]);
-        ctx.beginPath();
-        ctx.moveTo(dx, dy+drawH);
-        ctx.lineTo(dx+drawW, dy+drawH);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        ctx.strokeStyle = "#000"; 
-        ctx.lineWidth = 1.5;
         ctx.strokeRect(dx, dy+drawH, drawW, tabPx);
-
-        ctx.setLineDash([5,3]);
-        ctx.beginPath(); ctx.moveTo(dx,dy+drawH); ctx.lineTo(dx+drawW,dy+drawH); ctx.stroke();
-        ctx.setLineDash([]);
         ctx.fillStyle="#000"; ctx.font="bold 18px sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
         ctx.fillText("COLE AQUI", dx+drawW/2, dy+drawH+tabPx/2);
       }
-
-      ctx.strokeStyle="#000"; ctx.lineWidth=1.2; ctx.beginPath();
+      ctx.strokeStyle="#888"; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+      ctx.beginPath();
       ctx.moveTo(dx-markPx,dy); ctx.lineTo(dx,dy);
       ctx.moveTo(dx,dy-markPx); ctx.lineTo(dx,dy);
       ctx.moveTo(dx+drawW+markPx,dy); ctx.lineTo(dx+drawW,dy);
@@ -356,13 +302,10 @@ genBtn2.addEventListener('click', ()=>{
       ctx.moveTo(dx+drawW+markPx,dy+drawH); ctx.lineTo(dx+drawW,dy+drawH);
       ctx.moveTo(dx+drawW,dy+drawH+markPx); ctx.lineTo(dx+drawW,dy+drawH);
       ctx.stroke();
-
       generatedPages.push({canvas,pageWmm,pageHmm, row: r, col: c});
     }
   }
-
   generatedPages.sort((a,b)=> a.row - b.row || a.col - b.col);
-
   genBtn2.style.display = 'none';
   printBtn2.style.display = 'inline-block';
   downloadBtn2.style.display = 'inline-block';
@@ -392,10 +335,8 @@ printBtn2.addEventListener('click', ()=>{
 downloadBtn2.addEventListener('click', async ()=>{
   const pdf = generatePDF();
   if(!pdf) return;
-
   const blob = pdf.output("blob");
   const file = new File([blob], "painel.pdf", {type:"application/pdf"});
-
   if(navigator.canShare && navigator.canShare({files:[file]})){
     try { await navigator.share({files:[file], title:"Painel PDF"}); }
     catch(e){ console.log(e); }
