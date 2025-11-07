@@ -202,7 +202,6 @@ function atualizarMelhorOrientacao() {
   const diffLandscape = Math.abs(ratioImg - ratioPageLandscape);
 
   const melhor = diffLandscape < diffPortrait ? "landscape" : "portrait";
-
   const orientSelect = document.getElementById('orient');
   if (orientSelect.value !== melhor) orientSelect.value = melhor;
 }
@@ -214,10 +213,6 @@ document.getElementById('preset').addEventListener('change', e => {
 
 document.getElementById('rows').addEventListener('input', atualizarMelhorOrientacao);
 document.getElementById('cols').addEventListener('input', atualizarMelhorOrientacao);
-
-document.getElementById('preset').addEventListener('change', e=>{
-  document.getElementById('customGrid').style.display = (e.target.value === 'custom') ? 'flex' : 'none';
-});
 
 genBtn2.addEventListener('click', ()=>{
   if(!sourceImage) return;
@@ -344,11 +339,14 @@ downloadBtn2.addEventListener('click', async ()=>{
   const blob = pdf.output("blob");
   const agora = new Date();
   const dataStr = agora.toLocaleDateString('pt-BR').replace(/\//g, '-');
-  const horaStr = agora.toTimeString().split(' ')[0].replace(/:/g, '-');
-  const nomeArquivo = `painel_${currentRows}x${currentCols}_${dataStr}_${horaStr}.pdf`;
+  const hora = agora.toTimeString().split(' ')[0];
+  const [h,m,s] = hora.split(':');
+  const horaFormatada = `${h}h${m}m${s}s`;
+  const nomeArquivo = `Painel_${currentRows}x${currentCols}_(${dataStr}_${horaFormatada}).pdf`;
+  const descricao = `📄 Este painel foi criado em https://apolossh.github.io/painel\n🗓️ Data: ${dataStr}\n⏰ Hora: ${horaFormatada}\n📐 Grade: ${currentRows}x${currentCols}`;
   const file = new File([blob], nomeArquivo, {type:"application/pdf"});
   if(navigator.canShare && navigator.canShare({files:[file]})){
-    try { await navigator.share({files:[file], title:"Painel PDF"}); }
+    try { await navigator.share({files:[file], title:"Painel Gerado", text:descricao}); }
     catch(e){ console.log(e); }
   } else {
     const link = document.createElement('a');
