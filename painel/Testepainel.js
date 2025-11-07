@@ -162,6 +162,8 @@ function loadImage(file){
 
 let sourceImage = null;
 let generatedPages = [];
+let currentRows = 0;
+let currentCols = 0;
 
 const fileInput2 = document.getElementById('file');
 const genBtn2 = document.getElementById('gen');
@@ -232,6 +234,8 @@ genBtn2.addEventListener('click', ()=>{
     rows = parseInt(document.getElementById('rows').value);
     cols = parseInt(document.getElementById('cols').value);
   }
+  currentRows = rows;
+  currentCols = cols;
   const tabPx = MM_TO_PX(10);
   const markPx = MM_TO_PX(6);
   const sliceWsrc = sourceImage.naturalWidth / cols;
@@ -338,7 +342,11 @@ downloadBtn2.addEventListener('click', async ()=>{
   const pdf = generatePDF();
   if(!pdf) return;
   const blob = pdf.output("blob");
-  const file = new File([blob], "painel.pdf", {type:"application/pdf"});
+  const agora = new Date();
+  const dataStr = agora.toLocaleDateString('pt-BR').replace(/\//g, '-');
+  const horaStr = agora.toTimeString().split(' ')[0].replace(/:/g, '-');
+  const nomeArquivo = `painel_${currentRows}x${currentCols}_${dataStr}_${horaStr}.pdf`;
+  const file = new File([blob], nomeArquivo, {type:"application/pdf"});
   if(navigator.canShare && navigator.canShare({files:[file]})){
     try { await navigator.share({files:[file], title:"Painel PDF"}); }
     catch(e){ console.log(e); }
