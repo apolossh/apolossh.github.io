@@ -349,7 +349,11 @@ downloadBtn2.addEventListener('click', async ()=>{
     grade = `${rows}x${cols}`;
   }
   const nomeArquivo = `painel_${dataHoraNome}.pdf`;
-  const descricao = `Painel criado em ${dia}/${mes}/${ano} às ${hora}h${min}\nGrade: ${grade}\nCriado em https://apolossh.github.io`;
+  const descricao = 
+`📄 Este painel foi criado em https://apolossh.github.io/painel
+🗓️ Data: ${dia}/${mes}/${ano}
+⏰ Hora: ${hora}:${min}
+📐 Grade: ${grade}`;
   const blob = pdf.output("blob");
   const file = new File([blob], nomeArquivo, { type: "application/pdf" });
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
