@@ -14,10 +14,7 @@ def download_video(url, download_path='downloads'):
         os.makedirs(download_path)
     
     output_path = os.path.join(download_path, 'video.mp4')
-
-    if os.path.exists(output_path):
-        os.remove(output_path)
-
+    
     ydl_opts = {
         'outtmpl': output_path,
         'format': 'best',
@@ -74,9 +71,6 @@ def try_instagram_alternative(url, download_path):
     try:
         output_path = os.path.join(download_path, 'video.mp4')
         
-        if os.path.exists(output_path):
-            os.remove(output_path)
-
         ydl_opts_alt = {
             'outtmpl': output_path,
             'format': 'best',
