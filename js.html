@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+
+<!-- CSP EXTREMA + TRUSTED TYPES -->
+<meta http-equiv="Content-Security-Policy" content="
+default-src 'none';
+script-src 'self';
+style-src 'self';
+img-src 'self';
+font-src 'none';
+connect-src 'none';
+media-src 'none';
+frame-src 'none';
+frame-ancestors 'none';
+object-src 'none';
+base-uri 'none';
+form-action 'none';
+worker-src 'none';
+manifest-src 'none';
+require-trusted-types-for 'script';
+upgrade-insecure-requests;
+block-all-mixed-content;
+">
+
+<!-- HARDENING ADICIONAL -->
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Permissions-Policy" content="
+camera=(),
+microphone=(),
+geolocation=(),
+payment=(),
+usb=(),
+bluetooth=(),
+clipboard-read=(),
+clipboard-write=()
+">
+
+<title>Página Estática Ultra Segura</title>
+
+<style>
+/* CSS local, sem import, sem url() */
+body {
+    background:#0a0a0a;
+    color:#e5e5e5;
+    font-family:system-ui, sans-serif;
+    padding:40px;
+}
+h1 { color:#7CFF7C; }
+</style>
+</head>
+
+<body>
+
+<h1>Superfície de Ataque Mínima</h1>
+
+<p>
+Esta página:
+</p>
+<ul>
+<li>Não aceita entrada</li>
+<li>Não envia dados</li>
+<li>Não executa JS dinâmico</li>
+<li>Não carrega nada externo</li>
+<li>Falha fechada</li>
+</ul>
+
+<noscript>
+<p>JavaScript desativado. Comportamento esperado.</p>
+</noscript>
+
+<script>
+'use strict';
+
+/*
+ JS MINIMALISTA, HARDENED
+ Sem DOM dinâmico
+ Sem eval
+ Sem fetch
+ Sem timers
+ Sem storage
+*/
+
+// Trusted Types policy vazia
+if (window.trustedTypes) {
+    trustedTypes.createPolicy('default', {
+        createHTML: () => { throw new Error('Blocked'); },
+        createScript: () => { throw new Error('Blocked'); },
+        createScriptURL: () => { throw new Error('Blocked'); }
+    });
+}
+
+// Congelamento seletivo seguro
+Object.freeze(Object);
+Object.freeze(Array.prototype);
+Object.freeze(Function.prototype);
+Object.freeze(Node.prototype);
+
+// Desabilita APIs de rede por redundância
+window.fetch = undefined;
+window.XMLHttpRequest = undefined;
+window.WebSocket = undefined;
+
+// Remove capacidade de navegação programática
+window.open = undefined;
+location.assign = undefined;
+location.replace = undefined;
+
+</script>
+
+</body>
+</html>
