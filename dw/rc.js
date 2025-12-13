@@ -1,3 +1,4 @@
+#
 const headers = $request.headers;
 const auth = headers["Authorization"] || headers["authorization"];
 const ua = headers["User-Agent"] || headers["user-agent"];
