@@ -18,9 +18,14 @@ $httpClient.get(options, (error, response, data) => {
   }
 
   const mapping = JSON.parse(data).product_entitlement_mapping;
+  
   const nowObj = new Date();
   const now = nowObj.toISOString();
   const nowMs = nowObj.getTime();
+
+  const pastObj = new Date(nowObj);
+  pastObj.setFullYear(pastObj.getFullYear() - 1);
+  const pastDate = pastObj.toISOString();
 
   let bestProduct = null;
   let durationType = "annual";
@@ -89,21 +94,21 @@ $httpClient.get(options, (error, response, data) => {
     "request_date": now,
     "subscriber": {
       "entitlement": {},
-      "first_seen": now,
+      "first_seen": pastDate,
       "original_application_version": "1.0",
       "last_seen": now,
       "other_purchases": {},
       "management_url": "https://apps.apple.com/account/subscriptions",
       "subscriptions": {},
       "entitlements": {},
-      "original_purchase_date": now,
+      "original_purchase_date": pastDate,
       "original_app_user_id": "app_user_id",
       "non_subscriptions": {}
     }
   };
 
   const subInfo = {
-    "original_purchase_date": now,
+    "original_purchase_date": pastDate,
     "purchase_date": now,
     "is_sandbox": false,
     "ownership_type": "PURCHASED",
