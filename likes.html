@@ -1,0 +1,214 @@
+index.html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LikesFF API</title>
+
+<style>
+
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
+font-family:Arial, sans-serif;
+}
+
+body{
+background:#0f172a;
+color:#fff;
+display:flex;
+align-items:center;
+justify-content:center;
+min-height:100vh;
+padding:20px;
+}
+
+.container{
+width:100%;
+max-width:420px;
+background:#020617;
+border-radius:14px;
+box-shadow:0 15px 40px rgba(0,0,0,0.5);
+overflow:hidden;
+}
+
+.header{
+background:#1e293b;
+padding:18px;
+text-align:center;
+font-size:20px;
+font-weight:bold;
+}
+
+.body{
+padding:16px;
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.input{
+width:100%;
+padding:12px;
+border:none;
+border-radius:8px;
+outline:none;
+font-size:14px;
+}
+
+.button{
+padding:12px;
+border:none;
+border-radius:8px;
+background:#22c55e;
+color:#fff;
+font-size:15px;
+font-weight:bold;
+cursor:pointer;
+transition:0.2s;
+}
+
+.button:hover{
+background:#16a34a;
+}
+
+.status{
+text-align:center;
+font-size:13px;
+margin-top:5px;
+}
+
+.results{
+margin-top:10px;
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+}
+
+.card{
+background:#0f172a;
+padding:10px;
+border-radius:8px;
+}
+
+.title{
+font-size:11px;
+opacity:0.7;
+}
+
+.value{
+font-size:15px;
+font-weight:bold;
+margin-top:3px;
+}
+
+.footer{
+text-align:center;
+font-size:11px;
+padding:10px;
+background:#020617;
+opacity:0.7;
+}
+
+@media (max-width:480px){
+
+.header{
+font-size:18px;
+}
+
+.results{
+grid-template-columns:1fr;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+LikesFF API
+</div>
+
+<div class="body">
+
+<input id="uid" class="input" placeholder="Digite o UID">
+
+<button id="send" class="button">
+Enviar Likes
+</button>
+
+<div id="status" class="status">
+Aguardando...
+</div>
+
+<div id="results" class="results"></div>
+
+</div>
+
+<div class="footer">
+API Panel
+</div>
+
+</div>
+
+<script>
+
+function card(title,value){
+return `
+<div class="card">
+<div class="title">${title}</div>
+<div class="value">${value}</div>
+</div>
+`
+}
+
+document.getElementById("send").onclick = async ()=>{
+
+const uid = document.getElementById("uid").value.trim()
+const status = document.getElementById("status")
+const results = document.getElementById("results")
+
+if(!uid){
+status.innerText="Digite um UID válido"
+return
+}
+
+status.innerText="Enviando requisição..."
+results.innerHTML=""
+
+try{
+
+const res = await fetch(`https://likesff.online/api/LIKE?uid=${uid}&cache=true&key=LIKESFF-Panel-key-bielmotam&region=BR`)
+const data = await res.json()
+
+status.innerText=data.message
+
+results.innerHTML =
+card("Nickname",data.nickname)+
+card("UID",data.id)+
+card("Região",data.region)+
+card("Likes Antes",data.likes_before)+
+card("Likes Depois",data.likes_end)+
+card("Likes Adicionados",data.likes_added)+
+card("Falhas",data.likes_failed)+
+card("Key",data.key)+
+card("Restante",data.key_remaining)
+
+}catch{
+
+status.innerText="Erro na requisição"
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
