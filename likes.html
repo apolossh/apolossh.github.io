@@ -26,10 +26,10 @@ padding:20px;
 
 .container{
 width:100%;
-max-width:420px;
+max-width:500px;
 background:#020617;
-border-radius:14px;
-box-shadow:0 15px 40px rgba(0,0,0,0.5);
+border-radius:16px;
+box-shadow:0 20px 50px rgba(0,0,0,0.5);
 overflow:hidden;
 }
 
@@ -45,22 +45,22 @@ font-weight:bold;
 padding:16px;
 display:flex;
 flex-direction:column;
-gap:10px;
+gap:12px;
 }
 
 .input{
 width:100%;
 padding:12px;
 border:none;
-border-radius:8px;
+border-radius:10px;
 outline:none;
-font-size:14px;
+font-size:15px;
 }
 
 .button{
 padding:12px;
 border:none;
-border-radius:8px;
+border-radius:10px;
 background:#22c55e;
 color:#fff;
 font-size:15px;
@@ -76,31 +76,60 @@ background:#16a34a;
 .status{
 text-align:center;
 font-size:13px;
-margin-top:5px;
 }
 
 .results{
 margin-top:10px;
+display:flex;
+flex-direction:column;
+gap:14px;
+}
+
+.profile{
+background:#0f172a;
+border-radius:12px;
+padding:14px;
+display:flex;
+flex-direction:column;
+gap:6px;
+}
+
+.nickname{
+font-size:18px;
+font-weight:bold;
+}
+
+.uid{
+font-size:12px;
+opacity:0.7;
+}
+
+.stats{
 display:grid;
 grid-template-columns:1fr 1fr;
 gap:10px;
 }
 
 .card{
-background:#0f172a;
-padding:10px;
-border-radius:8px;
+background:#0b1220;
+padding:12px;
+border-radius:10px;
+text-align:center;
 }
 
 .title{
 font-size:11px;
 opacity:0.7;
+margin-bottom:4px;
 }
 
 .value{
-font-size:15px;
+font-size:18px;
 font-weight:bold;
-margin-top:3px;
+}
+
+.small{
+font-size:13px;
 }
 
 .footer{
@@ -113,12 +142,12 @@ opacity:0.7;
 
 @media (max-width:480px){
 
-.header{
-font-size:18px;
+.container{
+max-width:100%;
 }
 
-.results{
-grid-template-columns:1fr;
+.stats{
+grid-template-columns:1fr 1fr;
 }
 
 }
@@ -158,15 +187,6 @@ API Panel
 
 <script>
 
-function card(title,value){
-return `
-<div class="card">
-<div class="title">${title}</div>
-<div class="value">${value}</div>
-</div>
-`
-}
-
 document.getElementById("send").onclick = async ()=>{
 
 const uid = document.getElementById("uid").value.trim()
@@ -178,7 +198,7 @@ status.innerText="Digite um UID válido"
 return
 }
 
-status.innerText="Enviando requisição..."
+status.innerText="Enviando..."
 results.innerHTML=""
 
 try{
@@ -188,16 +208,46 @@ const data = await res.json()
 
 status.innerText=data.message
 
-results.innerHTML =
-card("Nickname",data.nickname)+
-card("UID",data.id)+
-card("Região",data.region)+
-card("Likes Antes",data.likes_before)+
-card("Likes Depois",data.likes_end)+
-card("Likes Adicionados",data.likes_added)+
-card("Falhas",data.likes_failed)+
-card("Key",data.key)+
-card("Restante",data.key_remaining)
+results.innerHTML = `
+<div class="profile">
+<div class="nickname">${data.nickname}</div>
+<div class="uid">UID: ${data.id} • Região: ${data.region}</div>
+</div>
+
+<div class="stats">
+
+<div class="card">
+<div class="title">Likes Antes</div>
+<div class="value">${data.likes_before}</div>
+</div>
+
+<div class="card">
+<div class="title">Likes Depois</div>
+<div class="value">${data.likes_end}</div>
+</div>
+
+<div class="card">
+<div class="title">Likes Enviados</div>
+<div class="value">${data.likes_added}</div>
+</div>
+
+<div class="card">
+<div class="title">Falhas</div>
+<div class="value">${data.likes_failed}</div>
+</div>
+
+<div class="card">
+<div class="title">Key Uso</div>
+<div class="value small">${data.key}</div>
+</div>
+
+<div class="card">
+<div class="title">Restante</div>
+<div class="value">${data.key_remaining}</div>
+</div>
+
+</div>
+`
 
 }catch{
 
