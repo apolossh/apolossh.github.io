@@ -67,31 +67,58 @@ text-align:center;
 font-size:13px;
 }
 
-.result{
+.results{
+margin-top:10px;
+display:flex;
+flex-direction:column;
+gap:14px;
+}
+
+.profile{
 background:#0f172a;
 border-radius:12px;
 padding:14px;
 display:flex;
 flex-direction:column;
-gap:10px;
-margin-top:6px;
-}
-
-.line{
-display:flex;
-justify-content:space-between;
-font-size:14px;
-}
-
-.line span:first-child{
-opacity:0.7;
+gap:6px;
 }
 
 .nickname{
 font-size:18px;
 font-weight:bold;
+}
+
+.uid{
+font-size:12px;
+opacity:0.7;
+}
+
+.stats{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+}
+
+.card{
+background:#0b1220;
+padding:12px;
+border-radius:10px;
 text-align:center;
-margin-bottom:6px;
+}
+
+.title{
+font-size:11px;
+opacity:0.7;
+margin-bottom:4px;
+}
+
+.value{
+font-size:18px;
+font-weight:bold;
+}
+
+.small{
+font-size:13px;
 }
 
 .footer{
@@ -135,7 +162,7 @@ LikesFF Panel
 Aguardando...
 </div>
 
-<div id="result"></div>
+<div id="results" class="results"></div>
 
 </div>
 
@@ -154,7 +181,7 @@ document.getElementById("send").onclick=()=>{
 const uid=document.getElementById("uid").value.trim()
 const option=document.getElementById("mode").value
 const status=document.getElementById("status")
-const result=document.getElementById("result")
+const results=document.getElementById("results")
 
 if(!uid){
 status.innerText="Digite um UID válido"
@@ -170,7 +197,7 @@ url=`https://likesff.online/api/LIKE?id=${uid}&key=LIKESFF-Panel-key-bielmotam&m
 }
 
 status.innerText="Enviando requisição..."
-result.innerHTML=""
+results.innerHTML=""
 
 const frame=document.getElementById("apiFrame")
 frame.src=url
@@ -181,25 +208,46 @@ try{
 const text=frame.contentDocument.body.innerText
 const data=JSON.parse(text)
 
-status.innerText=data.message || "Resposta recebida"
+status.innerText=data.message
 
-result.innerHTML=`
-<div class="result">
+results.innerHTML = `
+<div class="profile">
 <div class="nickname">${data.nickname}</div>
+<div class="uid">UID: ${data.id} • Região: ${data.region}</div>
+</div>
 
-<div class="line"><span>UID</span><span>${data.id}</span></div>
-<div class="line"><span>Região</span><span>${data.region}</span></div>
+<div class="stats">
 
-<div class="line"><span>Likes Antes</span><span>${data.likes_before}</span></div>
-<div class="line"><span>Likes Depois</span><span>${data.likes_end}</span></div>
+<div class="card">
+<div class="title">Likes Antes</div>
+<div class="value">${data.likes_before}</div>
+</div>
 
-<div class="line"><span>Likes Enviados</span><span>${data.likes_added}</span></div>
-<div class="line"><span>Falhas</span><span>${data.likes_failed}</span></div>
+<div class="card">
+<div class="title">Likes Depois</div>
+<div class="value">${data.likes_end}</div>
+</div>
 
-<div class="line"><span>Key</span><span>${data.key}</span></div>
-<div class="line"><span>Key Restante</span><span>${data.key_remaining}</span></div>
+<div class="card">
+<div class="title">Likes Enviados</div>
+<div class="value">${data.likes_added}</div>
+</div>
 
-<div class="line"><span>Status</span><span>${data.status}</span></div>
+<div class="card">
+<div class="title">Falhas</div>
+<div class="value">${data.likes_failed}</div>
+</div>
+
+<div class="card">
+<div class="title">Key Uso</div>
+<div class="value small">${data.key}</div>
+</div>
+
+<div class="card">
+<div class="title">Restante</div>
+<div class="value">${data.key_remaining}</div>
+</div>
+
 </div>
 `
 
