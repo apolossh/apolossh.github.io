@@ -1,4 +1,3 @@
-index.html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -63,67 +62,9 @@ cursor:pointer;
 font-size:15px;
 }
 
-.button:disabled{
-opacity:0.5;
-cursor:not-allowed;
-}
-
 .status{
 text-align:center;
 font-size:13px;
-}
-
-.cooldown{
-text-align:center;
-font-size:12px;
-opacity:0.8;
-}
-
-.results{
-display:flex;
-flex-direction:column;
-gap:14px;
-margin-top:8px;
-}
-
-.profile{
-background:#0f172a;
-padding:14px;
-border-radius:12px;
-}
-
-.nickname{
-font-size:18px;
-font-weight:bold;
-}
-
-.uid{
-font-size:12px;
-opacity:0.7;
-}
-
-.stats{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-}
-
-.card{
-background:#0b1220;
-padding:12px;
-border-radius:10px;
-text-align:center;
-}
-
-.title{
-font-size:11px;
-opacity:0.7;
-}
-
-.value{
-font-size:18px;
-font-weight:bold;
-margin-top:4px;
 }
 
 .footer{
@@ -161,17 +102,11 @@ LikesFF Panel
 <option value="11000">🤖 PEDIDO : 11000 LIKES</option>
 </select>
 
-<button id="send" class="button">
-Enviar Pedido
-</button>
+<button id="send" class="button">Enviar Pedido</button>
 
 <div id="status" class="status">
 Aguardando...
 </div>
-
-<div id="cooldown" class="cooldown"></div>
-
-<div id="results" class="results"></div>
 
 </div>
 
@@ -181,42 +116,15 @@ LikesFF API
 
 </div>
 
+<iframe id="apiFrame" style="display:none"></iframe>
+
 <script>
 
-const button=document.getElementById("send")
-const cooldownText=document.getElementById("cooldown")
-
-function startCooldown(seconds){
-
-button.disabled=true
-
-let time=seconds
-
-cooldownText.innerText="Aguarde "+time+"s"
-
-const timer=setInterval(()=>{
-
-time--
-
-cooldownText.innerText="Aguarde "+time+"s"
-
-if(time<=0){
-clearInterval(timer)
-button.disabled=false
-cooldownText.innerText=""
-}
-
-},1000)
-
-}
-
-button.onclick=async()=>{
+document.getElementById("send").onclick=()=>{
 
 const uid=document.getElementById("uid").value.trim()
 const option=document.getElementById("mode").value
-
 const status=document.getElementById("status")
-const results=document.getElementById("results")
 
 if(!uid){
 status.innerText="Digite um UID válido"
@@ -231,71 +139,13 @@ url=`https://likesff.online/api/LIKE?uid=${uid}&cache=true&key=LIKESFF-Panel-key
 url=`https://likesff.online/api/LIKE?id=${uid}&key=LIKESFF-Panel-key-bielmotam&mode=process_add&likes=${option}&region=BR`
 }
 
-status.innerText="Enviando..."
-results.innerHTML=""
+status.innerText="Enviando requisição..."
 
-try{
+document.getElementById("apiFrame").src=url
 
-const res=await fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(url))
-const data=await res.json()
-
-if(data.message==="TOO_MANY_REQUESTS"){
-status.innerText="Muitas requisições"
-startCooldown(60)
-return
-}
-
-status.innerText=data.message || "Pedido enviado"
-
-results.innerHTML=`
-
-<div class="profile">
-<div class="nickname">${data.nickname || "-"}</div>
-<div class="uid">UID: ${data.id || uid} • Região: ${data.region || "BR"}</div>
-</div>
-
-<div class="stats">
-
-<div class="card">
-<div class="title">Likes Antes</div>
-<div class="value">${data.likes_before ?? "-"}</div>
-</div>
-
-<div class="card">
-<div class="title">Likes Depois</div>
-<div class="value">${data.likes_end ?? "-"}</div>
-</div>
-
-<div class="card">
-<div class="title">Likes Enviados</div>
-<div class="value">${data.likes_added ?? "-"}</div>
-</div>
-
-<div class="card">
-<div class="title">Falhas</div>
-<div class="value">${data.likes_failed ?? "-"}</div>
-</div>
-
-<div class="card">
-<div class="title">Key Uso</div>
-<div class="value">${data.key ?? "-"}</div>
-</div>
-
-<div class="card">
-<div class="title">Key Restante</div>
-<div class="value">${data.key_remaining ?? "-"}</div>
-</div>
-
-</div>
-`
-
-startCooldown(30)
-
-}catch{
-
-status.innerText="Erro na requisição"
-
-}
+setTimeout(()=>{
+status.innerText="Pedido enviado (verifique no jogo)"
+},2000)
 
 }
 
