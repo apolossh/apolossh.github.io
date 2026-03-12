@@ -172,16 +172,14 @@ LikesFF API
 
 </div>
 
-<iframe id="apiFrame" style="display:none"></iframe>
-
 <script>
 
-document.getElementById("send").onclick=()=>{
+document.getElementById("send").onclick = async ()=>{
 
-const uid=document.getElementById("uid").value.trim()
-const option=document.getElementById("mode").value
-const status=document.getElementById("status")
-const results=document.getElementById("results")
+const uid = document.getElementById("uid").value.trim()
+const option = document.getElementById("mode").value
+const status = document.getElementById("status")
+const results = document.getElementById("results")
 
 if(!uid){
 status.innerText="Digite um UID válido"
@@ -196,17 +194,13 @@ url=`https://likesff.online/api/LIKE?uid=${uid}&cache=true&key=LIKESFF-Panel-key
 url=`https://likesff.online/api/LIKE?id=${uid}&key=LIKESFF-Panel-key-bielmotam&mode=process_add&likes=${option}&region=BR`
 }
 
-status.innerText="Enviando requisição..."
+status.innerText="Enviando..."
 results.innerHTML=""
 
-const frame=document.getElementById("apiFrame")
-frame.src=url
-
-frame.onload=()=>{
 try{
 
-const text=frame.contentDocument.body.innerText
-const data=JSON.parse(text)
+const res = await fetch(url)
+const data = await res.json()
 
 status.innerText=data.message
 
@@ -252,8 +246,8 @@ results.innerHTML = `
 `
 
 }catch{
-status.innerText="Erro ao ler resposta"
-}
+
+status.innerText="Erro na requisição"
 
 }
 
