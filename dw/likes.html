@@ -65,6 +65,7 @@ font-size:15px;
 .status{
 text-align:center;
 font-size:13px;
+white-space:pre-line;
 }
 
 .footer{
@@ -141,11 +142,20 @@ url=`https://likesff.online/api/LIKE?id=${uid}&key=LIKESFF-Panel-key-bielmotam&m
 
 status.innerText="Enviando requisição..."
 
-document.getElementById("apiFrame").src=url
+const frame=document.getElementById("apiFrame")
+frame.src=url
 
-setTimeout(()=>{
-status.innerText="Pedido enviado (verifique no jogo)"
-},2000)
+frame.onload=()=>{
+try{
+const text=frame.contentDocument.body.innerText
+const json=JSON.parse(text)
+
+status.innerText=JSON.stringify(json,null,2)
+
+}catch{
+status.innerText="Resposta recebida"
+}
+}
 
 }
 
