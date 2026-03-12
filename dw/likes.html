@@ -1,3 +1,4 @@
+index.html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -6,12 +7,7 @@
 <title>LikesFF Panel</title>
 
 <style>
-*{
-box-sizing:border-box;
-margin:0;
-padding:0;
-font-family:Arial, sans-serif;
-}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
 
 body{
 background:#0f172a;
@@ -64,17 +60,12 @@ background:#22c55e;
 color:#fff;
 font-weight:bold;
 cursor:pointer;
-transition:0.2s;
 font-size:15px;
 }
 
 .button:disabled{
 opacity:0.5;
 cursor:not-allowed;
-}
-
-.button:hover:not(:disabled){
-background:#16a34a;
 }
 
 .status{
@@ -245,16 +236,7 @@ results.innerHTML=""
 
 try{
 
-const res=await fetch(url,{
-method:"GET",
-credentials:"include",
-headers:{
-"accept":"*/*",
-"accept-language":"pt-BR,pt;q=0.9",
-"referer":"https://likesff.online/hpanel"
-}
-})
-
+const res=await fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(url))
 const data=await res.json()
 
 if(data.message==="TOO_MANY_REQUESTS"){
