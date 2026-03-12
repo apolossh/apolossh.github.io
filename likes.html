@@ -55,6 +55,8 @@ border:none;
 border-radius:10px;
 outline:none;
 font-size:15px;
+background:#0b1220;
+color:#fff;
 }
 
 .button{
@@ -165,7 +167,7 @@ LikesFF API
 
 <div class="body">
 
-<input id="uid" class="input" placeholder="Digite o UID">
+<input id="uid" class="input" value="7818609746" readonly>
 
 <button id="send" class="button">
 Enviar Likes
@@ -189,14 +191,9 @@ API Panel
 
 document.getElementById("send").onclick = async ()=>{
 
-const uid = document.getElementById("uid").value.trim()
+const uid = document.getElementById("uid").value
 const status = document.getElementById("status")
 const results = document.getElementById("results")
-
-if(!uid){
-status.innerText="Digite um UID válido"
-return
-}
 
 status.innerText="Enviando..."
 results.innerHTML=""
