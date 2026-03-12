@@ -65,7 +65,33 @@ font-size:15px;
 .status{
 text-align:center;
 font-size:13px;
-white-space:pre-line;
+}
+
+.result{
+background:#0f172a;
+border-radius:12px;
+padding:14px;
+display:flex;
+flex-direction:column;
+gap:10px;
+margin-top:6px;
+}
+
+.line{
+display:flex;
+justify-content:space-between;
+font-size:14px;
+}
+
+.line span:first-child{
+opacity:0.7;
+}
+
+.nickname{
+font-size:18px;
+font-weight:bold;
+text-align:center;
+margin-bottom:6px;
 }
 
 .footer{
@@ -109,6 +135,8 @@ LikesFF Panel
 Aguardando...
 </div>
 
+<div id="result"></div>
+
 </div>
 
 <div class="footer">
@@ -126,6 +154,7 @@ document.getElementById("send").onclick=()=>{
 const uid=document.getElementById("uid").value.trim()
 const option=document.getElementById("mode").value
 const status=document.getElementById("status")
+const result=document.getElementById("result")
 
 if(!uid){
 status.innerText="Digite um UID válido"
@@ -141,20 +170,43 @@ url=`https://likesff.online/api/LIKE?id=${uid}&key=LIKESFF-Panel-key-bielmotam&m
 }
 
 status.innerText="Enviando requisição..."
+result.innerHTML=""
 
 const frame=document.getElementById("apiFrame")
 frame.src=url
 
 frame.onload=()=>{
 try{
-const text=frame.contentDocument.body.innerText
-const json=JSON.parse(text)
 
-status.innerText=JSON.stringify(json,null,2)
+const text=frame.contentDocument.body.innerText
+const data=JSON.parse(text)
+
+status.innerText=data.message || "Resposta recebida"
+
+result.innerHTML=`
+<div class="result">
+<div class="nickname">${data.nickname}</div>
+
+<div class="line"><span>UID</span><span>${data.id}</span></div>
+<div class="line"><span>Região</span><span>${data.region}</span></div>
+
+<div class="line"><span>Likes Antes</span><span>${data.likes_before}</span></div>
+<div class="line"><span>Likes Depois</span><span>${data.likes_end}</span></div>
+
+<div class="line"><span>Likes Enviados</span><span>${data.likes_added}</span></div>
+<div class="line"><span>Falhas</span><span>${data.likes_failed}</span></div>
+
+<div class="line"><span>Key</span><span>${data.key}</span></div>
+<div class="line"><span>Key Restante</span><span>${data.key_remaining}</span></div>
+
+<div class="line"><span>Status</span><span>${data.status}</span></div>
+</div>
+`
 
 }catch{
-status.innerText="Resposta recebida"
+status.innerText="Erro ao ler resposta"
 }
+
 }
 
 }
