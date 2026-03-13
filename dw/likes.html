@@ -206,7 +206,7 @@ if(data.status==="failed"){
 
 status.innerText=data.message || "Erro"
 
-results.innerHTML = `
+results.innerHTML=`
 <div class="profile">
 <div class="nickname">Erro no Pedido</div>
 <div class="uid">UID: ${data.id || uid}</div>
@@ -221,11 +221,15 @@ results.innerHTML = `
 return
 }
 
-status.innerText=data.message || "Pedido enviado"
+if(data.status==="success" && data.res){
 
-results.innerHTML = `
+status.innerText=data.message || "Sucesso"
+
+if(data.nickname){
+
+results.innerHTML=`
 <div class="profile">
-<div class="nickname">${data.nickname || "-"}</div>
+<div class="nickname">${data.nickname}</div>
 <div class="uid">UID: ${data.id || uid} • Região: ${data.region || "-"}</div>
 </div>
 
@@ -263,6 +267,33 @@ results.innerHTML = `
 
 </div>
 `
+
+}else{
+
+results.innerHTML=`
+<div class="profile">
+<div class="nickname">Pedido Criado</div>
+<div class="uid">UID: ${data.id || uid}</div>
+</div>
+
+<div class="stats">
+
+<div class="card">
+<div class="title">Likes Solicitados</div>
+<div class="value">${data.likes ?? "-"}</div>
+</div>
+
+<div class="card">
+<div class="title">Status</div>
+<div class="value small">${data.res}</div>
+</div>
+
+</div>
+`
+
+}
+
+}
 
 }catch{
 
