@@ -1,3 +1,4 @@
+index.html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -176,10 +177,10 @@ LikesFF API
 
 document.getElementById("send").onclick = async ()=>{
 
-const uid = document.getElementById("uid").value.trim()
-const option = document.getElementById("mode").value
-const status = document.getElementById("status")
-const results = document.getElementById("results")
+const uid=document.getElementById("uid").value.trim()
+const option=document.getElementById("mode").value
+const status=document.getElementById("status")
+const results=document.getElementById("results")
 
 if(!uid){
 status.innerText="Digite um UID válido"
@@ -199,70 +200,78 @@ results.innerHTML=""
 
 try{
 
-const res = await fetch(url)
-const data = await res.json()
+const res=await fetch(url)
+const data=await res.json()
 
 if(data.status==="failed"){
 
-status.innerText=data.message || "Erro"
+status.innerText=data.message||"Erro"
 
 results.innerHTML=`
 <div class="profile">
 <div class="nickname">Erro no Pedido</div>
-<div class="uid">UID: ${data.id || uid}</div>
+<div class="uid">UID: ${data.id||uid}</div>
 </div>
 
 <div class="card">
 <div class="title">Mensagem</div>
-<div class="value small">${data.res || "Falha no processamento"}</div>
+<div class="value small">${data.res||"Falha no processamento"}</div>
 </div>
 `
 
 return
 }
 
-if(data.status==="success" && data.res){
-
-status.innerText=data.message || "Sucesso"
+status.innerText=data.message||"Sucesso"
 
 if(data.nickname){
 
 results.innerHTML=`
 <div class="profile">
 <div class="nickname">${data.nickname}</div>
-<div class="uid">UID: ${data.id || uid} • Região: ${data.region || "-"}</div>
+<div class="uid">UID: ${data.id||uid} • Região: ${data.region||"-"}</div>
 </div>
 
 <div class="stats">
 
 <div class="card">
 <div class="title">Likes Antes</div>
-<div class="value">${data.likes_before ?? "-"}</div>
+<div class="value">${data.likes_before??"-"}</div>
 </div>
 
 <div class="card">
 <div class="title">Likes Depois</div>
-<div class="value">${data.likes_end ?? "-"}</div>
+<div class="value">${data.likes_end??"-"}</div>
 </div>
 
 <div class="card">
 <div class="title">Likes Enviados</div>
-<div class="value">${data.likes_added ?? "-"}</div>
+<div class="value">${data.likes_added??"-"}</div>
 </div>
 
 <div class="card">
 <div class="title">Falhas</div>
-<div class="value">${data.likes_failed ?? "-"}</div>
+<div class="value">${data.likes_failed??"-"}</div>
 </div>
 
 <div class="card">
 <div class="title">Key Uso</div>
-<div class="value small">${data.key ?? "-"}</div>
+<div class="value small">${data.key??"-"}</div>
 </div>
 
 <div class="card">
 <div class="title">Restante</div>
-<div class="value">${data.key_remaining ?? "-"}</div>
+<div class="value">${data.key_remaining??"-"}</div>
+</div>
+
+<div class="card">
+<div class="title">Key Mensagem</div>
+<div class="value small">${data.key_message??"-"}</div>
+</div>
+
+<div class="card">
+<div class="title">Likes Necessários</div>
+<div class="value">${data.likes_required??"-"}</div>
 </div>
 
 </div>
@@ -273,25 +282,23 @@ results.innerHTML=`
 results.innerHTML=`
 <div class="profile">
 <div class="nickname">Pedido Criado</div>
-<div class="uid">UID: ${data.id || uid}</div>
+<div class="uid">UID: ${data.id||uid}</div>
 </div>
 
 <div class="stats">
 
 <div class="card">
 <div class="title">Likes Solicitados</div>
-<div class="value">${data.likes ?? "-"}</div>
+<div class="value">${data.likes??"-"}</div>
 </div>
 
 <div class="card">
 <div class="title">Status</div>
-<div class="value small">${data.res}</div>
+<div class="value small">${data.res||"-"}</div>
 </div>
 
 </div>
 `
-
-}
 
 }
 
