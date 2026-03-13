@@ -1,3 +1,4 @@
+index.html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -202,44 +203,63 @@ try{
 const res = await fetch(url)
 const data = await res.json()
 
-status.innerText=data.message
+if(data.status==="failed"){
+
+status.innerText=data.message || "Erro"
 
 results.innerHTML = `
 <div class="profile">
-<div class="nickname">${data.nickname}</div>
-<div class="uid">UID: ${data.id} • Região: ${data.region}</div>
+<div class="nickname">Erro no Pedido</div>
+<div class="uid">UID: ${data.id || uid}</div>
+</div>
+
+<div class="card">
+<div class="title">Mensagem</div>
+<div class="value small">${data.res || "Falha no processamento"}</div>
+</div>
+`
+
+return
+}
+
+status.innerText=data.message || "Pedido enviado"
+
+results.innerHTML = `
+<div class="profile">
+<div class="nickname">${data.nickname || "-"}</div>
+<div class="uid">UID: ${data.id || uid} • Região: ${data.region || "-"}</div>
 </div>
 
 <div class="stats">
 
 <div class="card">
 <div class="title">Likes Antes</div>
-<div class="value">${data.likes_before}</div>
+<div class="value">${data.likes_before ?? "-"}</div>
 </div>
 
 <div class="card">
 <div class="title">Likes Depois</div>
-<div class="value">${data.likes_end}</div>
+<div class="value">${data.likes_end ?? "-"}</div>
 </div>
 
 <div class="card">
 <div class="title">Likes Enviados</div>
-<div class="value">${data.likes_added}</div>
+<div class="value">${data.likes_added ?? "-"}</div>
 </div>
 
 <div class="card">
 <div class="title">Falhas</div>
-<div class="value">${data.likes_failed}</div>
+<div class="value">${data.likes_failed ?? "-"}</div>
 </div>
 
 <div class="card">
 <div class="title">Key Uso</div>
-<div class="value small">${data.key}</div>
+<div class="value small">${data.key ?? "-"}</div>
 </div>
 
 <div class="card">
 <div class="title">Restante</div>
-<div class="value">${data.key_remaining}</div>
+<div class="value">${data.key_remaining ?? "-"}</div>
 </div>
 
 </div>
