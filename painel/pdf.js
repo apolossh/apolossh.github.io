@@ -1,4 +1,3 @@
-```javascript
 /**
  * Script para Gerador de Painéis com Escala Proporcional
  * Versão: 2.0 - Corrigida para evitar distorção (esticar) nas sobras
@@ -180,5 +179,3 @@
         });
     }
 })();
-
-```
