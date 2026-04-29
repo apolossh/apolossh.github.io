@@ -1,381 +1,248 @@
-document.addEventListener('gesturestart', e => e.preventDefault());
-let lastTouchEnd = 0;
-document.addEventListener('touchend', e => { 
-  const now = (new Date()).getTime(); 
-  if (now - lastTouchEnd <= 300) e.preventDefault(); 
-  lastTouchEnd = now; 
-});
-document.body.addEventListener('touchmove', e => { e.preventDefault(); }, { passive:false });
+(() => {
+  const { jsPDF } = window.jspdf || {};
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => 
-    navigator.serviceWorker.register('/painel/service-worker.js').catch(err => console.warn(err))
-  );
-}
+  const fileInput = document.getElementById("file");
+  const fileName = document.querySelector(".file-name");
+  const previewImg = document.getElementById("preview-img");
 
-(function(){
-  const content=document.querySelectorAll('.protected');
-  content.forEach(c=>c.style.display='none');
-  const container=document.getElementById('key-container');
-  const userInfo=document.getElementById('user-info');
-  const input=document.getElementById('user-key');
-  let remainingMsGlobal=0;
-  let userGlobal='';
+  const orientSelect = document.getElementById("orient");
+  const presetSelect = document.getElementById("preset");
+  const customGrid = document.getElementById("customGrid");
+  const rowsInput = document.getElementById("rows");
+  const colsInput = document.getElementById("cols");
 
-  function base36Decode(str){
-    const chars='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let result='';
-    for(let i=0;i<str.length;i+=2){
-      result+=String.fromCharCode(chars.indexOf(str[i])*36+chars.indexOf(str[i+1]));
-    }
-    return result;
+  const genBtn = document.getElementById("gen");
+  const printBtn = document.getElementById("print");
+  const downloadBtn = document.getElementById("download");
+
+  let originalImage = null;
+  let generatedPages = [];
+  let generatedBlobUrl = null;
+
+  const MM_TO_PX = mm => mm * (96 / 25.4);
+
+  function updatePresetUI() {
+    customGrid.style.display = presetSelect.value === "custom" ? "flex" : "none";
   }
 
-  async function sha1(msg){
-    const buffer=new TextEncoder("utf-8").encode(msg);
-    const hash=await crypto.subtle.digest("SHA-1", buffer);
-    return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
-  }
-
-  async function verifyKey(key){
-    const parts=key.split('-');
-    if(parts.length!==2) return false;
-    let payload;
-    try{ payload=base36Decode(parts[0]); } catch(e){ return false; }
-    const hash=await sha1(payload);
-    if(hash.slice(0,8).toUpperCase()!==parts[1]) return false;
-    const idx=payload.lastIndexOf(':');
-    if(idx===-1) return false;
-    const user=payload.slice(0,idx);
-    const exp=parseFloat(payload.slice(idx+1));
-    const now=Date.now();
-    const remainingMs=exp<1e10? exp*60*1000 : exp-now;
-    if(remainingMs<=0) return false;
-    return {user, remainingMs};
-  }
-
-  function formatRemaining(ms){
-    const s=Math.floor(ms/1000), m=Math.floor(s/60), h=Math.floor(m/60), d=Math.floor(h/24);
-    const remH=h%24, remM=m%60;
-    if(d>=1) return d+' dias '+remH+'h '+remM+'m restantes';
-    if(h>=1) return h+'h '+remM+'m restantes';
-    if(m>=1) return m+'m restantes';
-    return '0m restantes';
-  }
-
-  async function checkKey(key){
-    const payload=await verifyKey(key);
-    if(payload){
-      content.forEach(c=>c.style.display='block');
-      container.style.display='none';
-      localStorage.setItem('user_key',key);
-      remainingMsGlobal=payload.remainingMs;
-      userGlobal=payload.user;
-      userInfo.style.display='flex';
-      userInfo.querySelector('.name').textContent=payload.user;
-      userInfo.querySelector('.validity').textContent=formatRemaining(payload.remainingMs);
-      startCountdown();
-    } else{
-      localStorage.removeItem('user_key');
-      document.getElementById('key-message').innerText="KEY inválida ou expirada.";
-    }
-  }
-
-  function startCountdown(){
-    if(window.countdownInterval) clearInterval(window.countdownInterval);
-    window.countdownInterval=setInterval(()=>{
-      remainingMsGlobal-=1000;
-      if(remainingMsGlobal<=0){
-        clearInterval(window.countdownInterval);
-        alert("Sua KEY expirou!");
-        userInfo.style.display='none';
-        content.forEach(c=>c.style.display='none');
-        container.style.display='block';
-        localStorage.removeItem('user_key');
-      } else userInfo.querySelector('.validity').textContent=formatRemaining(remainingMsGlobal);
-    },1000);
-  }
-
-  const storedKey=localStorage.getItem('user_key');
-  if(storedKey) checkKey(storedKey);
-
-  document.getElementById('submit-key').addEventListener('click', ()=>checkKey(input.value.trim()));
-  input.addEventListener('keypress', e=>{ if(e.key==='Enter') checkKey(input.value.trim()); });
-
-  const whatsappBtn=document.getElementById('whatsapp-btn');
-  whatsappBtn.addEventListener('click', ()=> window.open('https://wa.me/5511998248013','_blank'));
-
-  const fileInput = document.getElementById('file');
-  const fileBtn = document.querySelector('.file-upload-btn');
-  const fileName = document.querySelector('.file-name');
-  const previewImg = document.getElementById('preview-img');
-  const genBtn = document.getElementById('gen');
-  const printBtn = document.getElementById('print');
-  const downloadBtn = document.getElementById('download');
-
-  fileBtn.addEventListener('click', () => fileInput.click());
-
-  fileInput.addEventListener('change', () => {
-    if (fileInput.files.length > 0) {
-      const file = fileInput.files[0];
-      fileName.textContent = file.name;
-      const reader = new FileReader();
-      reader.onload = e => {
-        previewImg.src = e.target.result;
-        previewImg.style.display = 'block';
-        previewImg.classList.add('show');
+  function getGrid() {
+    if (presetSelect.value === "custom") {
+      return {
+        rows: Math.max(1, parseInt(rowsInput.value || "1", 10)),
+        cols: Math.max(1, parseInt(colsInput.value || "1", 10))
       };
-      reader.readAsDataURL(file);
-      genBtn.disabled = false;
-    } else {
-      fileName.textContent = 'Nenhum arquivo selecionado';
-      previewImg.style.display = 'none';
-      previewImg.classList.remove('show');
+    }
+
+    const [rows, cols] = presetSelect.value.split("x").map(v => parseInt(v, 10));
+    return { rows, cols };
+  }
+
+  function revokePdfUrl() {
+    if (generatedBlobUrl) {
+      URL.revokeObjectURL(generatedBlobUrl);
+      generatedBlobUrl = null;
+    }
+  }
+
+  function resetOutput() {
+    generatedPages = [];
+    revokePdfUrl();
+    printBtn.style.display = "none";
+    downloadBtn.style.display = "none";
+  }
+
+  fileInput.addEventListener("change", e => {
+    const file = e.target.files && e.target.files[0];
+    resetOutput();
+
+    if (!file) {
+      fileName.textContent = "Nenhum arquivo selecionado";
+      previewImg.classList.remove("show");
+      previewImg.style.display = "none";
       genBtn.disabled = true;
+      return;
     }
+
+    fileName.textContent = file.name;
+
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        originalImage = img;
+        genBtn.disabled = false;
+
+        previewImg.src = ev.target.result;
+        previewImg.style.display = "block";
+        requestAnimationFrame(() => previewImg.classList.add("show"));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
   });
 
-  function resetPDFButtons() {
-    genBtn.style.display = 'inline-block';
-    genBtn.disabled = fileInput.files.length === 0;
-    printBtn.style.display = 'none';
-    downloadBtn.style.display = 'none';
+  presetSelect.addEventListener("change", updatePresetUI);
+  updatePresetUI();
+
+  function generatePages() {
+    if (!originalImage) return [];
+
+    const orient = orientSelect.value;
+    const { cols } = getGrid();
+
+    const pageWmm = orient === "portrait" ? 210 : 297;
+    const pageHmm = orient === "portrait" ? 297 : 210;
+
+    const marginMm = 12;
+    const printableWmm = pageWmm - marginMm;
+    const printableHmm = pageHmm - marginMm;
+
+    const pageWpx = MM_TO_PX(pageWmm);
+    const pageHpx = MM_TO_PX(pageHmm);
+    const printableWpx = MM_TO_PX(printableWmm);
+    const printableHpx = MM_TO_PX(printableHmm);
+
+    const srcSliceW = originalImage.naturalWidth / cols;
+    const scale = printableWpx / srcSliceW;
+    const srcSliceH = printableHpx / scale;
+
+    const actualRows = Math.ceil(originalImage.naturalHeight / srcSliceH);
+
+    const pages = [];
+
+    for (let r = 0; r < actualRows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(pageWpx);
+        canvas.height = Math.round(pageHpx);
+
+        const ctx = canvas.getContext("2d");
+
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const sx = c * srcSliceW;
+        const sy = r * srcSliceH;
+
+        const sw = Math.min(srcSliceW, originalImage.naturalWidth - sx);
+        const sh = Math.min(srcSliceH, originalImage.naturalHeight - sy);
+
+        const dw = sw * scale;
+        const dh = sh * scale;
+
+        ctx.drawImage(originalImage, sx, sy, sw, sh, 0, 0, dw, dh);
+
+        ctx.setLineDash([5, 5]);
+        ctx.strokeStyle = "#bfc7d1";
+
+        if (c < cols - 1 && sw >= srcSliceW * 0.95) {
+          ctx.strokeRect(dw, 0, MM_TO_PX(marginMm), dh);
+          ctx.save();
+          ctx.translate(dw + MM_TO_PX(marginMm) / 2, dh / 2);
+          ctx.rotate(Math.PI / 2);
+          ctx.fillStyle = "#7c8794";
+          ctx.font = "bold 12px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("COLE AQUI", 0, 0);
+          ctx.restore();
+        }
+
+        if (r < actualRows - 1 && sh >= srcSliceH * 0.95) {
+          ctx.strokeRect(0, dh, dw, MM_TO_PX(marginMm));
+          ctx.fillStyle = "#7c8794";
+          ctx.font = "bold 12px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("COLE AQUI", dw / 2, dh + MM_TO_PX(marginMm) / 1.5);
+        }
+
+        ctx.setLineDash([]);
+        ctx.strokeStyle = "#e2e8f0";
+        ctx.strokeRect(0, 0, dw, dh);
+
+        pages.push({
+          canvas,
+          w: pageWmm,
+          h: pageHmm
+        });
+      }
+    }
+
+    return pages;
   }
 
-  document.getElementById('rows').addEventListener('input', resetPDFButtons);
-  document.getElementById('cols').addEventListener('input', resetPDFButtons);
-  document.getElementById('preset').addEventListener('change', resetPDFButtons);
-  document.getElementById('orient').addEventListener('change', resetPDFButtons);
+  function buildPdfBlob(pages) {
+    const first = pages[0];
+
+    const pdf = new jsPDF({
+      orientation: first.w > first.h ? "landscape" : "portrait",
+      unit: "mm",
+      format: [first.w, first.h]
+    });
+
+    pages.forEach((pg, i) => {
+      if (i > 0) {
+        pdf.addPage([pg.w, pg.h], pg.w > pg.h ? "landscape" : "portrait");
+      }
+
+      pdf.addImage(
+        pg.canvas.toDataURL("image/jpeg", 0.95),
+        "JPEG",
+        0,
+        0,
+        pg.w,
+        pg.h
+      );
+    });
+
+    return pdf.output("blob");
+  }
+
+  genBtn.addEventListener("click", () => {
+    if (!originalImage || !jsPDF) return;
+
+    genBtn.disabled = true;
+    genBtn.textContent = "Gerando...";
+
+    setTimeout(() => {
+      generatedPages = generatePages();
+
+      if (generatedPages.length) {
+        revokePdfUrl();
+        generatedBlobUrl = URL.createObjectURL(buildPdfBlob(generatedPages));
+        printBtn.style.display = "inline-block";
+        downloadBtn.style.display = "inline-block";
+      }
+
+      genBtn.disabled = false;
+      genBtn.textContent = "Gerar PDF";
+    }, 30);
+  });
+
+  downloadBtn.addEventListener("click", () => {
+    if (!generatedBlobUrl) return;
+
+    const a = document.createElement("a");
+    a.href = generatedBlobUrl;
+    a.download = "painel-pro-ajustado.pdf";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  });
+
+  printBtn.addEventListener("click", () => {
+    if (!generatedBlobUrl) return;
+
+    const win = window.open(generatedBlobUrl, "_blank");
+    if (!win) return;
+
+    const timer = setInterval(() => {
+      try {
+        if (win.document.readyState === "complete") {
+          clearInterval(timer);
+          win.focus();
+          win.print();
+        }
+      } catch (_) {}
+    }, 500);
+  });
 })();
-
-const { jsPDF } = window.jspdf;
-const MM_TO_PX = mm => mm * (96/25.4);
-
-function loadImage(file){
-  return new Promise((res, rej)=>{
-    const img = new Image();
-    img.onload = ()=>res(img);
-    img.onerror = rej;
-    img.src = URL.createObjectURL(file);
-  });
-}
-
-let sourceImage = null;
-let generatedPages = [];
-
-const fileInput2 = document.getElementById('file');
-const genBtn2 = document.getElementById('gen');
-const printBtn2 = document.getElementById('print');
-const downloadBtn2 = document.getElementById('download');
-
-fileInput2.addEventListener('change', async e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  sourceImage = await loadImage(file);
-  atualizarMelhorOrientacao();
-  genBtn2.disabled = false;
-  generatedPages = [];
-  printBtn2.style.display = 'none';
-  downloadBtn2.style.display = 'none';
-  genBtn2.style.display = 'inline-block';
-});
-
-function atualizarMelhorOrientacao() {
-  if (!sourceImage) return;
-  const preset = document.getElementById('preset').value;
-  let rows, cols;
-  if (preset !== "custom") {
-    [rows, cols] = preset.split("x").map(Number);
-  } else {
-    rows = parseInt(document.getElementById('rows').value) || 2;
-    cols = parseInt(document.getElementById('cols').value) || 2;
-  }
-  const ratioImg = sourceImage.naturalWidth / sourceImage.naturalHeight;
-  const ratioPagePortrait = 210 / 297;
-  const ratioPageLandscape = 297 / 210;
-  const diffPortrait = Math.abs(ratioImg - ratioPagePortrait);
-  const diffLandscape = Math.abs(ratioImg - ratioPageLandscape);
-  const melhor = diffLandscape < diffPortrait ? "landscape" : "portrait";
-  const orientSelect = document.getElementById('orient');
-  if (orientSelect.value !== melhor) orientSelect.value = melhor;
-}
-
-document.getElementById('preset').addEventListener('change', e => {
-  document.getElementById('customGrid').style.display = (e.target.value === 'custom') ? 'flex' : 'none';
-  atualizarMelhorOrientacao();
-});
-
-document.getElementById('rows').addEventListener('input', atualizarMelhorOrientacao);
-document.getElementById('cols').addEventListener('input', atualizarMelhorOrientacao);
-
-genBtn2.addEventListener('click', ()=>{
-  if(!sourceImage) return;
-  
-  const orient = document.getElementById('orient').value;
-  let pageWmm = orient === "portrait" ? 210 : 297;
-  let pageHmm = orient === "portrait" ? 297 : 210;
-  const pageW = Math.round(MM_TO_PX(pageWmm));
-  const pageH = Math.round(MM_TO_PX(pageHmm));
-  
-  let rows, cols;
-  const preset = document.getElementById('preset').value;
-  if(preset !== "custom"){
-    [rows, cols] = preset.split("x").map(Number);
-  } else {
-    rows = parseInt(document.getElementById('rows').value) || 1;
-    cols = parseInt(document.getElementById('cols').value) || 1;
-  }
-
-  const tabPx = MM_TO_PX(10); // Tamanho da aba "COLE AQUI"
-  const markPx = MM_TO_PX(6);
-
-  // LOGICA PARA EVITAR ESTICAR:
-  // Calculamos a escala baseada na largura útil de uma folha padrão (descontando a aba)
-  // Dividimos a largura total da imagem pelo número de colunas para saber o tamanho da fatia
-  const sliceWsrc = sourceImage.naturalWidth / cols;
-  const sliceHsrc = sourceImage.naturalHeight / rows;
-
-  // Escala baseada na largura: quanto a fatia original deve crescer para preencher a folha
-  const globalScale = (pageW - tabPx) / sliceWsrc;
-
-  generatedPages = [];
-
-  for(let r=0; r<rows; r++){
-    for(let c=0; c<cols; c++){
-      // Calcula o tamanho real do pedaço na imagem original (pega a sobra no final)
-      const currentSliceW = (c === cols-1) ? sourceImage.naturalWidth - c*sliceWsrc : sliceWsrc;
-      const currentSliceH = (r === rows-1) ? sourceImage.naturalHeight - r*sliceHsrc : sliceHsrc;
-
-      const canvas = document.createElement('canvas');
-      canvas.width = pageW;
-      canvas.height = pageH;
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle="#fff"; 
-      ctx.fillRect(0,0,pageW,pageH);
-
-      // Tamanho final desenhado (Proporcional, sem esticar a sobra)
-      const drawW = currentSliceW * globalScale;
-      const drawH = currentSliceH * globalScale;
-
-      // Centraliza levemente ou alinha à esquerda/topo para as abas
-      const dx = 0; 
-      const dy = 0;
-
-      // Desenha o pedaço da imagem
-      ctx.drawImage(sourceImage, c*sliceWsrc, r*sliceHsrc, currentSliceW, currentSliceH, dx, dy, drawW, drawH);
-
-      // Bordas e Abas
-      ctx.strokeStyle = "#888";
-      ctx.lineWidth = 1;
-      ctx.setLineDash([4, 4]);
-      ctx.strokeRect(dx, dy, drawW, drawH);
-
-      // Aba Direita (COLE AQUI) - Só aparece se não for a última coluna
-      if(c < cols - 1){
-        ctx.fillStyle="#fff"; 
-        ctx.fillRect(dx+drawW, dy, tabPx, drawH);
-        ctx.strokeStyle = "#888"; 
-        ctx.lineWidth = 1; 
-        ctx.strokeRect(dx+drawW, dy, tabPx, drawH);
-        ctx.save();
-        ctx.translate(dx+drawW+tabPx/2, dy+drawH/2);
-        ctx.rotate(-Math.PI/2);
-        ctx.fillStyle="#000"; ctx.font="bold 16px sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
-        ctx.fillText("COLE AQUI",0,0);
-        ctx.restore();
-      }
-
-      // Aba Inferior (COLE AQUI) - Só aparece se não for a última linha
-      if(r < rows - 1){
-        ctx.fillStyle="#fff"; 
-        ctx.fillRect(dx, dy+drawH, drawW, tabPx);
-        ctx.strokeStyle = "#888"; 
-        ctx.lineWidth = 1; 
-        ctx.strokeRect(dx, dy+drawH, drawW, tabPx);
-        ctx.fillStyle="#000"; ctx.font="bold 16px sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
-        ctx.fillText("COLE AQUI", dx+drawW/2, dy+drawH+tabPx/2);
-      }
-
-      // Marcas de corte nos cantos
-      ctx.strokeStyle="#888"; ctx.lineWidth=1; ctx.setLineDash([]);
-      ctx.beginPath();
-      ctx.moveTo(dx-markPx,dy); ctx.lineTo(dx,dy);
-      ctx.moveTo(dx,dy-markPx); ctx.lineTo(dx,dy);
-      ctx.stroke();
-
-      generatedPages.push({canvas, pageWmm, pageHmm, row: r, col: c});
-    }
-  }
-
-  generatedPages.sort((a,b)=> a.row - b.row || a.col - b.col);
-  genBtn2.style.display = 'none';
-  printBtn2.style.display = 'inline-block';
-  downloadBtn2.style.display = 'inline-block';
-});
-
-function generatePDF(){
-  if(generatedPages.length === 0) return null;
-  const w = generatedPages[0].pageWmm;
-  const h = generatedPages[0].pageHmm;
-  const pdf = new jsPDF({orientation: w>h?"landscape":"portrait", unit:"mm", format:[w,h]});
-  generatedPages.forEach((pg,i)=>{
-    const img = pg.canvas.toDataURL("image/jpeg",1.0);
-    if(i>0) pdf.addPage([pg.pageWmm,pg.pageHmm], w>h?"landscape":"portrait");
-    pdf.addImage(img,"JPEG",0,0,pg.pageWmm,pg.pageHmm);
-  });
-  return pdf;
-}
-
-printBtn2.addEventListener('click', ()=>{
-  const pdf = generatePDF();
-  if(pdf){
-    pdf.autoPrint();
-    window.open(pdf.output("bloburl"),"_blank");
-  }
-});
-
-downloadBtn2.addEventListener('click', async ()=>{
-  const pdf = generatePDF();
-  if (!pdf) return;
-  const agora = new Date();
-  const dia = String(agora.getDate()).padStart(2,'0');
-  const mes = String(agora.getMonth()+1).padStart(2,'0');
-  const ano = agora.getFullYear();
-  const hora = String(agora.getHours()).padStart(2,'0');
-  const min = String(agora.getMinutes()).padStart(2,'0');
-  const dataHoraNome = `${dia}-${mes}-${ano}_${hora}h${min}`;
-  const preset = document.getElementById('preset').value;
-  let grade;
-  if (preset !== "custom") {
-    grade = preset;
-  } else {
-    const rows = parseInt(document.getElementById('rows').value) || 2;
-    const cols = parseInt(document.getElementById('cols').value) || 2;
-    grade = `${rows}x${cols}`;
-  }
-  const nomeArquivo = `painel_${dataHoraNome}.pdf`;
-  const descricao = 
-`📄 Este painel foi criado em https://apolossh.github.io/painel
-🗓️ Data: ${dia}/${mes}/${ano}
-⏰ Hora: ${hora}:${min}
-📐 Grade: ${grade}`;
-  const blob = pdf.output("blob");
-  const file = new File([blob], nomeArquivo, { type: "application/pdf" });
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try {
-      await navigator.share({
-        files: [file],
-        title: "Painel PDF",
-        text: descricao
-      });
-    } catch (e) {
-      console.log(e);
-    }
-  } else {
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(file);
-    link.download = nomeArquivo;
-    link.click();
-    URL.revokeObjectURL(link.href);
-  }
-});
