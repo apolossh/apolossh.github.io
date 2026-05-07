@@ -1,222 +1,278 @@
-// --- CONFIGURAÇÕES ---
-const { jsPDF } = window.jspdf;
-const MM_TO_PX = mm => mm * (96 / 25.4);
-
-// Bloqueio de gestos e zoom acidental
 document.addEventListener('gesturestart', e => e.preventDefault());
 let lastTouchEnd = 0;
 document.addEventListener('touchend', e => { 
   const now = (new Date()).getTime(); 
   if (now - lastTouchEnd <= 300) e.preventDefault(); 
   lastTouchEnd = now; 
-}, false);
+});
+document.body.addEventListener('touchmove', e => { e.preventDefault(); }, { passive:false });
 
-// --- SISTEMA DE AUTENTICAÇÃO (MANTIDO) ---
+// Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => 
+    navigator.serviceWorker.register('/painel/service-worker.js').catch(err => console.warn(err))
+  );
+}
+
+// --- SISTEMA DE KEY E INTERFACE ---
 (function(){
-  const content = document.querySelectorAll('.protected');
-  const container = document.getElementById('key-container');
-  const input = document.getElementById('user-key');
-  const userInfo = document.getElementById('user-info');
-  
-  async function sha1(msg){
-    const buffer = new TextEncoder("utf-8").encode(msg);
-    const hash = await crypto.subtle.digest("SHA-1", buffer);
-    return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2,'0')).join('');
-  }
+  const content=document.querySelectorAll('.protected');
+  content.forEach(c=>c.style.display='none');
+  const container=document.getElementById('key-container');
+  const userInfo=document.getElementById('user-info');
+  const input=document.getElementById('user-key');
+  let remainingMsGlobal=0;
 
   function base36Decode(str){
-    const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let result = '';
-    for(let i=0; i<str.length; i+=2){
-      result += String.fromCharCode(chars.indexOf(str[i]) * 36 + chars.indexOf(str[i+1]));
+    const chars='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let result='';
+    for(let i=0;i<str.length;i+=2){
+      result+=String.fromCharCode(chars.indexOf(str[i])*36+chars.indexOf(str[i+1]));
     }
     return result;
   }
 
+  async function sha1(msg){
+    const buffer=new TextEncoder("utf-8").encode(msg);
+    const hash=await crypto.subtle.digest("SHA-1", buffer);
+    return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
+
   async function verifyKey(key){
-    const parts = key.split('-');
-    if(parts.length !== 2) return false;
+    const parts=key.split('-');
+    if(parts.length!==2) return false;
     let payload;
-    try { payload = base36Decode(parts[0]); } catch(e){ return false; }
-    const hash = await sha1(payload);
-    if(hash.slice(0,8).toUpperCase() !== parts[1]) return false;
-    const idx = payload.lastIndexOf(':');
-    if(idx === -1) return false;
-    const exp = parseFloat(payload.slice(idx+1));
-    return exp > Date.now() || exp < 1e10; // Simplificado para o exemplo
+    try{ payload=base36Decode(parts[0]); } catch(e){ return false; }
+    const hash=await sha1(payload);
+    if(hash.slice(0,8).toUpperCase()!==parts[1]) return false;
+    const idx=payload.lastIndexOf(':');
+    if(idx===-1) return false;
+    const user=payload.slice(0,idx);
+    const exp=parseFloat(payload.slice(idx+1));
+    const now=Date.now();
+    const remainingMs=exp<1e10? exp*60*1000 : exp-now;
+    if(remainingMs<=0) return false;
+    return {user, remainingMs};
+  }
+
+  function formatRemaining(ms){
+    const s=Math.floor(ms/1000), m=Math.floor(s/60), h=Math.floor(m/60), d=Math.floor(h/24);
+    const remH=h%24, remM=m%60;
+    if(d>=1) return d+' dias '+remH+'h '+remM+'m restantes';
+    if(h>=1) return h+'h '+remM+'m restantes';
+    if(m>=1) return m+'m restantes';
+    return '0m restantes';
   }
 
   async function checkKey(key){
-    if(await verifyKey(key)){
-      content.forEach(c => c.style.display = 'block');
-      if(container) container.style.display = 'none';
-      localStorage.setItem('user_key', key);
+    const payload=await verifyKey(key);
+    if(payload){
+      content.forEach(c=>c.style.display='block');
+      container.style.display='none';
+      localStorage.setItem('user_key',key);
+      remainingMsGlobal=payload.remainingMs;
+      userInfo.style.display='flex';
+      userInfo.querySelector('.name').textContent=payload.user;
+      userInfo.querySelector('.validity').textContent=formatRemaining(payload.remainingMs);
+      startCountdown();
+    } else{
+      localStorage.removeItem('user_key');
+      const msg = document.getElementById('key-message');
+      if(msg) msg.innerText="KEY inválida ou expirada.";
     }
   }
 
-  const storedKey = localStorage.getItem('user_key');
+  function startCountdown(){
+    if(window.countdownInterval) clearInterval(window.countdownInterval);
+    window.countdownInterval=setInterval(()=>{
+      remainingMsGlobal-=1000;
+      if(remainingMsGlobal<=0){
+        clearInterval(window.countdownInterval);
+        userInfo.style.display='none';
+        content.forEach(c=>c.style.display='none');
+        container.style.display='block';
+        localStorage.removeItem('user_key');
+      } else userInfo.querySelector('.validity').textContent=formatRemaining(remainingMsGlobal);
+    },1000);
+  }
+
+  const storedKey=localStorage.getItem('user_key');
   if(storedKey) checkKey(storedKey);
-  
+
   const submitBtn = document.getElementById('submit-key');
-  if(submitBtn) submitBtn.addEventListener('click', () => checkKey(input.value.trim()));
+  if(submitBtn) submitBtn.addEventListener('click', ()=>checkKey(input.value.trim()));
+  if(input) input.addEventListener('keypress', e=>{ if(e.key==='Enter') checkKey(input.value.trim()); });
+
+  const whatsappBtn=document.getElementById('whatsapp-btn');
+  if(whatsappBtn) whatsappBtn.addEventListener('click', ()=> window.open('https://wa.me/5511998248013','_blank'));
 })();
 
-// --- LÓGICA DE IMAGEM E PDF (REVISADA E ROBUSTA) ---
+// --- LÓGICA DE PROCESSAMENTO DE IMAGEM (NOVA REGRA DE RECORTE) ---
+const { jsPDF } = window.jspdf;
+const MM_TO_PX = mm => mm * (96 / 25.4);
+
+function loadImage(file){
+  return new Promise((res, rej)=>{
+    const img = new Image();
+    img.onload = ()=>res(img);
+    img.onerror = rej;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
 let sourceImage = null;
 let generatedPages = [];
 
-// Seletores
+// Seletores compatíveis com sua página
 const fileInput = document.getElementById('file');
-const fileBtn = document.querySelector('.file-upload-btn'); // O botão visível
-const fileNameLabel = document.querySelector('.file-name');
+const fileBtn = document.querySelector('.file-upload-btn');
+const fileName = document.querySelector('.file-name');
 const previewImg = document.getElementById('preview-img');
 const genBtn = document.getElementById('gen');
 const printBtn = document.getElementById('print');
 const downloadBtn = document.getElementById('download');
 const orientSelect = document.getElementById('orient');
 const presetSelect = document.getElementById('preset');
+const rowsInput = document.getElementById('rows');
 const colsInput = document.getElementById('cols');
 
-// 1. CORREÇÃO DO BOTÃO: Faz o botão bonito clicar no input real
-if (fileBtn && fileInput) {
-    fileBtn.addEventListener('click', () => fileInput.click());
+if(fileBtn) fileBtn.addEventListener('click', () => fileInput.click());
+
+if(fileInput) fileInput.addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  if(fileName) fileName.textContent = file.name;
+  sourceImage = await loadImage(file);
+  
+  if(previewImg) {
+    previewImg.src = URL.createObjectURL(file);
+    previewImg.style.display = 'block';
+    previewImg.classList.add('show');
+  }
+  
+  atualizarMelhorOrientacao();
+  genBtn.disabled = false;
+  generatedPages = [];
+  printBtn.style.display = 'none';
+  downloadBtn.style.display = 'none';
+  genBtn.style.display = 'inline-block';
+});
+
+function atualizarMelhorOrientacao() {
+  if (!sourceImage) return;
+  const ratioImg = sourceImage.naturalWidth / sourceImage.naturalHeight;
+  const ratioPagePortrait = 210 / 297;
+  const ratioPageLandscape = 297 / 210;
+  const diffPortrait = Math.abs(ratioImg - ratioPagePortrait);
+  const diffLandscape = Math.abs(ratioImg - ratioPageLandscape);
+  const melhor = diffLandscape < diffPortrait ? "landscape" : "portrait";
+  if (orientSelect) orientSelect.value = melhor;
 }
 
-// 2. CARREGAMENTO DA IMAGEM
-if (fileInput) {
-    fileInput.addEventListener('change', async e => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        if (fileNameLabel) fileNameLabel.textContent = file.name;
-
-        sourceImage = await new Promise((res) => {
-            const img = new Image();
-            img.onload = () => res(img);
-            img.src = URL.createObjectURL(file);
-        });
-
-        if (previewImg) {
-            previewImg.src = sourceImage.src;
-            previewImg.style.display = 'block';
-        }
-
-        genBtn.disabled = false;
-        genBtn.style.display = 'inline-block';
-        printBtn.style.display = 'none';
-        downloadBtn.style.display = 'none';
-    });
+function resetPDFButtons() {
+    genBtn.style.display = 'inline-block';
+    genBtn.disabled = !sourceImage;
+    printBtn.style.display = 'none';
+    downloadBtn.style.display = 'none';
 }
 
-// 3. GERAÇÃO DO MOSAICO COM SANGRE E LINHAS TOTAIS
-if (genBtn) {
-    genBtn.addEventListener('click', () => {
-        if (!sourceImage) return;
+[rowsInput, colsInput, presetSelect, orientSelect].forEach(el => {
+    if(el) el.addEventListener('input', resetPDFButtons);
+});
 
-        const orient = orientSelect.value || 'portrait';
-        const pageWmm = orient === "portrait" ? 210 : 297;
-        const pageHmm = orient === "portrait" ? 297 : 210;
-        
-        const marginMm = 12; // Largura da aba
-        const bleedMm = 2;   // Sangria de 2mm para evitar espaços brancos
-        
-        const pageWpx = MM_TO_PX(pageWmm);
-        const pageHpx = MM_TO_PX(pageHmm);
-        const marginPx = MM_TO_PX(marginMm);
-        const bleedPx = MM_TO_PX(bleedMm);
-        
-        const printableWpx = pageWpx - marginPx;
-        const printableHpx = pageHpx - marginPx;
+if(presetSelect) presetSelect.addEventListener('change', e => {
+    const customGrid = document.getElementById('customGrid');
+    if(customGrid) customGrid.style.display = (e.target.value === 'custom') ? 'flex' : 'none';
+});
 
-        let colsCount = presetSelect.value === "custom" ? 
-            (parseInt(colsInput.value) || 2) : 
-            (parseInt(presetSelect.value.split('x')[1]) || 2);
+// --- O BOTÃO GERAR COM A NOVA LÓGICA DE RECORTE ---
+if(genBtn) genBtn.addEventListener('click', () => {
+    if (!sourceImage) return;
 
-        const srcSliceW = sourceImage.naturalWidth / colsCount;
-        const scale = printableWpx / srcSliceW;
-        const srcSliceH = printableHpx / scale;
-        const actualRows = Math.ceil(sourceImage.naturalHeight / srcSliceH);
+    const orient = orientSelect.value || 'portrait';
+    const pageWmm = orient === "portrait" ? 210 : 297;
+    const pageHmm = orient === "portrait" ? 297 : 210;
+    
+    const marginMm = 12; // Largura da aba "COLE AQUI"
+    const pageWpx = MM_TO_PX(pageWmm);
+    const pageHpx = MM_TO_PX(pageHmm);
+    const printableWpx = MM_TO_PX(pageWmm - marginMm);
+    const printableHpx = MM_TO_PX(pageHmm - marginMm);
 
-        generatedPages = [];
+    // Determina colunas
+    let colsCount;
+    if(presetSelect.value !== "custom") {
+        colsCount = parseInt(presetSelect.value.split('x')[1]) || 2;
+    } else {
+        colsCount = parseInt(colsInput.value) || 2;
+    }
 
-        for (let r = 0; r < actualRows; r++) {
-            for (let c = 0; c < colsCount; c++) {
-                const canvas = document.createElement('canvas');
-                canvas.width = Math.round(pageWpx);
-                canvas.height = Math.round(pageHpx);
-                const ctx = canvas.getContext('2d');
+    // LÓGICA DE RECORTE PROPORCIONAL
+    const srcSliceW = sourceImage.naturalWidth / colsCount;
+    const scale = printableWpx / srcSliceW;
+    const srcSliceH = printableHpx / scale;
+    const actualRows = Math.ceil(sourceImage.naturalHeight / srcSliceH);
 
-                // Fundo Branco
-                ctx.fillStyle = "#ffffff";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+    generatedPages = [];
 
-                const sx = c * srcSliceW;
-                const sy = r * srcSliceH;
+    for (let r = 0; r < actualRows; r++) {
+        for (let c = 0; c < colsCount; c++) {
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.round(pageWpx);
+            canvas.height = Math.round(pageHpx);
+            const ctx = canvas.getContext('2d');
 
-                // DESENHO COM OVERLAP (SANGRE)
-                // Desenhamos a imagem 2mm maior que a área útil para garantir o encaixe
-                ctx.drawImage(
-                    sourceImage, 
-                    sx, sy, srcSliceW, srcSliceH, 
-                    0, 0, 
-                    printableWpx + bleedPx, 
-                    printableHpx + bleedPx
-                );
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                // LINHAS DE CORTE PONTILHADAS EM TODAS AS BORDAS
-                ctx.setLineDash([5, 5]);
-                ctx.strokeStyle = "#000000";
-                ctx.lineWidth = 1;
+            const sx = c * srcSliceW;
+            const sy = r * srcSliceH;
+            const sw = Math.min(srcSliceW, sourceImage.naturalWidth - sx);
+            const sh = Math.min(srcSliceH, sourceImage.naturalHeight - sy);
 
-                // Linha Vertical (Direita)
-                ctx.beginPath();
-                ctx.moveTo(printableWpx, 0);
-                ctx.lineTo(printableWpx, pageHpx);
-                ctx.stroke();
+            const dw = sw * scale;
+            const dh = sh * scale;
 
-                // Linha Horizontal (Baixo)
-                ctx.beginPath();
-                ctx.moveTo(0, printableHpx);
-                ctx.lineTo(pageWpx, printableHpx);
-                ctx.stroke();
+            // Desenha sem esticar
+            ctx.drawImage(sourceImage, sx, sy, sw, sh, 0, 0, dw, dh);
 
-                // ABAS DE COLAGEM
-                ctx.setLineDash([]); 
-                ctx.font = "bold 16px sans-serif";
-                ctx.textAlign = "center";
+            // Abas de colagem
+            ctx.setLineDash([5, 5]);
+            ctx.strokeStyle = "#888888";
+            ctx.lineWidth = 1;
 
-                // Aba Lateral
-                if (c < colsCount - 1) {
-                    ctx.fillStyle = "#f9f9f9";
-                    ctx.fillRect(printableWpx, 0, marginPx, printableHpx);
-                    ctx.fillStyle = "#000000";
-                    ctx.save();
-                    ctx.translate(printableWpx + marginPx/2, printableHpx/2);
-                    ctx.rotate(Math.PI / 2);
-                    ctx.fillText("COLE AQUI", 0, 5);
-                    ctx.restore();
-                }
-
-                // Aba Inferior
-                if (r < actualRows - 1) {
-                    ctx.fillStyle = "#f9f9f9";
-                    ctx.fillRect(0, printableHpx, printableWpx, marginPx);
-                    ctx.fillStyle = "#000000";
-                    ctx.fillText("COLE AQUI", printableWpx/2, printableHpx + marginPx/1.5);
-                }
-
-                generatedPages.push({ canvas, pageWmm, pageHmm });
+            if (c < colsCount - 1 && sw >= srcSliceW * 0.98) {
+                ctx.strokeRect(dw, 0, MM_TO_PX(marginMm), dh);
+                ctx.save();
+                ctx.translate(dw + MM_TO_PX(marginMm) / 2, dh / 2);
+                ctx.rotate(Math.PI / 2);
+                ctx.fillStyle = "#000"; ctx.font = "bold 16px sans-serif"; ctx.textAlign = "center";
+                ctx.fillText("COLE AQUI", 0, 0);
+                ctx.restore();
             }
+
+            if (r < actualRows - 1 && sh >= srcSliceH * 0.98) {
+                ctx.strokeRect(0, dh, dw, MM_TO_PX(marginMm));
+                ctx.fillStyle = "#000"; ctx.font = "bold 16px sans-serif"; ctx.textAlign = "center";
+                ctx.fillText("COLE AQUI", dw / 2, dh + MM_TO_PX(marginMm) / 1.5);
+            }
+
+            // Guia de corte
+            ctx.setLineDash([]);
+            ctx.strokeStyle = "#cccccc";
+            ctx.strokeRect(0, 0, dw, dh);
+
+            generatedPages.push({ canvas, pageWmm, pageHmm });
         }
+    }
 
-        genBtn.style.display = 'none';
-        printBtn.style.display = 'inline-block';
-        downloadBtn.style.display = 'inline-block';
-    });
-}
+    genBtn.style.display = 'none';
+    printBtn.style.display = 'inline-block';
+    downloadBtn.style.display = 'inline-block';
+});
 
-// 4. FUNÇÕES DE EXPORTAÇÃO
-function getPDF() {
+function generatePDF() {
     if (generatedPages.length === 0) return null;
     const first = generatedPages[0];
     const pdf = new jsPDF({
@@ -233,11 +289,32 @@ function getPDF() {
 }
 
 if(printBtn) printBtn.addEventListener('click', () => {
-    const pdf = getPDF();
-    if(pdf) window.open(pdf.output("bloburl"), "_blank");
+    const pdf = generatePDF();
+    if (pdf) {
+        pdf.autoPrint();
+        window.open(pdf.output("bloburl"), "_blank");
+    }
 });
 
-if(downloadBtn) downloadBtn.addEventListener('click', () => {
-    const pdf = getPDF();
-    if(pdf) pdf.save(`painel_${Date.now()}.pdf`);
+if(downloadBtn) downloadBtn.addEventListener('click', async () => {
+    const pdf = generatePDF();
+    if (!pdf) return;
+    
+    const agora = new Date();
+    const dataHoraNome = `${agora.getDate()}-${agora.getMonth()+1}-${agora.getFullYear()}_${agora.getHours()}h${agora.getMinutes()}`;
+    const nomeArquivo = `painel_${dataHoraNome}.pdf`;
+
+    const blob = pdf.output("blob");
+    const file = new File([blob], nomeArquivo, { type: "application/pdf" });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file], title: "Painel PDF" }); } catch (e) {}
+    } else {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(file);
+        link.download = nomeArquivo;
+        link.click();
+    }
 });
+
+
