@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Frequência - E.E.I.F. Maria Linda da Glória</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @media print {
+            .no-print { display: none; }
+            body { background: white; color: black; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto bg-white p-6 rounded-xl shadow-md no-print mb-6">
+        <h1 class="text-2xl font-bold text-blue-800 mb-4 text-center md:text-left">📊 Editor de Diário de Frequência (2026)</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Selecione o Mês:</label>
+                <select id="monthSelect" onchange="updateTable()" class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    <option value="JUNHO">Junho (Configurado)</option>
+                    <option value="MAIO">Maio</option>
+                    <option value="AGOSTO">Agosto</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Selecione a Turma/Ano:</label>
+                <select id="gradeSelect" onchange="updateTable()" class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    <option value="1">1º Ano</option>
+                    <option value="2">2º Ano</option>
+                    <option value="3">3º Ano</option>
+                    <option value="4">4º Ano</option>
+                    <option value="5">5º Ano</option>
+                </select>
+            </div>
+
+            <div>
+                <button onclick="window.print()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg transition dynamic-shadow cursor-pointer flex items-center justify-center gap-2">
+                    🖨️ Imprimir / Salvar PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto bg-white p-8 rounded-xl shadow-md border border-gray-200">
+        <div class="border-b-2 border-gray-800 pb-4 mb-6 text-center md:text-left md:flex justify-between items-center">
+            <div>
+                <h2 class="text-xl font-bold tracking-wide text-gray-900">ESCOLA: E.E.I.F. Maria Linda da Glória</h2>
+                <p class="text-sm font-medium text-gray-600">ANO LETIVO: 2026 | MÊS REFERÊNCIA: <span id="labelMeso" class="font-bold text-gray-900">JUNHO</span></p>
+            </div>
+            <div class="mt-2 md:mt-0 bg-blue-50 px-4 py-2 rounded-lg border border-blue-200">
+                <span class="text-sm font-semibold text-blue-800">TURMA: <span id="labelTurma">1º Ano</span></span>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full min-w-max border-collapse border border-gray-400 text-sm">
+                <thead>
+                    <tr class="bg-gray-100 text-center">
+                        <th class="border border-gray-400 p-2 w-12 text-center">Nº</th>
+                        <th class="border border-gray-400 p-2 text-left min-w-[250px]">Nome do Aluno</th>
+                        <th id="daysHeader" class="p-0 border-0 hidden"></th>
+                    </tr>
+                </thead>
+                <tbody id="studentsBody">
+                    </tbody>
+            </table>
+        </div>
+
+        <div class="mt-12 pt-8 border-t border-gray-300 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="text-center">
+                <div class="w-64 border-b border-gray-500 mx-auto mb-1"></div>
+                <p class="text-xs text-gray-500">Assinatura do Professor(a)</p>
+            </div>
+            <div class="text-center">
+                <div class="w-64 border-b border-gray-500 mx-auto mb-1"></div>
+                <p class="text-xs text-gray-500">Coordenação Pedagógica</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Banco de Dados dos Alunos extraídos do seu documento
+        const database = {
+            "1": [
+                "Alana Alves Nogueira", "Ana Gabrielle Guedes Gonçalves", "Antonio Talyson Dantas Alves", 
+                "Ariany Batista Soares", "Ariely Batista Soares", "Cícero Mikael Moreira Oliveira", 
+                "Esaú Florentino Gomes Teixeira", "Geovane Gomes da Silva", "Heloíza Pedro Fernandes", 
+                "Henrico Pedro Martins", "João Lucas Costa Teixeira", "Leandro Pereira Alves", 
+                "Lorenzo Tavares Almeida", "Maria Gabriela Alves Moreira", "Maria Lís Oliveira Leite", 
+                "Maria Valentina Teixeira de Oliveira", "Mileidy Rodrigues Oliveira", "Rihana Sousa Cardoso", 
+                "Valentina Lacerda Rodrigues", "Walisson Alves Martins", "Watilla Alves Teixeira", 
+                "Yago Rodrigues Romão", "Lannay Santos Alves", "José Kauan Cardeal da Silva"
+            ],
+            "2": [
+                "Ana Clara Alves Santos", "Ana Lorrane Souza Campos", "Antônia Lívia Silva Sousa", 
+                "Ayla Rebeca Andrade de Oliveira", "Derick Dantas Costa", "Enzo Rocha Oliveira", 
+                "Enzo Rodrigues Oliveira", "Francisco Regivando Braga Neto", "Gustavo Albuquerque Rodrigues", 
+                "Jorge Henrique Cardoso Cabral", "José Arthur Rodrigues Moreira", "Júlia Aparecida Moreira Duarte", 
+                "Kalebe Pereira Leite", "Kauany Gonçalves Aleixo", "Luíza Moreira Duarte", "Malu Vitoria Tavares", 
+                "Manoela Alcantara Almeida", "Marcos José Teixeira Rodrigues", "Maria Ângela Justino Tavares", 
+                "Mariana Pedro da Silva", "Nicolas Pedroza Fernandes", "Paulo Henrique Gomes Lima", 
+                "Vanessa Tavares Oliveira", "Vitória Emanuela Valderez Silva"
+            ],
+            "3": [
+                "Ana Clara Alves Oliveira", "Annalu Alves Oliveira", "Anthony Firmino Andrade", 
+                "Arthur Feitosa Medeiro", "Caio Victor Mariano Lima", "Eloá Gomes Leite", 
+                "Heitor Rodrigues Dimas", "João Pedro Alves Leite", "João Pedro Silva do Nascimento", 
+                "Marina Costa de Carvalho Viana", "Maysa Candido Cardoso Leite", "Murilo Oliveira Braga", 
+                "Raianny Silva Lira", "Sarah Mendes Gomes", "Sofia Cardoso Nogueira", "Valentina Sousa Cardoso", 
+                "Vitor Justino Silva", "Vitorya Teixeira Moreira"
+            ],
+            "4": [
+                "Ágatha Pedro Duarte Dimas", "Anna Laura Alves Moreira", "Anthonny Gabriel Rocha Tavares", 
+                "Deuzelina Braga dos Santos Neta", "Felipe Gabriel Lima Pereira", "Fílipe Vieira Rodrigues", 
+                "Geovana de Paula Soares", "João Lucas Oliveira Leite", "Leandro Dantas Alves", 
+                "Sofia Neves Alves", "Willian Levy Rocha Lima"
+            ],
+            "5": [
+                "Alice Soares de Freitas", "Ana Paula Alves Cardoso", "Anna Beatriz Martins Pereira", 
+                "Anna Keuly Silva Tavares", "Ana Ravena Martins Gomes", "Carlos Levi Nascimento Cândido", 
+                "Davi Conceição Cardoso", "Douglas Saraiva de Sousa Junior", "Eloá Tavares Silva", 
+                "Erivânia Tavares dos Santos", "Evillyn Pedro Silva", "Histeysse Guedes Sousa", 
+                "Isabelly Gomes Rodrigues", "Jakson Lima Saraiva", "Jarlisom Silva Moreira", 
+                "João Gabriel Guedes Gonçalves", "Lara Luiza de Lima Siebra", "Maria Lorenna Leite Rodrigues", 
+                "Maria Luiza Tavares da Silva", "Nelson Levi Alves Leite", "Nycollas Lima Alves de Sousa", 
+                "Radassa Pereira de Almeida", "Rayan Neves Alves", "Valmir Gonçalves dos Reis Junior"
+            ]
+        };
+
+        // Mapeamento de dias letivos (Verdes conforme seu calendário de 2026)
+        const calendarDays = {
+            "JUNHO": ["04", "11", "12", "15", "16", "17", "18", "19", "22", "23", "24", "25", "26", "29"],
+            "MAIO": ["04", "05", "06", "07", "08", "11", "12", "13", "14", "15", "18", "19", "20", "21", "22", "25", "26", "27", "28", "29"], // Exemplo padrão de dias de semana
+            "AGOSTO": ["03", "10", "12", "13", "14", "17", "18", "19", "20", "21", "24", "25", "26", "27", "28", "31"] // Baseado nos blocos verdes de agosto
+        };
+
+        function updateTable() {
+            const currentMonth = document.getElementById("monthSelect").value;
+            const currentGrade = document.getElementById("gradeSelect").value;
+            
+            // Atualiza os Labels visuais da folha
+            document.getElementById("labelMeso").innerText = currentMonth;
+            document.getElementById("labelTurma").innerText = currentGrade + "º Ano";
+
+            const activeDays = calendarDays[currentMonth] || [];
+            
+            // Reconstruir Cabeçalhos de Dias Letivos
+            const oldHeaders = document.querySelectorAll('.dynamic-day');
+            oldHeaders.forEach(el => el.remove());
+
+            const daysHeaderParent = document.getElementById("daysHeader").parentElement;
+            activeDays.forEach(day => {
+                const th = document.createElement("th");
+                th.className = "border border-gray-400 p-1 w-8 text-center text-xs dynamic-day bg-emerald-50 text-emerald-900 font-bold";
+                th.innerText = day;
+                daysHeaderParent.appendChild(th);
+            });
+
+            // Reconstruir as linhas dos Alunos
+            const tbody = document.getElementById("studentsBody");
+            tbody.innerHTML = "";
+
+            const students = database[currentGrade] || [];
+            
+            students.forEach((student, index) => {
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-gray-50 transition-colors";
+
+                // Número (Formatado com zero à esquerda)
+                const tdNum = document.createElement("td");
+                tdNum.className = "border border-gray-400 p-2 text-center font-medium text-gray-500";
+                tdNum.innerText = String(index + 1).padStart(2, '0');
+                tr.appendChild(tdNum);
+
+                // Nome
+                const tdName = document.createElement("td");
+                tdName.className = "border border-gray-400 p-2 font-medium text-gray-900";
+                tdName.innerText = student;
+                tr.appendChild(tdName);
+
+                // Inputs para cada dia letivo selecionado
+                activeDays.forEach(day => {
+                    const tdCheck = document.createElement("td");
+                    tdCheck.className = "border border-gray-400 p-1 text-center";
+                    
+                    // Input de texto simplificado para digitar ponto (.), F ou C
+                    const input = document.createElement("input");
+                    input.type = "text";
+                    input.maxLength = 1;
+                    input.placeholder = ".";
+                    input.className = "w-full text-center bg-transparent outline-none uppercase font-bold text-gray-800 focus:bg-blue-50";
+                    
+                    tdCheck.appendChild(input);
+                    tr.appendChild(tdCheck);
+                });
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Inicializa a tabela ao carregar a página
+        window.onload = updateTable;
+    </script>
+</body>
+</html>
