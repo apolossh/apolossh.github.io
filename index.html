@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <title>Apolo SSH</title>
+    <meta name="description" content="Página Apolo SSH para instalar apps no iOS usando certificado revogado.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            50: '#f6f6f9',
+                            100: '#ececf3',
+                            800: '#111115',
+                            900: '#08080b',
+                            950: '#030305'
+                        }
+                    },
+                    animation: {
+                        'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both',
+                        'radar': 'radar-pulse 2s infinite'
+                    },
+                    keyframes: {
+                        shake: {
+                            '10%, 90%': { transform: 'translate3d(-1px, 0, 0)' },
+                            '20%, 80%': { transform: 'translate3d(2px, 0, 0)' },
+                            '30%, 50%, 70%': { transform: 'translate3d(-3px, 0, 0)' },
+                            '40%, 60%': { transform: 'translate3d(3px, 0, 0)' }
+                        },
+                        'radar-pulse': {
+                            '0%': { transform: 'scale(1)', opacity: '0.5' },
+                            '100%': { transform: 'scale(2.5)', opacity: '0' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            padding-top: env(safe-area-inset-top, 0px);
+        }
+    </style>
+</head>
+<body class="bg-dark-950 text-slate-100 min-h-screen flex flex-col justify-between overflow-x-hidden relative selection:bg-slate-800">
+
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-[500px] bg-gradient-to-b from-emerald-500/10 to-transparent blur-[120px] pointer-events-none z-0"></div>
+
+    <div id="iosContent" class="relative z-10 max-w-md w-full mx-auto px-5 pt-8 pb-16 flex-1 flex flex-col justify-center" style="padding-top: calc(2rem + env(safe-area-inset-top, 0px));">
+        
+        <div class="relative w-full flex justify-between items-center mb-6">
+            <!-- Botão Menu Principal Aprimorado com z-30 para evitar sobreposição -->
+            <button onclick="toggleMenu()" class="menu-toggle flex items-center justify-center px-4 py-2.5 bg-dark-900 border border-white/5 hover:border-white/10 text-[11px] font-bold text-slate-200 rounded-xl transition-all shadow-lg active:scale-95 z-30">
+                <!-- Ícone Hambúrguer Animado por JS -->
+                <div class="relative w-4.5 h-3 mr-2 flex flex-col justify-between">
+                    <span id="menu-line-1" class="block h-[2px] w-full bg-slate-200 rounded-full transition-all duration-300 origin-center"></span>
+                    <span id="menu-line-2" class="block h-[2px] w-full bg-slate-200 rounded-full transition-all duration-300"></span>
+                    <span id="menu-line-3" class="block h-[2px] w-full bg-slate-200 rounded-full transition-all duration-300 origin-center"></span>
+                </div>
+                MENU
+            </button>
+            
+            <!-- Menu de Redes Sociais Premium (Posicionado abaixo com top-full e z-[99]) -->
+            <div id="menuPrincipal" class="opacity-0 pointer-events-none scale-95 origin-top-left absolute top-full mt-2 left-0 w-56 bg-dark-900/95 border border-white/10 backdrop-blur-xl rounded-2xl shadow-[0_15px_50px_rgba(0,0,0,0.8)] p-2 z-[99] transition-all duration-300 ease-out">
+                <div class="px-2.5 py-1.5 mb-1 border-b border-white/5">
+                    <span class="text-[9px] font-bold tracking-wider text-slate-500 uppercase">Comunidade & Links</span>
+                </div>
+                <ul class="space-y-0.5 text-left text-xs font-semibold">
+                    <!-- Repositório -->
+                    <li>
+                        <a href="esign://addsource?url=https://repository.apptesters.org" class="flex items-center gap-3 px-3 py-2.5 hover:bg-white/[0.04] rounded-xl text-emerald-400 transition-colors group">
+                            <span class="p-1.5 bg-emerald-500/10 rounded-lg group-hover:scale-105 transition-transform">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                </svg>
+                            </span>
+                            <span class="font-bold text-[11px] text-slate-200">Repositório</span>
+                        </a>
+                    </li>
+                    <!-- WhatsApp -->
+                    <li>
+                        <a href="whatsapp://send?phone=5511998248013" class="flex items-center gap-3 px-3 py-2.5 hover:bg-white/[0.04] rounded-xl text-emerald-400 transition-colors group">
+                            <span class="p-1.5 bg-emerald-500/10 rounded-lg group-hover:scale-105 transition-transform">
+                                <svg class="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.455 5.703 1.458h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"></path>
+                                </svg>
+                            </span>
+                            <span class="font-bold text-[11px] text-slate-200">WhatsApp</span>
+                        </a>
+                    </li>
+                    <!-- Instagram -->
+                    <li>
+                        <a href="instagram://user?username=apolo_ssh" class="flex items-center gap-3 px-3 py-2.5 hover:bg-white/[0.04] rounded-xl text-pink-400 transition-colors group">
+                            <span class="p-1.5 bg-pink-500/10 rounded-lg group-hover:scale-105 transition-transform">
+                                <svg class="w-4 h-4 text-pink-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                    <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"></path>
+                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                                </svg>
+                            </span>
+                            <span class="font-bold text-[11px] text-slate-200">Instagram</span>
+                        </a>
+                    </li>
+                    <!-- Telegram -->
+                    <li>
+                        <a href="tg://resolve?domain=apolossh" class="flex items-center gap-3 px-3 py-2.5 hover:bg-white/[0.04] rounded-xl text-sky-400 transition-colors group">
+                            <span class="p-1.5 bg-sky-500/10 rounded-lg group-hover:scale-105 transition-transform">
+                                <svg class="w-4 h-4 text-sky-400" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.56 8.16l-1.85 8.74c-.14.62-.51.77-1.03.48l-2.82-2.08-1.36 1.31c-.15.15-.28.28-.57.28l.2-2.85 5.19-4.69c.22-.2-.05-.31-.34-.12l-6.42 4.04-2.76-.86c-.6-.19-.61-.6.13-.89l10.78-4.16c.5-.18.94.12.76.99z"></path>
+                                </svg>
+                            </span>
+                            <span class="font-bold text-[11px] text-slate-200">Telegram</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="flex items-center gap-2 bg-dark-900/80 px-3.5 py-1.5 rounded-full border border-white/5 shadow-md">
+                <span id="radar-ripple" class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                <span id="dns-badge" class="text-[9px] font-bold text-slate-400 font-mono">Analisando rede...</span>
+            </div>
+        </div>
+
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-extrabold tracking-tight text-white mb-2">Apolo SSH</h1>
+            <p class="text-slate-400 text-xs leading-relaxed max-w-xs mx-auto">Instale o ESign e configure seu perfil DNS oficial contra revogações de forma rápida e segura.</p>
+        </header>
+
+        <div class="space-y-4">
+            
+            <div id="card-step-1" class="bg-dark-900 border border-white/5 rounded-3xl p-5 transition-all duration-300 relative">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <img src="img/dns.svg" class="w-10 h-10 rounded-xl bg-slate-950 border border-white/5 pointer-events-none" draggable="false" alt="DNS Icon">
+                        <div>
+                            <h4 class="text-xs font-bold text-white">Perfil DNS</h4>
+                            <p class="text-[10px] text-slate-500 font-semibold text-amber-500">Obrigatório para iniciar</p>
+                        </div>
+                    </div>
+                    <a href="https://apolossh.github.io/dw/dns_signed.mobileconfig" onclick="clicouBotaoDNS()" class="text-[11px] font-bold px-3.5 py-1.5 bg-slate-950 border border-white/5 hover:border-white/10 text-slate-200 rounded-lg transition-all active:scale-95">
+                        Instalar
+                    </a>
+                </div>
+
+                <div class="border-t border-white/5 pt-3">
+                    <button onclick="toggleGuia(1)" class="w-full flex justify-between items-center text-left py-1">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                            <span class="flex h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                            Guia Ilustrado de Ativação
+                        </span>
+                        <svg id="chevron-1" class="w-3.5 h-3.5 text-slate-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    
+                    <div id="guide-content-1" class="hidden mt-3 space-y-4">
+                        <div class="bg-dark-950 border border-white/5 rounded-2xl p-4 text-center space-y-3 relative overflow-hidden">
+                          <span class="text-[9px] font-bold text-slate-500 block uppercase text-left tracking-wider">Passo 1.1: Safari iOS</span>
+                          <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 max-w-[240px] mx-auto shadow-2xl space-y-2.5">
+                              <p class="text-[9px] text-center text-white font-semibold leading-relaxed">Este site está tentando baixar um perfil de configuração. Deseja permitir?</p>
+                              <div class="grid grid-cols-2 border-t border-zinc-800/80 text-[10px] pt-2">
+                                  <span class="text-blue-500/60 font-medium">Ignorar</span>
+                                  <span class="text-blue-500 font-extrabold animate-pulse">Permitir ✓</span>
+                              </div>
+                          </div>
+                          <p class="text-[10px] text-slate-400">Clique em <b>Permitir</b> no aviso do navegador Safari.</p>
+                        </div>
+
+                        <div class="bg-dark-950 border border-white/5 rounded-2xl p-4 text-center space-y-3 relative overflow-hidden">
+                          <span class="text-[9px] font-bold text-slate-500 block uppercase text-left tracking-wider">Passo 1.2: Ajustes do iPhone</span>
+                          <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden max-w-[260px] mx-auto shadow-2xl text-[10px] text-left">
+                              <div class="bg-zinc-855 p-2 text-zinc-500 font-bold border-b border-zinc-800 text-[7px] uppercase">Geral</div>
+                              <div class="p-3 flex items-center justify-between">
+                                  <div class="flex items-center gap-2">
+                                      <span class="p-1 bg-blue-500 rounded text-white text-[10px]">⚙️</span>
+                                      <span class="font-bold text-white text-[11px]">Perfil Descarregado</span>
+                                  </div>
+                                  <span class="text-blue-400 text-[10px] uppercase font-bold animate-pulse">Instalar ➔</span>
+                              </div>
+                          </div>
+                          <p class="text-[10px] text-slate-400 font-medium">Abra o app <b>Ajustes</b>, clique em <b>Perfil Descarregado</b> no topo e selecione <b>Instalar</b>.</p>
+                        </div>
+
+                        <div class="bg-dark-950 border border-white/5 rounded-2xl p-4 text-center space-y-3 relative overflow-hidden">
+                          <span class="text-[9px] font-bold text-amber-500 block uppercase text-left tracking-wider">Passo 1.3: Ciclar Internet (Obrigatório)</span>
+                          <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-3.5 max-w-[260px] mx-auto shadow-2xl flex items-center justify-between text-left">
+                              <div class="flex items-center gap-2.5">
+                                  <div class="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-xs">
+                                      ✈️
+                                  </div>
+                                  <div>
+                                      <span class="text-[10px] font-bold text-white block">Modo Avião</span>
+                                      <span class="text-[8px] text-slate-400 block font-semibold">Atualizar cache de rede</span>
+                                  </div>
+                              </div>
+                              <div class="flex flex-col items-end gap-1">
+                                  <span class="text-[8px] text-amber-400 font-bold uppercase tracking-wider animate-pulse">Ligar ➔ Desligar</span>
+                                  <div class="w-8 h-4.5 bg-amber-500/20 border border-amber-500/30 rounded-full p-0.5 flex items-center justify-end">
+                                      <span class="bg-amber-400 w-3.5 h-3.5 rounded-full shadow-lg"></span>
+                                  </div>
+                              </div>
+                          </div>
+                          <p class="text-[10px] text-slate-400 leading-relaxed">Após instalar, <b>ative o Modo Avião por 5 segundos</b> e depois desative-o (ou desligue e ligue o Wi-Fi/dados móveis). Isso limpa o cache e força a ativação imediata do DNS.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="card-step-2" class="bg-dark-900 border border-white/5 rounded-3xl p-5 transition-all duration-300 opacity-40 pointer-events-none">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <img src="img/cert.svg" class="w-10 h-10 rounded-xl bg-slate-950 border border-white/5 pointer-events-none" draggable="false" alt="Cert Icon">
+                        <div>
+                            <h4 class="text-xs font-bold text-white">Cert P12</h4>
+                            <p id="cert-sub-text" class="text-[10px] text-slate-500 font-semibold text-red-500">Bloqueado pelo Passo 1</p>
+                        </div>
+                    </div>
+                    <a id="cert-download-btn" href="https://apolossh.github.io/dw/cert.esigncert" onclick="clicouBotaoCertificado(event)" class="text-[11px] font-bold px-3.5 py-1.5 bg-slate-950 border border-white/5 hover:border-white/10 text-slate-200 rounded-lg transition-all active:scale-95">
+                        Obter
+                    </a>
+                </div>
+            </div>
+
+            <div id="esign-box-card" class="bg-dark-900 border border-white/5 rounded-3xl p-5 relative overflow-hidden transition-all duration-300 opacity-40 pointer-events-none">
+                <div id="esign-glow-effect" class="absolute top-0 right-0 w-24 h-24 bg-red-500/5 rounded-full blur-2xl pointer-events-none transition-all duration-500"></div>
+
+                <div class="flex items-start justify-between gap-2 mb-4">
+                    <div class="flex items-center gap-3">
+                        <img src="img/esign.svg" class="w-10 h-10 rounded-xl bg-slate-950 border border-white/5 pointer-events-none" draggable="false" alt="ESign Icon">
+                        <div>
+                            <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
+                                ESign
+                            </h4>
+                            <p id="esign-sub-text" class="text-[10px] text-slate-500 font-semibold text-red-500">Bloqueado pelos Passos Anteriores</p>
+                        </div>
+                    </div>
+                    <span id="lock-badge" class="text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-red-950/40 text-red-300 border border-red-900/30">Bloqueado</span>
+                </div>
+
+                <p class="text-slate-400 text-[11px] leading-relaxed mb-4">
+                    Instale a ferramenta oficial de assinatura de forma direta no iOS. Requer a conclusão dos passos anteriores.
+                </p>
+
+                <button id="esign-install-btn" onclick="tentarExecutarInstalacao(event, 'itms-services://?action=download-manifest&url=https://apolossh.github.io/dw/ESign-info.plist', 3)" class="w-full py-3 bg-slate-800/40 text-slate-500 cursor-not-allowed font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all duration-300">
+                    Aguardando Passos Anteriores...
+                </button>
+
+                <div class="border-t border-white/5 pt-3 mt-4">
+                    <button onclick="toggleGuia(3)" class="w-full flex justify-between items-center text-left py-1">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                            <span class="flex h-1.5 w-1.5 rounded-full bg-slate-500 animate-pulse"></span>
+                            Como Confiar no App nos Ajustes?
+                        </span>
+                        <svg id="chevron-3" class="w-3.5 h-3.5 text-slate-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    
+                    <div id="guide-content-3" class="hidden mt-3 space-y-4">
+                        <div class="bg-dark-950 border border-white/5 rounded-2xl p-4 text-center space-y-3 relative overflow-hidden">
+                            <span class="text-[9px] font-bold text-slate-500 block uppercase text-left tracking-wider">Ajustes iOS</span>
+                            <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden max-w-[260px] mx-auto shadow-2xl text-[8px] text-left">
+                                <div class="bg-zinc-855 p-2 text-zinc-400 font-bold border-b border-zinc-800 text-[6px] uppercase"> VPN & Device Management </div>
+                                <div class="p-2 space-y-2">
+                                    <span class="text-zinc-500 font-bold text-[6px] block">Enterprise App</span>
+                                    <div class="bg-zinc-950 p-2 rounded border border-zinc-850 flex items-center justify-between">
+                                        <div>
+                                            <span class="font-bold text-slate-300 block text-[7px]">Certificado Baixado</span>
+                                            <span class="text-zinc-500 text-[6px] block">Não Confiável</span>
+                                        </div>
+                                        <span class="text-emerald-400 font-bold animate-pulse">Confiar ➔</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-[10px] text-slate-400">Vá em <b>Ajustes ➜ Geral ➜ VPN e Gerenciamento de Dispositivos</b>, toque no nome do certificado corporativo correspondente e clique no botão azul <b>Confiar</b>.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-white/5 pt-3 mt-3">
+                    <button onclick="toggleGuia(4)" class="w-full flex justify-between items-center text-left py-1">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                            <span class="flex h-1.5 w-1.5 rounded-full bg-slate-500"></span>
+                            Como importar o Certificado no ESign?
+                        </span>
+                        <svg id="chevron-4" class="w-3.5 h-3.5 text-slate-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    
+                    <div id="guide-content-4" class="hidden mt-3 space-y-4">
+                        <div class="bg-dark-950 border border-white/5 rounded-2xl p-4 text-center space-y-3 relative overflow-hidden">
+                            <span class="text-[9px] font-bold text-slate-500 block uppercase text-left tracking-wider">Gestor de Arquivos ESign</span>
+                            <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden max-w-[260px] mx-auto shadow-2xl text-[10px] text-left">
+                                <div class="bg-zinc-855 p-2 text-zinc-400 font-bold border-b border-zinc-800 flex items-center justify-between text-[7px]">
+                                    <span>ESIGN FILE MANAGER</span>
+                                    <span class="text-emerald-400">Importar ➔</span>
+                                </div>
+                                <div class="p-3 flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[14px]">📄</span>
+                                        <div>
+                                            <span class="font-bold text-slate-200 font-mono text-[9px] block">cert.esigncert</span>
+                                            <span class="text-[8px] text-slate-500 block">Arquivo de Assinatura</span>
+                                        </div>
+                                    </div>
+                                    <span class="px-2 py-1 bg-emerald-950 border border-emerald-800 rounded text-emerald-400 text-[8px] font-bold">Importar</span>
+                                </div>
+                            </div>
+                            <p class="text-[10px] text-slate-400">Abra o app <b>ESign</b>, vai nos 3 pontos <b>•••</b>, <b>Importar</b> e importe o arquivo <b>cert.esigncert</b> que você descarregou no Passo 2.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="nonIosMessage" style="display: none;" class="relative z-10 max-w-md w-full mx-auto px-6 py-16 text-center space-y-6">
+        <div class="w-20 h-20 bg-amber-500/10 border border-amber-500/20 rounded-3xl flex items-center justify-center mx-auto">
+            <span class="text-4xl">📱</span>
+        </div>
+        <h2 class="text-2xl font-extrabold text-white">Acesso Exclusivo iOS</h2>
+        <p class="text-slate-400 text-sm leading-relaxed">
+            Esta página e os seus instaladores foram criados especificamente para dispositivos iPhone e iPad.
+        </p>
+        
+        <div class="bg-dark-900 border border-white/5 p-6 rounded-3xl max-w-[240px] mx-auto shadow-2xl space-y-3">
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Escaneie para Abrir</span>
+            <img id="qr-code-img" src="" class="w-full h-auto rounded-2xl border-4 border-slate-950 pointer-events-none" draggable="false" alt="QR Code">
+            <p class="text-[9px] text-slate-500">Aponte a câmera do seu iPhone para escanear e abrir o portal de instalação diretamente no Safari.</p>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 pointer-events-none"></div>
+
+    <script>
+        let dnsEstaValido = false;
+        let certBaixado = false;
+        let menuAberto = false;
+
+        (function() {
+            Object.defineProperty(window, 'eval', {
+                configurable: false,
+                writable: false,
+                value: () => { throw "Ação Restrita por Motivos de Segurança."; }
+            });
+
+            document.addEventListener('contextmenu', e => e.preventDefault());
+
+            document.addEventListener('keydown', e => {
+                if (
+                    e.key === 'F12' ||
+                    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) ||
+                    (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j')) ||
+                    (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.key === 'c')) ||
+                    (e.ctrlKey && (e.key === 'U' || e.key === 'u')) ||
+                    (e.ctrlKey && (e.key === 'S' || e.key === 's'))
+                ) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+            document.addEventListener('dragstart', e => e.preventDefault());
+
+            setInterval(() => {
+                (function() {
+                    const start = Date.now();
+                    debugger;
+                    const elapsed = Date.now() - start;
+                    if (elapsed > 100) {
+                        document.body.innerHTML = "<div class='flex items-center justify-center min-h-screen text-red-500 font-bold text-lg'>Ambiente Inseguro Detectado.</div>";
+                    }
+                })();
+            }, 100);
+        })();
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const isIOS = navigator.userAgent.match(/iPhone|iPad|iPod/i);
+            if (isIOS) {
+                document.getElementById("iosContent").style.display = "block";
+                document.getElementById("nonIosMessage").style.display = "none";
+                verificarStatusDnsSilencioso();
+                setInterval(verificarStatusDnsSilencioso, 4000);
+            } else {
+                document.getElementById("iosContent").style.display = "none";
+                document.getElementById("nonIosMessage").style.display = "block";
+                
+                const urlAtual = window.location.href;
+                document.getElementById("qr-code-img").src = "https://api.qrserver.com/v1/create-qr-code/?size=160x150&data=" + encodeURIComponent(urlAtual);
+            }
+        });
+
+        // Toggle do Menu com Animações Fluídas corrigido para iOS
+        function toggleMenu() {
+            const menu = document.getElementById('menuPrincipal');
+            const l1 = document.getElementById('menu-line-1');
+            const l2 = document.getElementById('menu-line-2');
+            const l3 = document.getElementById('menu-line-3');
+
+            if (menuAberto) {
+                // Fechar Menu
+                menu.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+                menu.classList.remove('opacity-100', 'scale-100');
+                
+                // Reverter Linhas do Botão Hambúrguer
+                l1.classList.remove('rotate-45', 'translate-y-[5px]');
+                l2.classList.remove('opacity-0');
+                l3.classList.remove('-rotate-45', '-translate-y-[5px]');
+                
+                menuAberto = false;
+            } else {
+                // Abrir Menu
+                menu.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+                menu.classList.add('opacity-100', 'scale-100');
+                
+                // Animar Botão Hambúrguer para um "X"
+                l1.classList.add('rotate-45', 'translate-y-[5px]');
+                l2.classList.add('opacity-0');
+                l3.classList.add('-rotate-45', '-translate-y-[5px]');
+                
+                menuAberto = true;
+            }
+        }
+
+        // Fechar Menu Inteligente clicando fora dele
+        document.addEventListener('click', (event) => {
+            const menu = document.getElementById('menuPrincipal');
+            const menuToggle = document.querySelector('.menu-toggle');
+            if (menuAberto && menu && menuToggle && !menu.contains(event.target) && !menuToggle.contains(event.target)) {
+                toggleMenu();
+            }
+        });
+
+        async function verificarStatusDnsSilencioso() {
+            const radarRipple = document.getElementById('radar-ripple');
+            const badge = document.getElementById('dns-badge');
+
+            const tInicial = Date.now();
+            let bloqueadoPeloDns = false;
+
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 1200);
+
+                await fetch('https://ocsp.apple.com/?nocache=' + tInicial, {
+                    mode: 'no-cors',
+                    cache: 'no-store',
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+                bloqueadoPeloDns = false;
+            } catch (err) {
+                const tempoGasto = Date.now() - tInicial;
+                if (err.name === 'AbortError' || tempoGasto < 200) {
+                    bloqueadoPeloDns = true; 
+                } else {
+                    bloqueadoPeloDns = false;
+                }
+            }
+
+            if (bloqueadoPeloDns) {
+                dnsEstaValido = true;
+                radarRipple.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-lg shadow-emerald-500/50";
+                badge.innerText = "DNS Ativo";
+                badge.className = "text-[9px] font-bold text-emerald-400 font-mono";
+                liberarPasso2();
+            } else {
+                dnsEstaValido = false;
+                radarRipple.className = "w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse shadow-lg shadow-amber-500/50";
+                badge.innerText = "Aguardando DNS";
+                badge.className = "text-[9px] font-bold text-amber-400 font-mono";
+                bloquearPasso2();
+            }
+        }
+
+        function toggleGuia(stepId, forceOpen = false) {
+            const content = document.getElementById('guide-content-' + stepId);
+            const chevron = document.getElementById('chevron-' + stepId);
+
+            if (forceOpen) {
+                for(let i = 1; i <= 4; i++) {
+                    if (i !== stepId) {
+                        const otherContent = document.getElementById('guide-content-' + i);
+                        const otherChevron = document.getElementById('chevron-' + i);
+                        if(otherContent && otherChevron) {
+                            otherContent.classList.add('hidden');
+                            otherChevron.classList.remove('rotate-180');
+                        }
+                    }
+                }
+                if (content && chevron) {
+                    content.classList.remove('hidden');
+                    chevron.classList.add('rotate-180');
+                }
+                return;
+            }
+
+            if (content && content.classList.contains('hidden')) {
+                for(let i = 1; i <= 4; i++) {
+                    const otherContent = document.getElementById('guide-content-' + i);
+                    const otherChevron = document.getElementById('chevron-' + i);
+                    if(otherContent && otherChevron) {
+                        if (i === stepId) {
+                            otherContent.classList.remove('hidden');
+                            otherChevron.classList.add('rotate-180');
+                        } else {
+                            otherContent.classList.add('hidden');
+                            otherChevron.classList.remove('rotate-180');
+                        }
+                    }
+                }
+            } else if (content && chevron) {
+                content.classList.add('hidden');
+                chevron.classList.remove('rotate-180');
+            }
+        }
+
+        // CONTROLADORES DE GATEKEEPER SEQUENCIAIS
+        function liberarPasso2() {
+            const card2 = document.getElementById('card-step-2');
+            const subText2 = document.getElementById('cert-sub-text');
+            
+            card2.classList.remove('opacity-40', 'pointer-events-none');
+            if (subText2) {
+                subText2.innerText = "Importação do Certificado";
+                subText2.className = "text-[10px] text-slate-500 font-semibold";
+            }
+
+            if (certBaixado) {
+                liberarPasso3();
+            }
+        }
+
+        function bloquearPasso2() {
+            const card2 = document.getElementById('card-step-2');
+            const subText2 = document.getElementById('cert-sub-text');
+            
+            card2.classList.add('opacity-40', 'pointer-events-none');
+            if (subText2) {
+                subText2.innerText = "Bloqueado pelo Passo 1";
+                subText2.className = "text-[10px] text-slate-500 font-semibold text-red-500";
+            }
+            
+            bloquearPasso3();
+        }
+
+        // Liberadores de Passos subsequentes
+        function liberarPasso3() {
+            const card = document.getElementById('esign-box-card');
+            const btn = document.getElementById('esign-install-btn');
+            const badge = document.getElementById('lock-badge');
+            const glow = document.getElementById('esign-glow-effect');
+            const subText3 = document.getElementById('esign-sub-text');
+
+            card.classList.remove('opacity-40', 'pointer-events-none');
+            glow.className = "absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none transition-all duration-500";
+            
+            badge.innerText = "Liberado";
+            badge.className = "text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-950/40 text-emerald-300 border border-emerald-900/30";
+
+            subText3.innerText = "Instalação direta Over-The-Air local";
+            subText3.className = "text-[10px] text-slate-500 font-semibold";
+
+            btn.className = "w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all duration-300 shadow-lg shadow-emerald-500/15 cursor-pointer active:scale-98";
+            btn.innerText = "Instalar ESign Pro";
+        }
+
+        function bloquearPasso3() {
+            const card = document.getElementById('esign-box-card');
+            const btn = document.getElementById('esign-install-btn');
+            const badge = document.getElementById('lock-badge');
+            const glow = document.getElementById('esign-glow-effect');
+            const subText3 = document.getElementById('esign-sub-text');
+
+            card.classList.add('opacity-40', 'pointer-events-none');
+            glow.className = "absolute top-0 right-0 w-24 h-24 bg-red-500/5 rounded-full blur-2xl pointer-events-none transition-all duration-500";
+            
+            badge.innerText = "Bloqueado";
+            badge.className = "text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-red-950/40 text-red-300 border border-red-900/30";
+
+            subText3.innerText = "Bloqueado pelos Passos Anteriores";
+            subText3.className = "text-[10px] text-slate-500 font-semibold text-red-500";
+
+            btn.className = "w-full py-3 bg-slate-800/40 text-slate-500 cursor-not-allowed font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all duration-300";
+            btn.innerText = "Aguardando Passos Anteriores...";
+        }
+
+        function clicouBotaoDNS() {
+            showToast("Perfil baixado! Instale nos Ajustes e cicle sua Internet.");
+            setTimeout(() => {
+                toggleGuia(1, true);
+                document.getElementById('card-step-1').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        }
+
+        function clicouBotaoCertificado(event) {
+            if (!dnsEstaValido) {
+                event.preventDefault();
+                showToast("Ação Bloqueada: Ative o DNS no Passo 1 primeiro!", "error");
+                toggleGuia(1, true);
+                return;
+            }
+            certBaixado = true;
+            showToast("Certificado salvo em Downloads!");
+            liberarPasso3();
+            setTimeout(() => {
+                toggleGuia(3, true);
+                document.getElementById('esign-box-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        }
+
+        function tentarExecutarInstalacao(event, linkInstalacao, stepId) {
+            verificarStatusDnsSilencioso();
+
+            if (dnsEstaValido && certBaixado) {
+                window.location.href = linkInstalacao;
+                setTimeout(() => toggleGuia(3, true), 1000);
+            } else {
+                event.preventDefault();
+                const card = document.getElementById('esign-box-card');
+                card.classList.add('animate-shake');
+                setTimeout(() => card.classList.remove('animate-shake'), 500);
+
+                if(!dnsEstaValido) {
+                    showToast("Erro: Habilite a segurança DNS no Passo 1!", "error");
+                    toggleGuia(1, true);
+                } else if(!certBaixado) {
+                    showToast("Erro: Descarregue o certificado no Passo 2 primeiro!", "error");
+                    document.getElementById('card-step-2').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        function showToast(message, type = "success") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'text-white text-[11px] font-semibold border backdrop-blur-md px-4 py-3 rounded-xl shadow-2xl mb-2 flex items-center gap-2 pointer-events-auto transition-all duration-300 transform translate-y-10 opacity-0';
+            
+            if (type === "success") {
+                toast.className += ' bg-emerald-950/90 border-emerald-500/20 text-emerald-400';
+                toast.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> <span>${message}</span>`;
+            } else {
+                toast.className += ' bg-red-950/90 border-red-500/20 text-red-400';
+                toast.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse"></span> <span>${message}</span>`;
+            }
+            
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.remove('translate-y-10', 'opacity-0'); }, 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => { toast.remove(); }, 300);
+            }, 3000);
+        }
+    </script>
+
+</body>
+</html>
