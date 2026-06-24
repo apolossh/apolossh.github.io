@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Local LLM</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 1.8rem;
+    }
+    .container {
+      background: white;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #model-selection {
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+    }
+    #model {
+      font-size: 16px;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      background-color: white;
+      width: 100%;
+      max-width: 300px;
+    }
+    #load-model {
+      padding: 8px 15px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+      width: 100%;
+      max-width: 200px;
+    }
+    #load-model:hover {
+      background-color: #0056b3;
+    }
+    #input-section {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #question-container {
+      width: 100%;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    #question {
+      width: 100%;
+      min-height: 50px;
+      max-height: 200px;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      resize: none;
+      overflow-y: auto;
+    }
+    #send-button {
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s;
+      width: 100%;
+      max-width: 200px;
+    }
+    #send-button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    #send-button:hover:not(:disabled) {
+      background-color: #0056b3;
+    }
+    #output {
+      margin-top: 15px;
+      width: 100%;
+      max-width: 600px;
+      padding: 15px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      white-space: pre-wrap;
+      text-align: left;
+    }
+    #progress-section {
+      margin-top: 20px;
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .progress-wrapper {
+      width: 100%;
+      background-color: #ffffff;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .progress-label {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 5px;
+    }
+    .progress-container {
+      width: 100%;
+      background-color: #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      width: 0%;
+      height: 20px;
+      background-color: #28a745;
+      text-align: center;
+      line-height: 20px;
+      color: white;
+      border-radius: 10px;
+      transition: width 0.3s;
+    }
+  </style>
+</head>
+<body>
+  <h1>Local LLM Playground</h1>
+    <div class="container" id="model-selection">
+        <label for="model">Pick an LLM Model:</label>
+        <select id="model">
+          <option value="Xenova/LaMini-Flan-T5-77M">Xenova/LaMini-Flan-T5-77M (Less accurate but lightweight)</option>
+          <option value="Xenova/LaMini-Flan-T5-248M">Xenova/LaMini-Flan-T5-248M (fifty-fifty)</option>
+          <option value="Xenova/LaMini-Flan-T5-783M">Xenova/LaMini-Flan-T5-783M (More accurate but Heavy and could crash on iPhone)</option>
+        </select>
+        <button id="load-model">Load</button>
+      </div>
+  <div id="input-section">
+    <div id="question-container">
+        <textarea id="question" placeholder="Write your question..."></textarea>
+        <button id="send-button" disabled>Send</button>
+      </div>
+  </div>
+  <div id="output"></div>
+  <div id="progress-section"></div>
+
+  <script type="module">
+    import {
+      pipeline
+    } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers';
+
+        function render(element,text){
+            element.innerHTML += text;
+        }
+
+        const progressSection = document.getElementById('progress-section');
+        const outputElement = document.getElementById('output');
+        const progressBars = {};
+        const questionInput = document.getElementById('question');
+        const sendButton = document.getElementById('send-button');
+        const modelSelect = document.getElementById('model');
+        const loadModelButton = document.getElementById('load-model');
+
+        questionInput.addEventListener('input', () => {
+            questionInput.style.height = 'auto';
+            questionInput.style.height = (questionInput.scrollHeight) + 'px';
+        });
+
+        function checkProgressCompletion() {
+            const allComplete = Object.values(progressBars).every(pb => parseInt(pb.bar.style.width) === 100);
+            sendButton.disabled = !allComplete;
+        }
+
+        function createProgressBar(fileName) {
+            // Se la barra esiste già, restituiscila
+            if (progressBars[fileName]) return progressBars[fileName];
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'progress-wrapper';
+
+            const label = document.createElement('div');
+            label.textContent = `${fileName}`;
+            
+            const container = document.createElement('div');
+            container.className = 'progress-container';
+            
+            const bar = document.createElement('div');
+            bar.className = 'progress-bar';
+            bar.textContent = "0%";
+
+            container.appendChild(bar);
+            wrapper.appendChild(label);
+            wrapper.appendChild(container);
+            progressSection.appendChild(wrapper);
+
+            progressBars[fileName] = { bar, label };
+            return progressBars[fileName];
+        }
+
+        function updateProgress(data) {
+            if (data.status === "progress") {
+                const progressValue = Math.round(data.progress);
+                const loadedMB = (data.loaded / (1024 * 1024)).toFixed(2);
+                const totalMB = (data.total / (1024 * 1024)).toFixed(2);
+                
+                const progressBar = createProgressBar(data.file);
+                progressBar.bar.style.width = `${progressValue}%`;
+                progressBar.bar.textContent = `${progressValue}% (${loadedMB} MB / ${totalMB} MB)`;
+            }
+        }
+
+        let generator;
+
+        async function initializePipeline() {
+            sendButton.disabled = true;
+            const selectedModel = modelSelect.value;
+            outputElement.textContent = `Loading model ${selectedModel}...`;
+            generator = await pipeline(
+                'text2text-generation', selectedModel,
+                {
+                progress_callback: (data) => {
+                    requestAnimationFrame(() => updateProgress(data));
+                },
+                }
+            );
+            sendButton.disabled = false;
+            outputElement.textContent = "Model loaded. You can now ask a question.";
+        }
+
+        async function generateResponse() {
+            sendButton.disabled = true;
+            const question = questionInput.value.trim();
+            if (!question) {
+                outputElement.textContent = "Please write something.";
+                sendButton.disabled = false;
+                return;
+            }
+            outputElement.textContent = "Generating response...";
+            
+            const result = await generator(question, {
+                max_new_tokens: 500,
+                temperature: 0.9,
+                repetition_penalty: 2.0,
+                no_repeat_ngram_size: 3,
+                callback_function: x => {}
+            });
+            
+            outputElement.textContent = result[0].generated_text;
+            sendButton.disabled = false;
+        }
+
+        sendButton.addEventListener('click', generateResponse);
+        loadModelButton.addEventListener('click', initializePipeline);
+
+  </script>
+</body>
+</html>
