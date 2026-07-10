@@ -98,6 +98,57 @@
         button:active {
             opacity: 0.8;
         }
+        .console-container {
+            margin-top: 5px;
+        }
+        .console-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .console-title {
+            font-size: 0.85rem;
+            color: #8e8e93;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .clear-btn {
+            background: none;
+            border: none;
+            color: #ff453a;
+            font-size: 0.85rem;
+            padding: 4px 8px;
+            margin: 0;
+            width: auto;
+            font-weight: 400;
+        }
+        .clear-btn:active {
+            opacity: 0.6;
+        }
+        #console-log {
+            width: 100%;
+            min-height: 150px;
+            max-height: 250px;
+            background: #000000;
+            border: 1px solid #1c1c1e;
+            border-radius: 10px;
+            padding: 12px;
+            font-family: ui-monospace, SFMono-Regular, SF Pro Text, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.85rem;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .log-line {
+            margin-bottom: 6px;
+            border-bottom: 1px solid #111111;
+            padding-bottom: 4px;
+        }
+        .log-log { color: #ffffff; }
+        .log-error { color: #ff453a; }
+        .log-warn { color: #ffd60a; }
+        .log-info { color: #0a84ff; }
     </style>
 </head>
 <body>
@@ -119,10 +170,73 @@
             <div class="test-element">
                 <input type="text" id="target-input" placeholder="Toque para testar teclado/inputs...">
             </div>
+
+            <div class="console-container">
+                <div class="console-header">
+                    <span class="console-title">Console Output</span>
+                    <button class="clear-btn" onclick="clearConsole()">Limpar</button>
+                </div>
+                <div id="console-log"></div>
+            </div>
         </section>
     </main>
 
     <script>
+        (function() {
+            const consoleLogDiv = document.getElementById('console-log');
+            
+            function appendLog(message, type) {
+                const line = document.createElement('div');
+                line.className = `log-line log-${type}`;
+                
+                if (typeof message === 'object') {
+                    try {
+                        line.textContent = `[Object] ${JSON.stringify(message, null, 2)}`;
+                    } catch (e) {
+                        line.textContent = `[Object] ${message.toString()}`;
+                    }
+                } else {
+                    line.textContent = message;
+                }
+                
+                consoleLogDiv.appendChild(line);
+                consoleLogDiv.scrollTop = consoleLogDiv.scrollHeight;
+            }
+
+            const originalLog = console.log;
+            const originalError = console.error;
+            const originalWarn = console.warn;
+            const originalInfo = console.info;
+
+            console.log = function(...args) {
+                originalLog.apply(console, args);
+                appendLog(args.join(' '), 'log');
+            };
+
+            console.error = function(...args) {
+                originalError.apply(console, args);
+                appendLog(args.join(' '), 'error');
+            };
+
+            console.warn = function(...args) {
+                originalWarn.apply(console, args);
+                appendLog(args.join(' '), 'warn');
+            };
+
+            console.info = function(...args) {
+                originalInfo.apply(console, args);
+                appendLog(args.join(' '), 'info');
+            };
+
+            window.addEventListener('error', function(e) {
+                appendLog(`${e.message} em ${e.filename}:${e.lineno}`, 'error');
+            });
+        })();
+
+        function clearConsole() {
+            document.getElementById('console-log').innerHTML = '';
+        }
+
         function runScript() {
             const rawInput = document.getElementById('js-code').value;
             if (!rawInput.trim()) return;
@@ -156,16 +270,14 @@
                     try {
                         ${processedCode}
                     } catch(err) {
-                        alert('Erro de Runtime:\\n' + err.message);
-                        console.error(err);
+                        console.error('Erro de Runtime: ' + err.message);
                     }
                 })();`;
                 
                 document.body.appendChild(scriptElement);
                 document.body.removeChild(scriptElement);
             } catch (err) {
-                alert('Erro de Compilação:\\n' + err.message);
-                console.error(err);
+                console.error('Erro de Compilação: ' + err.message);
             }
         }
     </script>
