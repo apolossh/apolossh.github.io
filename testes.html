@@ -68,7 +68,7 @@
         }
         textarea {
             width: 100%;
-            height: 120px;
+            height: 140px;
             padding: 12px;
             background: #1c1c1e;
             border: 1px solid #2c2c2e;
@@ -108,7 +108,7 @@
 
         <section class="sandbox">
             <div class="test-element">
-                <textarea id="js-code" placeholder="Cole seu código JavaScript ou bookmarklet aqui..." autocapitalize="none" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
+                <textarea id="js-code" placeholder="Cole qualquer formato de script (bruto, IIFE, URL encoded, javascript:...) aqui..." autocapitalize="none" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
                 <button onclick="runScript()">Executar Script</button>
             </div>
 
@@ -124,21 +124,47 @@
 
     <script>
         function runScript() {
-            const code = document.getElementById('js-code').value;
-            if (!code.trim()) return;
+            const rawInput = document.getElementById('js-code').value;
+            if (!rawInput.trim()) return;
             
+            let processedCode = rawInput.trim();
+
+            if (processedCode.toLowerCase().startsWith('javascript:')) {
+                processedCode = processedCode.substring(11).trim();
+            }
+
             try {
-                let cleanCode = code;
-                if (cleanCode.trim().toLowerCase().startsWith('javascript:')) {
-                    cleanCode = decodeURIComponent(cleanCode.substring(11));
-                }
+                processedCode = decodeURIComponent(processedCode);
+            } catch (e) {
+                try {
+                    processedCode = decodeURI(processedCode);
+                } catch (innerError) {}
+            }
+
+            processedCode = processedCode.trim();
+
+            if (processedCode.startsWith('%')) {
+                try {
+                    processedCode = decodeURIComponent(processedCode);
+                } catch (e) {}
+            }
+
+            try {
+                const scriptElement = document.createElement('script');
+                scriptElement.type = 'text/javascript';
+                scriptElement.text = `(function(){
+                    try {
+                        ${processedCode}
+                    } catch(err) {
+                        alert('Erro de Runtime:\\n' + err.message);
+                        console.error(err);
+                    }
+                })();`;
                 
-                const result = new Function(cleanCode)();
-                if (result !== undefined) {
-                    console.log(result);
-                }
+                document.body.appendChild(scriptElement);
+                document.body.removeChild(scriptElement);
             } catch (err) {
-                alert('Erro na execução:\n' + err.message);
+                alert('Erro de Compilação:\\n' + err.message);
                 console.error(err);
             }
         }
