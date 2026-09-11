@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#070b14">
+  <title>CallGuard — Controle de chamadas</title>
+
+  <style>
+    :root {
+      --bg: #070b14;
+      --card: rgba(19, 29, 48, .84);
+      --border: rgba(255,255,255,.1);
+      --text: #f8fafc;
+      --muted: #9aa8bd;
+      --blue: #4f8cff;
+      --red: #ff5d6c;
+      --green: #35d39a;
+      --orange: #ffb454;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px 16px 40px;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(79,140,255,.22), transparent 35%),
+        radial-gradient(circle at 100% 20%, rgba(53,211,154,.1), transparent 28%),
+        var(--bg);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 540px;
+      margin: auto;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 36px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .brand-icon,
+    .creator-avatar {
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(145deg, #3979f6, #1d4ed8);
+      box-shadow: 0 9px 25px rgba(37,99,235,.3);
+      font-size: 19px;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 11px;
+      border: 1px solid rgba(53,211,154,.2);
+      border-radius: 999px;
+      background: rgba(53,211,154,.08);
+      color: #8af0c8;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 4px rgba(53,211,154,.12);
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 440px;
+      margin: 0 0 14px;
+      font-size: clamp(32px, 8vw, 48px);
+      line-height: 1.04;
+      letter-spacing: -1.8px;
+    }
+
+    .hero-text {
+      margin: 0 0 23px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    .notice,
+    .info-card,
+    .card,
+    .creator-card {
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--card);
+      box-shadow: 0 15px 45px rgba(0,0,0,.17);
+      backdrop-filter: blur(16px);
+    }
+
+    .notice {
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 18px;
+      padding: 17px;
+      border-color: rgba(255,180,84,.2);
+      background: linear-gradient(
+        135deg,
+        rgba(255,180,84,.12),
+        rgba(255,180,84,.04)
+      );
+    }
+
+    .notice::before {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 3px;
+      background: var(--orange);
+      content: "";
+    }
+
+    .notice-title {
+      margin-bottom: 8px;
+      color: #ffd08a;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .notice p {
+      margin: 0;
+      color: #d4b98e;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .info-card {
+      margin-bottom: 22px;
+      padding: 19px;
+      background: linear-gradient(
+        145deg,
+        rgba(79,140,255,.12),
+        rgba(255,255,255,.035)
+      );
+    }
+
+    .info-title,
+    .creator-header {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .info-title {
+      margin-bottom: 13px;
+    }
+
+    .info-icon {
+      display: grid;
+      width: 35px;
+      height: 35px;
+      place-items: center;
+      border-radius: 11px;
+      background: rgba(79,140,255,.15);
+      color: #8db5ff;
+      font-size: 18px;
+    }
+
+    .info-title h2,
+    .creator-header h2 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .info-card p,
+    .creator-card > p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.62;
+    }
+
+    .info-card strong {
+      color: #dbe8ff;
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      margin: 0 2px 12px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      color: #dce5f4;
+      font-size: 14px;
+    }
+
+    .section-title span {
+      color: #6f8099;
+      font-size: 11px;
+    }
+
+    .actions {
+      display: grid;
+      gap: 12px;
+    }
+
+    .card {
+      padding: 17px;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .card-icon {
+      display: grid;
+      flex: 0 0 40px;
+      width: 40px;
+      height: 40px;
+      place-items: center;
+      border-radius: 13px;
+      font-size: 18px;
+    }
+
+    .blue {
+      background: rgba(79,140,255,.14);
+      color: #8db5ff;
+    }
+
+    .red {
+      background: rgba(255,93,108,.14);
+      color: #ff929c;
+    }
+
+    .gray {
+      background: rgba(154,168,189,.13);
+      color: #c3cede;
+    }
+
+    .card h3 {
+      margin: 1px 0 5px;
+      font-size: 15px;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+
+    .ussd {
+      display: block;
+      margin: 16px 0 13px;
+      padding: 12px 14px;
+      overflow-x: auto;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 11px;
+      background: #080d18;
+      color: #dce8ff;
+      font-family: monospace;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 47px;
+      padding: 13px 16px;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      text-decoration: none;
+      transition: .15s;
+    }
+
+    .button:active,
+    .creator-link:active {
+      transform: scale(.98);
+      filter: brightness(.85);
+    }
+
+    .button-blue {
+      background: linear-gradient(135deg, #5792ff, #2563eb);
+    }
+
+    .button-red {
+      background: linear-gradient(135deg, #ff6877, #dc2626);
+    }
+
+    .button-gray {
+      background: linear-gradient(135deg, #64748b, #475467);
+    }
+
+    .creator-card {
+      margin-top: 24px;
+      padding: 19px;
+      background: linear-gradient(
+        145deg,
+        rgba(255,255,255,.075),
+        rgba(255,255,255,.025)
+      );
+    }
+
+    .creator-header {
+      margin-bottom: 13px;
+    }
+
+    .creator-avatar {
+      width: 43px;
+      height: 43px;
+      border-radius: 14px;
+      background: linear-gradient(145deg, #8b5cf6, #5b21b6);
+      box-shadow: 0 8px 22px rgba(124,58,237,.28);
+      font-size: 18px;
+    }
+
+    .creator-label {
+      display: block;
+      margin-bottom: 3px;
+      color: #8797ae;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .4px;
+      text-transform: uppercase;
+    }
+
+    .creator-header h2 {
+      font-size: 17px;
+    }
+
+    .creator-links {
+      display: grid;
+      gap: 9px;
+      margin-top: 15px;
+    }
+
+    .creator-link {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-height: 56px;
+      padding: 10px 13px;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 13px;
+      color: #f8fafc;
+      text-decoration: none;
+      transition: .15s;
+    }
+
+    .creator-link.whatsapp {
+      background: rgba(37,211,102,.08);
+    }
+
+    .creator-link.instagram {
+      background: rgba(225,48,108,.08);
+    }
+
+    .contact-icon {
+      display: grid;
+      flex: 0 0 31px;
+      width: 31px;
+      height: 31px;
+      place-items: center;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 17px;
+      font-weight: bold;
+    }
+
+    .whatsapp .contact-icon {
+      background: #20c967;
+    }
+
+    .instagram .contact-icon {
+      background: linear-gradient(135deg, #feda75, #d62976, #4f5bd5);
+    }
+
+    .creator-link span:nth-child(2) {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .creator-link small {
+      color: #94a3b8;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .creator-link strong {
+      color: #94a3b8;
+      font-size: 22px;
+      font-weight: 400;
+    }
+
+    .footer {
+      margin-top: 25px;
+      color: #718198;
+      font-size: 11px;
+      line-height: 1.6;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon">☎</div>
+        <span>CallGuard</span>
+      </div>
+
+      <div class="status">
+        <span class="status-dot"></span>
+        Pronto para usar
+      </div>
+    </header>
+
+    <section>
+      <p class="eyebrow">Controle de chamadas</p>
+
+      <h1>Tenha controle sobre as ligações recebidas.</h1>
+
+      <p class="hero-text">
+        Ative, desative ou consulte o encaminhamento de chamadas diretamente
+        pelo seu celular usando os códigos da operadora.
+      </p>
+    </section>
+
+    <section class="notice">
+      <div class="notice-title">⚠ Importante antes de ativar</div>
+
+      <p>
+        Esta função não bloqueia SPAM diretamente. Ela encaminha todas as
+        chamadas recebidas para outro número. Chamadas importantes também
+        poderão ser encaminhadas.
+      </p>
+    </section>
+
+    <section class="info-card">
+      <div class="info-title">
+        <div class="info-icon">◎</div>
+        <h2>Quando usar esta opção?</h2>
+      </div>
+
+      <p>
+        Indicada para quem <strong>não espera nenhuma ligação importante</strong>
+        e recebe somente chamadas SPAM, propagandas ou ligações indesejadas.
+      </p>
+
+      <p>
+        Ao ativar, o telefone poderá deixar de tocar, pois as chamadas serão
+        direcionadas ao número configurado. Você pode
+        <strong>desativar a qualquer momento</strong> usando o botão vermelho.
+      </p>
+    </section>
+
+    <div class="section-title">
+      <h2>Ações disponíveis</h2>
+      <span>Códigos USSD</span>
+    </div>
+
+    <section class="actions">
+
+      <article class="card">
+        <div class="card-top">
+          <div class="card-icon blue">↗</div>
+
+          <div>
+            <h3>Ativar encaminhamento</h3>
+            <p>
+              Encaminha todas as chamadas para o número configurado.
+              Substitua 888 se necessário.
+            </p>
+          </div>
+        </div>
+
+        <code class="ussd">**21*888#</code>
+
+        <a
+          class="button button-blue"
+          href="tel:**21*888#"
+          onclick="return confirm('Todas as chamadas poderão ser encaminhadas para 888. Deseja abrir o discador?');">
+          Ativar agora
+        </a>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <div class="card-icon red">×</div>
+
+          <div>
+            <h3>Desativar encaminhamento</h3>
+            <p>
+              Cancela o encaminhamento incondicional das chamadas e pode ser
+              usado a qualquer momento.
+            </p>
+          </div>
+        </div>
+
+        <code class="ussd">##21#</code>
+
+        <a
+          class="button button-red"
+          href="tel:##21#"
+          onclick="return confirm('Deseja abrir o discador para desativar o encaminhamento?');">
+          Desativar agora
+        </a>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <div class="card-icon gray">⌕</div>
+
+          <div>
+            <h3>Consultar status</h3>
+            <p>
+              Verifica se o encaminhamento incondicional está ativo.
+            </p>
+          </div>
+        </div>
+
+        <code class="ussd">*#21#</code>
+
+        <a
+          class="button button-gray"
+          href="tel:*#21#">
+          Consultar status
+        </a>
+      </article>
+
+    </section>
+
+    <section class="creator-card">
+      <div class="creator-header">
+        <div class="creator-avatar">A</div>
+
+        <div>
+          <span class="creator-label">Desenvolvido por</span>
+          <h2>Apolo SSH</h2>
+        </div>
+      </div>
+
+      <p>
+        Entre em contato para obter suporte, tirar dúvidas ou conhecer outros
+        projetos.
+      </p>
+
+      <div class="creator-links">
+        <a
+          class="creator-link whatsapp"
+          href="https://wa.me/5511998248013"
+          target="_blank"
+          rel="noopener noreferrer">
+          <span class="contact-icon">◉</span>
+
+          <span>
+            <small>WhatsApp</small>
+            (11) 99824-8013
+          </span>
+
+          <strong>›</strong>
+        </a>
+
+        <a
+          class="creator-link instagram"
+          href="https://www.instagram.com/apolo_ssh/"
+          target="_blank"
+          rel="noopener noreferrer">
+          <span class="contact-icon">◎</span>
+
+          <span>
+            <small>Instagram</small>
+            @apolo_ssh
+          </span>
+
+          <strong>›</strong>
+        </a>
+      </div>
+    </section>
+
+    <footer class="footer">
+      Depois de tocar em um botão, pressione o botão de chamada no discador.
+      Os códigos podem variar conforme a operadora e o país.
+    </footer>
+
+  </main>
+</body>
+</html>
