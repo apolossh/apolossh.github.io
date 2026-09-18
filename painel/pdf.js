@@ -339,29 +339,13 @@ downloadBtn2.addEventListener('click', async ()=>{
   const hora = String(agora.getHours()).padStart(2,'0');
   const min = String(agora.getMinutes()).padStart(2,'0');
   const dataHoraNome = `${dia}-${mes}-${ano}_${hora}h${min}`;
-  const preset = document.getElementById('preset').value;
-  let grade;
-  if (preset !== "custom") {
-    grade = preset;
-  } else {
-    const rows = parseInt(document.getElementById('rows').value) || 2;
-    const cols = parseInt(document.getElementById('cols').value) || 2;
-    grade = `${rows}x${cols}`;
-  }
   const nomeArquivo = `painel_${dataHoraNome}.pdf`;
-  const descricao = 
-`📄 Este painel foi criado em https://apolossh.github.io/painel
-🗓️ Data: ${dia}/${mes}/${ano}
-⏰ Hora: ${hora}:${min}
-📐 Grade: ${grade}`;
   const blob = pdf.output("blob");
   const file = new File([blob], nomeArquivo, { type: "application/pdf" });
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
       await navigator.share({
-        files: [file],
-        title: "Painel PDF",
-        text: descricao
+        files: [file]
       });
     } catch (e) {
       console.log(e);
