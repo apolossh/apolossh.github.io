@@ -8,20 +8,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #1f2937;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #374151;
-            border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #4b5563;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1f2937; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #4b5563; }
     </style>
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col font-sans antialiased">
@@ -36,19 +26,16 @@
                     <p class="text-xs text-gray-400">Tratamento avançado, normalização e identificação de DDD</p>
                 </div>
             </div>
-            <div id="headerActions" class="hidden flex items-center gap-2">
+            <div id="headerActions" class="hidden items-center gap-2">
                 <button onclick="document.getElementById('fileInput').click()" class="bg-gray-800 hover:bg-gray-700 text-gray-200 text-sm font-medium px-3 py-1.5 rounded-lg border border-gray-700 transition flex items-center gap-2">
-                    <i class="fa-solid fa-file-import"></i>
-                    <span>Novo Arquivo</span>
+                    <i class="fa-solid fa-file-import"></i><span>Novo Arquivo</span>
                 </button>
                 <div class="h-6 w-px bg-gray-800 mx-1"></div>
                 <button onclick="exportVCF()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium px-3 py-1.5 rounded-lg transition flex items-center gap-2 shadow">
-                    <i class="fa-solid fa-download"></i>
-                    <span>Exportar VCF</span>
+                    <i class="fa-solid fa-download"></i><span>Exportar VCF</span>
                 </button>
                 <button onclick="exportCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium px-3 py-1.5 rounded-lg transition flex items-center gap-2 shadow">
-                    <i class="fa-solid fa-file-excel"></i>
-                    <span>Exportar CSV</span>
+                    <i class="fa-solid fa-file-excel"></i><span>Exportar CSV</span>
                 </button>
             </div>
         </div>
@@ -62,140 +49,77 @@
                 <i class="fa-solid fa-cloud-arrow-up text-3xl"></i>
             </div>
             <h2 class="text-xl font-bold text-gray-200 mb-2">Importar Arquivo de Contatos (.vcf)</h2>
-            <p class="text-sm text-gray-400 text-center max-w-md mb-6">
-                Arraste seu arquivo vCard aqui ou clique para selecionar. Nenhum dado é enviado para servidor algum, todo processamento é local.
-            </p>
+            <p class="text-sm text-gray-400 text-center max-w-md mb-6">Arraste seu arquivo vCard aqui ou clique para selecionar. Nenhum dado é enviado para servidor algum, todo processamento é local.</p>
             <div class="flex items-center gap-3">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gray-800 text-gray-300 border border-gray-700">
-                    <i class="fa-solid fa-shield-halved text-indigo-400"></i> Processamento Local
-                </span>
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gray-800 text-gray-300 border border-gray-700">
-                    <i class="fa-solid fa-bolt text-yellow-400"></i> Limpeza Instantânea
-                </span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gray-800 text-gray-300 border border-gray-700"><i class="fa-solid fa-shield-halved text-indigo-400"></i> Processamento Local</span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gray-800 text-gray-300 border border-gray-700"><i class="fa-solid fa-bolt text-yellow-400"></i> Limpeza Instantânea</span>
             </div>
         </div>
 
         <div id="appView" class="hidden flex-1 flex flex-col gap-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Total Carregados</p>
-                        <p id="statTotal" class="text-2xl font-bold text-white mt-1">0</p>
-                    </div>
-                    <div class="bg-blue-500/10 text-blue-400 p-3 rounded-lg border border-blue-500/20">
-                        <i class="fa-solid fa-users text-xl"></i>
-                    </div>
+                    <div><p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Total Carregados</p><p id="statTotal" class="text-2xl font-bold text-white mt-1">0</p></div>
+                    <div class="bg-blue-500/10 text-blue-400 p-3 rounded-lg border border-blue-500/20"><i class="fa-solid fa-users text-xl"></i></div>
                 </div>
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Contatos Válidos</p>
-                        <p id="statValid" class="text-2xl font-bold text-emerald-400 mt-1">0</p>
-                    </div>
-                    <div class="bg-emerald-500/10 text-emerald-400 p-3 rounded-lg border border-emerald-500/20">
-                        <i class="fa-solid fa-circle-check text-xl"></i>
-                    </div>
+                    <div><p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Contatos Válidos</p><p id="statValid" class="text-2xl font-bold text-emerald-400 mt-1">0</p></div>
+                    <div class="bg-emerald-500/10 text-emerald-400 p-3 rounded-lg border border-emerald-500/20"><i class="fa-solid fa-circle-check text-xl"></i></div>
                 </div>
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Inválidos / Problemáticos</p>
-                        <p id="statInvalid" class="text-2xl font-bold text-amber-400 mt-1">0</p>
-                    </div>
-                    <div class="bg-amber-500/10 text-amber-400 p-3 rounded-lg border border-amber-500/20">
-                        <i class="fa-solid fa-triangle-exclamation text-xl"></i>
-                    </div>
+                    <div><p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Inválidos / Problemáticos</p><p id="statInvalid" class="text-2xl font-bold text-amber-400 mt-1">0</p></div>
+                    <div class="bg-amber-500/10 text-amber-400 p-3 rounded-lg border border-amber-500/20"><i class="fa-solid fa-triangle-exclamation text-xl"></i></div>
                 </div>
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Duplicados Identificados</p>
-                        <p id="statDuplicates" class="text-2xl font-bold text-rose-400 mt-1">0</p>
-                    </div>
-                    <div class="bg-rose-500/10 text-rose-400 p-3 rounded-lg border border-rose-500/20">
-                        <i class="fa-solid fa-clone text-xl"></i>
-                    </div>
+                    <div><p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Duplicados Identificados</p><p id="statDuplicates" class="text-2xl font-bold text-rose-400 mt-1">0</p></div>
+                    <div class="bg-rose-500/10 text-rose-400 p-3 rounded-lg border border-rose-500/20"><i class="fa-solid fa-clone text-xl"></i></div>
                 </div>
             </div>
 
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 shadow-sm">
                 <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-800">
-                    <h3 class="font-semibold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-wand-magic-sparkles text-indigo-400"></i>
-                        Opções de Sanitização e Sanitização Automática
-                    </h3>
+                    <h3 class="font-semibold text-white flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles text-indigo-400"></i> Opções de Sanitização e Sanitização Automática</h3>
                     <span class="text-xs bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-2.5 py-1 rounded-full font-medium">Auto-Ajustado ao Carregar</span>
                 </div>
-
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <label class="flex items-start gap-3 p-3 bg-gray-950/60 rounded-lg border border-gray-800/80 cursor-pointer hover:border-gray-700 transition">
-                        <input type="checkbox" id="optNormalizeFont" checked onchange="processAllContacts()" class="mt-1 rounded bg-gray-900 border-gray-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-gray-900">
-                        <div>
-                            <span class="text-sm font-medium text-gray-200 block">Normalizar Fontes & Remover Emojis</span>
-                            <span class="text-xs text-gray-400 block mt-0.5">Converte letras estilizadas para caracteres normais e remove símbolos e emojis.</span>
-                        </div>
+                        <input type="checkbox" id="optNormalizeFont" checked onchange="processAllContacts()" class="mt-1 rounded bg-gray-900 border-gray-700 text-indigo-600">
+                        <div><span class="text-sm font-medium text-gray-200 block">Normalizar Fontes & Remover Emojis</span><span class="text-xs text-gray-400 block mt-0.5">Converte letras estilizadas para caracteres normais e remove símbolos e emojis.</span></div>
                     </label>
-
                     <label class="flex items-start gap-3 p-3 bg-gray-950/60 rounded-lg border border-gray-800/80 cursor-pointer hover:border-gray-700 transition">
-                        <input type="checkbox" id="optAlphanumericOnly" checked onchange="processAllContacts()" class="mt-1 rounded bg-gray-900 border-gray-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-gray-900">
-                        <div>
-                            <span class="text-sm font-medium text-gray-200 block">Apenas Letras e Números no Nome</span>
-                            <span class="text-xs text-gray-400 block mt-0.5">Remove pontuações e caracteres especiais, preservando letras, números e espaços.</span>
-                        </div>
+                        <input type="checkbox" id="optAlphanumericOnly" checked onchange="processAllContacts()" class="mt-1 rounded bg-gray-900 border-gray-700 text-indigo-600">
+                        <div><span class="text-sm font-medium text-gray-200 block">Apenas Letras e Números no Nome</span><span class="text-xs text-gray-400 block mt-0.5">Remove pontuações e caracteres especiais, preservando letras, números e espaços.</span></div>
                     </label>
-
                     <label class="flex items-start gap-3 p-3 bg-gray-950/60 rounded-lg border border-gray-800/80 cursor-pointer hover:border-gray-700 transition">
-                        <input type="checkbox" id="optAddDddPrefix" checked onchange="processAllContacts()" class="mt-1 rounded bg-gray-900 border-gray-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-gray-900">
-                        <div>
-                            <span class="text-sm font-medium text-gray-200 block">Adicionar DDD no Final do Nome</span>
-                            <span class="text-xs text-gray-400 block mt-0.5">Extrai o DDD do telefone e adiciona ao final do nome, por exemplo: Joao Silva DDD 11.</span>
-                        </div>
+                        <input type="checkbox" id="optAddDddPrefix" checked onchange="processAllContacts()" class="mt-1 rounded bg-gray-900 border-gray-700 text-indigo-600">
+                        <div><span class="text-sm font-medium text-gray-200 block">Adicionar DDD no Final do Nome</span><span class="text-xs text-gray-400 block mt-0.5">Adiciona o DDD ao final do nome, por exemplo: Joao Silva DDD 11.</span></div>
                     </label>
-
                     <label class="flex items-start gap-3 p-3 bg-gray-950/60 rounded-lg border border-gray-800/80 cursor-pointer hover:border-gray-700 transition">
-                        <input type="checkbox" id="optRequirePhone" checked onchange="processAllContacts()" class="mt-1 rounded bg-gray-900 border-gray-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-gray-900">
-                        <div>
-                            <span class="text-sm font-medium text-gray-200 block">Exigir Telefone Válido</span>
-                            <span class="text-xs text-gray-400 block mt-0.5">Marca como inválidos os contatos sem telefone cadastrado.</span>
-                        </div>
+                        <input type="checkbox" id="optRequirePhone" checked onchange="processAllContacts()" class="mt-1 rounded bg-gray-900 border-gray-700 text-indigo-600">
+                        <div><span class="text-sm font-medium text-gray-200 block">Exigir Telefone Válido</span><span class="text-xs text-gray-400 block mt-0.5">Marca como inválidos os contatos sem telefone cadastrado.</span></div>
                     </label>
-
                     <label class="flex items-start gap-3 p-3 bg-gray-950/60 rounded-lg border border-gray-800/80 cursor-pointer hover:border-gray-700 transition">
-                        <input type="checkbox" id="optMinPhoneLength" checked onchange="processAllContacts()" class="mt-1 rounded bg-gray-900 border-gray-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-gray-900">
-                        <div>
-                            <span class="text-sm font-medium text-gray-200 block">Mínimo de Dígitos no Telefone</span>
-                            <span class="text-xs text-gray-400 block mt-0.5">Rejeita telefones com menos de 8 dígitos, desconsiderando o código do país.</span>
-                        </div>
+                        <input type="checkbox" id="optMinPhoneLength" checked onchange="processAllContacts()" class="mt-1 rounded bg-gray-900 border-gray-700 text-indigo-600">
+                        <div><span class="text-sm font-medium text-gray-200 block">Mínimo de Dígitos no Telefone</span><span class="text-xs text-gray-400 block mt-0.5">Rejeita telefones com menos de 8 dígitos, desconsiderando o código do país.</span></div>
                     </label>
-
                     <label class="flex items-start gap-3 p-3 bg-gray-950/60 rounded-lg border border-gray-800/80 cursor-pointer hover:border-gray-700 transition">
-                        <input type="checkbox" id="optRequireName" checked onchange="processAllContacts()" class="mt-1 rounded bg-gray-900 border-gray-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-gray-900">
-                        <div>
-                            <span class="text-sm font-medium text-gray-200 block">Exigir Nome Válido</span>
-                            <span class="text-xs text-gray-400 block mt-0.5">Marca como inválidos os contatos cujo nome fique em branco após a limpeza.</span>
-                        </div>
+                        <input type="checkbox" id="optRequireName" checked onchange="processAllContacts()" class="mt-1 rounded bg-gray-900 border-gray-700 text-indigo-600">
+                        <div><span class="text-sm font-medium text-gray-200 block">Exigir Nome Válido</span><span class="text-xs text-gray-400 block mt-0.5">Marca como inválidos os contatos cujo nome fique em branco após a limpeza.</span></div>
                     </label>
                 </div>
             </div>
 
             <div class="flex flex-col sm:flex-row gap-4 items-center justify-between bg-gray-900/80 p-4 rounded-xl border border-gray-800">
                 <div class="flex items-center gap-2 w-full sm:w-auto">
-                    <button id="tabValidBtn" onclick="switchTab('valid')" class="flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow">
-                        <i class="fa-solid fa-check-circle"></i>
-                        <span>Válidos (<span id="tabValidCount">0</span>)</span>
-                    </button>
-                    <button id="tabInvalidBtn" onclick="switchTab('invalid')" class="flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2 bg-gray-800 text-gray-400 hover:text-gray-200 border border-gray-700">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                        <span>Inválidos / Para Remover (<span id="tabInvalidCount">0</span>)</span>
-                    </button>
+                    <button id="tabValidBtn" onclick="switchTab('valid')" class="flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow"><i class="fa-solid fa-check-circle"></i><span>Válidos (<span id="tabValidCount">0</span>)</span></button>
+                    <button id="tabInvalidBtn" onclick="switchTab('invalid')" class="flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2 bg-gray-800 text-gray-400 hover:text-gray-200 border border-gray-700"><i class="fa-solid fa-triangle-exclamation"></i><span>Inválidos / Para Remover (<span id="tabInvalidCount">0</span>)</span></button>
                 </div>
-
                 <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
                     <div class="relative w-full sm:w-64">
                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
                         <input type="text" id="searchInput" oninput="renderTable()" placeholder="Buscar contato ou número..." class="w-full bg-gray-950 border border-gray-800 rounded-lg pl-9 pr-3 py-1.5 text-sm text-gray-200 focus:outline-none focus:border-indigo-500">
                     </div>
-                    <button id="btnRemoveInvalid" onclick="purgeInvalidContacts()" class="hidden bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/30 text-xs font-semibold px-3 py-2 rounded-lg transition whitespace-nowrap flex items-center gap-1.5">
-                        <i class="fa-solid fa-trash-can"></i>
-                        <span>Apagar Todos Inválidos</span>
-                    </button>
+                    <button id="btnRemoveInvalid" onclick="purgeInvalidContacts()" class="hidden bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/30 text-xs font-semibold px-3 py-2 rounded-lg transition whitespace-nowrap items-center gap-1.5"><i class="fa-solid fa-trash-can"></i><span>Apagar Todos Inválidos</span></button>
                 </div>
             </div>
 
@@ -203,467 +127,573 @@
                 <div class="overflow-x-auto custom-scrollbar flex-1">
                     <table class="w-full text-left text-sm text-gray-300">
                         <thead class="bg-gray-950 text-xs uppercase text-gray-400 border-b border-gray-800 sticky top-0 z-10">
-                            <tr>
-                                <th class="px-4 py-3.5 w-12 text-center">#</th>
-                                <th class="px-4 py-3.5">Nome Tratado</th>
-                                <th class="px-4 py-3.5">Telefone</th>
-                                <th class="px-4 py-3.5">DDD Extraído</th>
-                                <th class="px-4 py-3.5" id="colStatusHeader">Status / Motivo</th>
-                                <th class="px-4 py-3.5 text-right">Ações</th>
-                            </tr>
+                            <tr><th class="px-4 py-3.5 w-12 text-center">#</th><th class="px-4 py-3.5">Nome Tratado</th><th class="px-4 py-3.5">Telefone</th><th class="px-4 py-3.5">DDD Extraído</th><th class="px-4 py-3.5" id="colStatusHeader">Status / Motivo</th><th class="px-4 py-3.5 text-right">Ações</th></tr>
                         </thead>
                         <tbody id="contactTableBody" class="divide-y divide-gray-800/60 bg-gray-900/40"></tbody>
                     </table>
                 </div>
-
                 <div class="bg-gray-950 px-4 py-3 border-t border-gray-800 flex items-center justify-between text-xs text-gray-400">
-                    <div>
-                        Exibindo <span id="showingCount" class="font-medium text-gray-200">0</span> de <span id="totalFilterCount" class="font-medium text-gray-200">0</span> contatos
-                    </div>
-                    <div id="tableFooterAction">
-                        <button onclick="addNewBlankContact()" class="text-indigo-400 hover:text-indigo-300 font-medium flex items-center gap-1">
-                            <i class="fa-solid fa-plus-circle"></i> Adicionar Manualmente
-                        </button>
-                    </div>
+                    <div>Exibindo <span id="showingCount" class="font-medium text-gray-200">0</span> de <span id="totalFilterCount" class="font-medium text-gray-200">0</span> contatos</div>
+                    <div id="tableFooterAction"><button onclick="addNewBlankContact()" class="text-indigo-400 hover:text-indigo-300 font-medium flex items-center gap-1"><i class="fa-solid fa-plus-circle"></i> Adicionar Manualmente</button></div>
                 </div>
             </div>
         </div>
     </main>
 
-    <script>
-        let rawContacts = [];
-        let processedContacts = [];
-        let activeTab = 'valid';
+<script>
+let rawContacts = [];
+let processedContacts = [];
+let activeTab = 'valid';
 
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (file) readFile(file);
-            event.target.value = '';
-        }
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (file) readFile(file);
+    event.target.value = '';
+}
 
-        function handleDragOver(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
+function handleDragOver(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    document.getElementById('dropZone').classList.add('border-indigo-500');
+}
 
-        function handleDragLeave(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
+function handleDragLeave(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    document.getElementById('dropZone').classList.remove('border-indigo-500');
+}
 
-        function handleDrop(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const files = e.dataTransfer.files;
-            if (files.length > 0) readFile(files[0]);
-        }
+function handleDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    document.getElementById('dropZone').classList.remove('border-indigo-500');
+    if (e.dataTransfer.files.length) readFile(e.dataTransfer.files[0]);
+}
 
-        function readFile(file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                parseVCF(e.target.result);
-                document.getElementById('dropZone').classList.add('hidden');
-                document.getElementById('appView').classList.remove('hidden');
-                document.getElementById('headerActions').classList.remove('hidden');
-                document.getElementById('headerActions').classList.add('flex');
-                processAllContacts();
+function readFile(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        parseVCF(String(e.target.result || ''));
+        document.getElementById('dropZone').classList.add('hidden');
+        document.getElementById('appView').classList.remove('hidden');
+        document.getElementById('headerActions').classList.remove('hidden');
+        document.getElementById('headerActions').classList.add('flex');
+        processAllContacts();
+    };
+    reader.onerror = () => alert('Não foi possível ler o arquivo. Tente selecionar o VCF novamente.');
+    reader.readAsText(file);
+}
+
+function unfoldVCardLines(text) {
+    return String(text || '')
+        .replace(/=\r?\n/g, '')
+        .replace(/\r\n/g, '\n')
+        .replace(/\r/g, '\n')
+        .replace(/\n[ \t]/g, '');
+}
+
+function splitVCardLine(line) {
+    let quoted = false;
+    for (let i = 0; i < line.length; i++) {
+        if (line[i] === '"') quoted = !quoted;
+        if (line[i] === ':' && !quoted) {
+            return {
+                property: line.slice(0, i),
+                value: line.slice(i + 1)
             };
-            reader.readAsText(file);
         }
+    }
+    return null;
+}
 
-        function parseVCF(vcfText) {
-            rawContacts = [];
-            const unfoldedText = vcfText.replace(/\r?\n[ \t]/g, '');
-            const vcards = unfoldedText.split(/END:VCARD/i);
+function decodeQuotedPrintable(value) {
+    try {
+        if (!/=([0-9a-f]{2})/i.test(value)) return value;
+        return decodeURIComponent(value.replace(/=([0-9a-f]{2})/gi, '%$1'));
+    } catch {
+        return value.replace(/=([0-9a-f]{2})/gi, (_, hex) =>
+            String.fromCharCode(parseInt(hex, 16))
+        );
+    }
+}
 
-            vcards.forEach((card, idx) => {
-                if (!card.trim()) return;
+function decodeVCardValue(value, property) {
+    let result = String(value || '');
+    if (/ENCODING\s*=\s*QUOTED-PRINTABLE/i.test(property)) {
+        result = decodeQuotedPrintable(result);
+    }
+    return result
+        .replace(/\\n/gi, '\n')
+        .replace(/\\,/g, ',')
+        .replace(/\\;/g, ';')
+        .replace(/\\\\/g, '\\')
+        .trim();
+}
 
-                let name = '';
-                let phone = '';
-                let email = '';
-                let org = '';
+function propertyBaseName(property) {
+    return String(property || '')
+        .split(';')[0]
+        .split('.')
+        .pop()
+        .toUpperCase();
+}
 
-                const lines = card.split(/\r\n|\r|\n/);
+function parseVCF(vcfText) {
+    rawContacts = [];
+    const unfolded = unfoldVCardLines(vcfText);
+    const matches = unfolded.match(/BEGIN:VCARD[\s\S]*?END:VCARD/gi) || [];
 
-                lines.forEach(line => {
-                    const upperLine = line.toUpperCase();
+    matches.forEach((card, index) => {
+        let fnName = '';
+        let structuredName = '';
+        const phones = [];
+        let email = '';
+        let org = '';
 
-                    if (upperLine.startsWith('FN:') || upperLine.startsWith('FN;')) {
-                        const colonIdx = line.indexOf(':');
-                        if (colonIdx !== -1 && !name) {
-                            name = line.substring(colonIdx + 1).trim();
-                        }
-                    } else if (!name && (upperLine.startsWith('N:') || upperLine.startsWith('N;'))) {
-                        const colonIdx = line.indexOf(':');
-                        if (colonIdx !== -1) {
-                            const parts = line.substring(colonIdx + 1).split(';');
-                            name = [parts[1], parts[0], parts[2], parts[3], parts[4]]
-                                .filter(p => p && p.trim())
-                                .join(' ')
-                                .trim();
-                        }
-                    } else if (upperLine.startsWith('TEL') && !phone) {
-                        const colonIdx = line.indexOf(':');
-                        if (colonIdx !== -1) {
-                            phone = line.substring(colonIdx + 1).trim();
-                        }
-                    } else if (upperLine.startsWith('EMAIL') && !email) {
-                        const colonIdx = line.indexOf(':');
-                        if (colonIdx !== -1) {
-                            email = line.substring(colonIdx + 1).trim();
-                        }
-                    } else if (upperLine.startsWith('ORG:')) {
-                        org = line.substring(4).trim();
-                    }
-                });
+        const lines = card.split('\n');
 
-                rawContacts.push({
-                    id: idx + 1,
-                    originalName: name || '',
-                    originalPhone: phone || '',
-                    email,
-                    org
-                });
-            });
-        }
+        for (const line of lines) {
+            const parsed = splitVCardLine(line);
+            if (!parsed) continue;
 
-        function toNormalText(str) {
-            if (!str) return '';
+            const property = parsed.property.trim();
+            const base = propertyBaseName(property);
+            let value = decodeVCardValue(parsed.value, property);
 
-            let normalized = str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-            let result = '';
-
-            for (let i = 0; i < normalized.length; i++) {
-                const code = normalized.codePointAt(i);
-
-                if (code >= 0x1D400 && code <= 0x1D7FF) {
-                    let offset = 0;
-
-                    if (code >= 0x1D400 && code <= 0x1D419) offset = code - 0x1D400 + 65;
-                    else if (code >= 0x1D41A && code <= 0x1D433) offset = code - 0x1D41A + 97;
-                    else if (code >= 0x1D434 && code <= 0x1D44D) offset = code - 0x1D434 + 65;
-                    else if (code >= 0x1D44E && code <= 0x1D467) offset = code - 0x1D44E + 97;
-                    else if (code >= 0x1D468 && code <= 0x1D481) offset = code - 0x1D468 + 65;
-                    else if (code >= 0x1D482 && code <= 0x1D49B) offset = code - 0x1D482 + 97;
-                    else if (code >= 0x1D5D4 && code <= 0x1D5ED) offset = code - 0x1D5D4 + 65;
-                    else if (code >= 0x1D5EE && code <= 0x1D607) offset = code - 0x1D5EE + 97;
-                    else if (code >= 0x1D7CE && code <= 0x1D7D7) offset = code - 0x1D7CE + 48;
-
-                    if (offset > 0) {
-                        result += String.fromCharCode(offset);
-                        if (code > 0xFFFF) i++;
-                        continue;
-                    }
-                }
-
-                result += normalized[i];
+            if (base === 'FN' && value && !fnName) {
+                fnName = value;
+            } else if (base === 'N' && value && !structuredName) {
+                const parts = value.split(';');
+                structuredName = [parts[1], parts[0], parts[2], parts[3], parts[4]]
+                    .filter(part => part && part.trim())
+                    .join(' ')
+                    .trim();
+            } else if (base === 'TEL' && value) {
+                if (/^tel:/i.test(value)) value = value.replace(/^tel:/i, '');
+                if (/\d/.test(value)) phones.push(value);
+            } else if (base === 'EMAIL' && value && !email) {
+                email = value;
+            } else if (base === 'ORG' && value && !org) {
+                org = value.replace(/;/g, ' ').trim();
             }
-
-            return result;
         }
 
-        function cleanAlphanumericOnly(str) {
-            if (!str) return '';
-            return str.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
-        }
+        const name = fnName || structuredName || '';
+        const phone = chooseBestPhone(phones);
 
-        function extractDDD(phoneStr) {
-            if (!phoneStr) return '';
+        rawContacts.push({
+            id: index + 1,
+            originalName: name,
+            originalPhone: phone,
+            originalPhones: phones,
+            email,
+            org
+        });
+    });
 
-            const digits = phoneStr.replace(/\D/g, '');
-            if (!digits) return '';
+    if (!matches.length && unfolded.trim()) {
+        alert('Não foram encontrados blocos BEGIN:VCARD / END:VCARD neste arquivo.');
+    }
+}
 
-            let localDigits = digits;
+function chooseBestPhone(phones) {
+    if (!phones || !phones.length) return '';
+    return phones.find(phone => digitsFromPhone(phone).length >= 8) || phones[0] || '';
+}
 
-            if (localDigits.startsWith('55') && localDigits.length >= 12) {
-                localDigits = localDigits.substring(2);
+function toNormalText(str) {
+    if (!str) return '';
+
+    let value = String(str);
+
+    try {
+        value = value.normalize('NFKD');
+    } catch {}
+
+    value = value
+        .replace(/[\u0300-\u036f\u1ab0-\u1aff\u1dc0-\u1dff\u20d0-\u20ff\ufe20-\ufe2f]/g, '')
+        .replace(/[\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF]/g, '');
+
+    const mathematicalRanges = [
+        [0x1D400, 0x1D419, 65], [0x1D41A, 0x1D433, 97],
+        [0x1D434, 0x1D44D, 65], [0x1D44E, 0x1D467, 97],
+        [0x1D468, 0x1D481, 65], [0x1D482, 0x1D49B, 97],
+        [0x1D5A0, 0x1D5B9, 65], [0x1D5BA, 0x1D5D3, 97],
+        [0x1D5D4, 0x1D5ED, 65], [0x1D5EE, 0x1D607, 97],
+        [0x1D608, 0x1D621, 65], [0x1D622, 0x1D63B, 97],
+        [0x1D63C, 0x1D655, 65], [0x1D656, 0x1D66F, 97],
+        [0x1D670, 0x1D689, 65], [0x1D68A, 0x1D6A3, 97],
+        [0x1D7CE, 0x1D7D7, 48], [0x1D7D8, 0x1D7E1, 48],
+        [0x1D7E2, 0x1D7EB, 48], [0x1D7EC, 0x1D7F5, 48],
+        [0x1D7F6, 0x1D7FF, 48]
+    ];
+
+    let result = '';
+    for (const char of value) {
+        const code = char.codePointAt(0);
+        let replacement = null;
+
+        for (const [start, end, base] of mathematicalRanges) {
+            if (code >= start && code <= end) {
+                replacement = String.fromCharCode(base + code - start);
+                break;
             }
+        }
 
-            if (localDigits.length >= 10) {
-                return localDigits.substring(0, 2);
+        result += replacement === null ? char : replacement;
+    }
+
+    return result;
+}
+
+function cleanAlphanumericOnly(str) {
+    if (!str) return '';
+
+    let value = toNormalText(str);
+    try {
+        value = value.replace(/[^\p{L}\p{N}\s]/gu, ' ');
+    } catch {
+        value = value.replace(/[^a-zA-Z0-9À-ÿ\s]/g, ' ');
+    }
+
+    return value.replace(/\s+/g, ' ').trim();
+}
+
+function digitsFromPhone(phone) {
+    return String(phone || '').replace(/\D/g, '');
+}
+
+function nationalPhoneDigits(phone) {
+    let digits = digitsFromPhone(phone);
+
+    if (digits.startsWith('00')) digits = digits.slice(2);
+
+    if (digits.startsWith('55') && (digits.length === 12 || digits.length === 13)) {
+        digits = digits.slice(2);
+    }
+
+    return digits;
+}
+
+function normalizedPhoneKey(phone) {
+    return nationalPhoneDigits(phone);
+}
+
+function extractDDD(phoneStr) {
+    const digits = nationalPhoneDigits(phoneStr);
+
+    if (digits.length === 10 || digits.length === 11) {
+        return digits.slice(0, 2);
+    }
+
+    return '';
+}
+
+function processAllContacts() {
+    const optNormalizeFont = document.getElementById('optNormalizeFont').checked;
+    const optAlphanumericOnly = document.getElementById('optAlphanumericOnly').checked;
+    const optAddDddPrefix = document.getElementById('optAddDddPrefix').checked;
+    const optRequirePhone = document.getElementById('optRequirePhone').checked;
+    const optMinPhoneLength = document.getElementById('optMinPhoneLength').checked;
+    const optRequireName = document.getElementById('optRequireName').checked;
+
+    const seenPhones = new Set();
+    let validCount = 0;
+    let invalidCount = 0;
+    let duplicateCount = 0;
+
+    processedContacts = rawContacts.map(item => {
+        const cleanPhone = String(item.originalPhone || '').trim();
+        const digitsOnly = digitsFromPhone(cleanPhone);
+        const comparableDigits = nationalPhoneDigits(cleanPhone);
+        const ddd = extractDDD(cleanPhone);
+
+        let cleanedName = String(item.originalName || '');
+
+        if (optNormalizeFont) {
+            cleanedName = toNormalText(cleanedName);
+        }
+
+        cleanedName = cleanedName.replace(/\s*DDD\s*\d+\s*$/i, '').trim();
+
+        if (optAlphanumericOnly) {
+            cleanedName = cleanAlphanumericOnly(cleanedName);
+        } else {
+            cleanedName = cleanedName.replace(/\s+/g, ' ').trim();
+        }
+
+        let isValid = true;
+        const reasons = [];
+
+        if (optRequirePhone && !digitsOnly) {
+            isValid = false;
+            reasons.push('Sem telefone registrado');
+        }
+
+        if (optMinPhoneLength && digitsOnly) {
+            const lengthToCheck = comparableDigits || digitsOnly;
+
+            if (lengthToCheck.length < 8) {
+                isValid = false;
+                reasons.push('Telefone menor que 8 dígitos');
             }
-
-            return '';
         }
 
-        function processAllContacts() {
-            const optNormalizeFont = document.getElementById('optNormalizeFont').checked;
-            const optAlphanumericOnly = document.getElementById('optAlphanumericOnly').checked;
-            const optAddDddPrefix = document.getElementById('optAddDddPrefix').checked;
-            const optRequirePhone = document.getElementById('optRequirePhone').checked;
-            const optMinPhoneLength = document.getElementById('optMinPhoneLength').checked;
-            const optRequireName = document.getElementById('optRequireName').checked;
-
-            const seenPhones = new Set();
-            let validCount = 0;
-            let invalidCount = 0;
-            let duplicateCount = 0;
-
-            processedContacts = rawContacts.map(item => {
-                const cleanPhone = item.originalPhone.trim();
-                const digitsOnly = cleanPhone.replace(/\D/g, '');
-                const ddd = extractDDD(cleanPhone);
-
-                let cleanedName = item.originalName;
-
-                if (optNormalizeFont) {
-                    cleanedName = toNormalText(cleanedName);
-                }
-
-                cleanedName = cleanedName.replace(/\s*DDD\s*\d+\s*$/i, '').trim();
-
-                if (optAlphanumericOnly) {
-                    cleanedName = cleanAlphanumericOnly(cleanedName);
-                }
-
-                cleanedName = cleanedName.replace(/\s+/g, ' ').trim();
-
-                if (optAddDddPrefix && ddd) {
-                    cleanedName = `${cleanedName} DDD ${ddd}`.trim();
-                }
-
-                let isValid = true;
-                const reasons = [];
-
-                if (optRequirePhone && !digitsOnly) {
-                    isValid = false;
-                    reasons.push('Sem telefone registrado');
-                }
-
-                if (optMinPhoneLength && digitsOnly) {
-                    let relativeDigits = digitsOnly;
-
-                    if (relativeDigits.startsWith('55') && relativeDigits.length >= 12) {
-                        relativeDigits = relativeDigits.substring(2);
-                    }
-
-                    if (relativeDigits.length < 8) {
-                        isValid = false;
-                        reasons.push('Telefone menor que 8 dígitos');
-                    }
-                }
-
-                if (optRequireName && !cleanedName) {
-                    isValid = false;
-                    reasons.push('Nome em branco após sanitização');
-                }
-
-                if (digitsOnly) {
-                    if (seenPhones.has(digitsOnly)) {
-                        isValid = false;
-                        reasons.push('Número duplicado');
-                        duplicateCount++;
-                    } else {
-                        seenPhones.add(digitsOnly);
-                    }
-                }
-
-                if (isValid) validCount++;
-                else invalidCount++;
-
-                return {
-                    id: item.id,
-                    name: cleanedName || item.originalName || 'Sem Nome',
-                    phone: cleanPhone,
-                    ddd: ddd || 'N/A',
-                    email: item.email,
-                    org: item.org,
-                    isValid,
-                    reasons
-                };
-            });
-
-            document.getElementById('statTotal').innerText = processedContacts.length;
-            document.getElementById('statValid').innerText = validCount;
-            document.getElementById('statInvalid').innerText = invalidCount;
-            document.getElementById('statDuplicates').innerText = duplicateCount;
-            document.getElementById('tabValidCount').innerText = validCount;
-            document.getElementById('tabInvalidCount').innerText = invalidCount;
-
-            renderTable();
+        if (optRequireName && !cleanedName) {
+            isValid = false;
+            reasons.push('Nome em branco após sanitização');
         }
 
-        function switchTab(tab) {
-            activeTab = tab;
-
-            const validBtn = document.getElementById('tabValidBtn');
-            const invalidBtn = document.getElementById('tabInvalidBtn');
-            const removeInvalidBtn = document.getElementById('btnRemoveInvalid');
-
-            if (tab === 'valid') {
-                validBtn.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow';
-                invalidBtn.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2 bg-gray-800 text-gray-400 hover:text-gray-200 border border-gray-700';
-                removeInvalidBtn.classList.add('hidden');
+        if (comparableDigits.length >= 8) {
+            if (seenPhones.has(comparableDigits)) {
+                isValid = false;
+                reasons.push('Número duplicado');
+                duplicateCount++;
             } else {
-                invalidBtn.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2 bg-rose-600 text-white shadow';
-                validBtn.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2 bg-gray-800 text-gray-400 hover:text-gray-200 border border-gray-700';
-                removeInvalidBtn.classList.remove('hidden');
-            }
-
-            renderTable();
-        }
-
-        function renderTable() {
-            const tbody = document.getElementById('contactTableBody');
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-
-            const filtered = processedContacts.filter(c => {
-                const matchesTab = activeTab === 'valid' ? c.isValid : !c.isValid;
-                const matchesSearch = c.name.toLowerCase().includes(searchTerm) || c.phone.toLowerCase().includes(searchTerm);
-                return matchesTab && matchesSearch;
-            });
-
-            document.getElementById('showingCount').innerText = filtered.length;
-            document.getElementById('totalFilterCount').innerText = processedContacts.filter(c => activeTab === 'valid' ? c.isValid : !c.isValid).length;
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="px-4 py-12 text-center text-gray-500">
-                            <i class="fa-solid fa-folder-open text-3xl mb-2 block"></i>
-                            Nenhum contato encontrado nesta visualização.
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            tbody.innerHTML = filtered.map((c, index) => `
-                <tr class="hover:bg-gray-800/40 transition group">
-                    <td class="px-4 py-3 text-center text-xs text-gray-500 font-mono">${index + 1}</td>
-                    <td class="px-4 py-3">
-                        <input type="text" value="${escapeHtml(c.name)}" onchange="updateContactField(${c.id}, 'name', this.value)" class="bg-transparent border border-transparent hover:border-gray-700 focus:border-indigo-500 rounded px-2 py-1 text-sm font-medium text-gray-100 w-full focus:outline-none focus:bg-gray-950 transition">
-                    </td>
-                    <td class="px-4 py-3">
-                        <input type="text" value="${escapeHtml(c.phone)}" onchange="updateContactField(${c.id}, 'phone', this.value)" class="bg-transparent border border-transparent hover:border-gray-700 focus:border-indigo-500 rounded px-2 py-1 text-sm text-gray-300 font-mono w-full focus:outline-none focus:bg-gray-950 transition">
-                    </td>
-                    <td class="px-4 py-3">
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${c.ddd !== 'N/A' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-gray-800 text-gray-500'} font-mono">
-                            ${escapeHtml(c.ddd)}
-                        </span>
-                    </td>
-                    <td class="px-4 py-3">
-                        ${c.isValid
-                            ? `<span class="inline-flex items-center gap-1 text-xs text-emerald-400 font-medium"><i class="fa-solid fa-check"></i> Válido</span>`
-                            : `<span class="inline-flex items-center gap-1 text-xs text-rose-400 font-medium bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded"><i class="fa-solid fa-xmark"></i> ${escapeHtml(c.reasons.join(', '))}</span>`
-                        }
-                    </td>
-                    <td class="px-4 py-3 text-right">
-                        <button onclick="deleteContact(${c.id})" title="Excluir Contato" class="text-gray-500 hover:text-rose-400 p-1.5 rounded transition">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function updateContactField(id, field, value) {
-            const raw = rawContacts.find(r => r.id === id);
-
-            if (raw) {
-                if (field === 'name') raw.originalName = value;
-                if (field === 'phone') raw.originalPhone = value;
-                processAllContacts();
+                seenPhones.add(comparableDigits);
             }
         }
 
-        function deleteContact(id) {
-            rawContacts = rawContacts.filter(r => r.id !== id);
-            processAllContacts();
+        let displayName = cleanedName || String(item.originalName || '').trim() || 'Sem Nome';
+
+        if (optAddDddPrefix && ddd) {
+            displayName = displayName.replace(/\s*DDD\s*\d+\s*$/i, '').trim();
+            displayName = `${displayName} DDD ${ddd}`.trim();
         }
 
-        function purgeInvalidContacts() {
-            const invalidIds = new Set(processedContacts.filter(c => !c.isValid).map(c => c.id));
-            rawContacts = rawContacts.filter(r => !invalidIds.has(r.id));
-            processAllContacts();
+        if (isValid) validCount++;
+        else invalidCount++;
+
+        return {
+            id: item.id,
+            name: displayName,
+            phone: cleanPhone,
+            ddd: ddd || 'N/A',
+            email: item.email || '',
+            org: item.org || '',
+            isValid,
+            reasons,
+            originalName: item.originalName || '',
+            normalizedDigits: comparableDigits
+        };
+    });
+
+    document.getElementById('statTotal').innerText = processedContacts.length;
+    document.getElementById('statValid').innerText = validCount;
+    document.getElementById('statInvalid').innerText = invalidCount;
+    document.getElementById('statDuplicates').innerText = duplicateCount;
+    document.getElementById('tabValidCount').innerText = validCount;
+    document.getElementById('tabInvalidCount').innerText = invalidCount;
+
+    renderTable();
+}
+
+function switchTab(tab) {
+    activeTab = tab;
+
+    const validBtn = document.getElementById('tabValidBtn');
+    const invalidBtn = document.getElementById('tabInvalidBtn');
+    const removeInvalidBtn = document.getElementById('btnRemoveInvalid');
+
+    if (tab === 'valid') {
+        validBtn.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow';
+        invalidBtn.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2 bg-gray-800 text-gray-400 hover:text-gray-200 border border-gray-700';
+        removeInvalidBtn.classList.add('hidden');
+        removeInvalidBtn.classList.remove('flex');
+    } else {
+        invalidBtn.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2 bg-rose-600 text-white shadow';
+        validBtn.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2 bg-gray-800 text-gray-400 hover:text-gray-200 border border-gray-700';
+        removeInvalidBtn.classList.remove('hidden');
+        removeInvalidBtn.classList.add('flex');
+    }
+
+    renderTable();
+}
+
+function renderTable() {
+    const tbody = document.getElementById('contactTableBody');
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+
+    const filtered = processedContacts.filter(c => {
+        const matchesTab = activeTab === 'valid' ? c.isValid : !c.isValid;
+        const matchesSearch =
+            c.name.toLowerCase().includes(searchTerm) ||
+            c.phone.toLowerCase().includes(searchTerm) ||
+            (c.email || '').toLowerCase().includes(searchTerm);
+        return matchesTab && matchesSearch;
+    });
+
+    document.getElementById('showingCount').innerText = filtered.length;
+    document.getElementById('totalFilterCount').innerText =
+        processedContacts.filter(c => activeTab === 'valid' ? c.isValid : !c.isValid).length;
+
+    if (!filtered.length) {
+        tbody.innerHTML = `
+            <tr><td colspan="6" class="px-4 py-12 text-center text-gray-500">
+                <i class="fa-solid fa-folder-open text-3xl mb-2 block"></i>
+                Nenhum contato encontrado nesta visualização.
+            </td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = filtered.map((c, index) => `
+        <tr class="hover:bg-gray-800/40 transition group">
+            <td class="px-4 py-3 text-center text-xs text-gray-500 font-mono">${index + 1}</td>
+            <td class="px-4 py-3">
+                <input type="text" value="${escapeHtml(c.name)}" onchange="updateContactField(${c.id}, 'name', this.value)" class="bg-transparent border border-transparent hover:border-gray-700 focus:border-indigo-500 rounded px-2 py-1 text-sm font-medium text-gray-100 w-full focus:outline-none focus:bg-gray-950 transition">
+            </td>
+            <td class="px-4 py-3">
+                <input type="text" value="${escapeHtml(c.phone)}" onchange="updateContactField(${c.id}, 'phone', this.value)" class="bg-transparent border border-transparent hover:border-gray-700 focus:border-indigo-500 rounded px-2 py-1 text-sm text-gray-300 font-mono w-full focus:outline-none focus:bg-gray-950 transition">
+            </td>
+            <td class="px-4 py-3">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${c.ddd !== 'N/A' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-gray-800 text-gray-500'} font-mono">${escapeHtml(c.ddd)}</span>
+            </td>
+            <td class="px-4 py-3">
+                ${c.isValid
+                    ? '<span class="inline-flex items-center gap-1 text-xs text-emerald-400 font-medium"><i class="fa-solid fa-check"></i> Válido</span>'
+                    : `<span class="inline-flex items-center gap-1 text-xs text-rose-400 font-medium bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded"><i class="fa-solid fa-xmark"></i> ${escapeHtml(c.reasons.join(', '))}</span>`}
+            </td>
+            <td class="px-4 py-3 text-right">
+                <button onclick="deleteContact(${c.id})" title="Excluir Contato" class="text-gray-500 hover:text-rose-400 p-1.5 rounded transition"><i class="fa-solid fa-trash-can"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function updateContactField(id, field, value) {
+    const raw = rawContacts.find(item => item.id === id);
+    if (!raw) return;
+
+    if (field === 'name') raw.originalName = value;
+    if (field === 'phone') {
+        raw.originalPhone = value;
+        raw.originalPhones = [value];
+    }
+
+    processAllContacts();
+}
+
+function deleteContact(id) {
+    rawContacts = rawContacts.filter(item => item.id !== id);
+    processAllContacts();
+}
+
+function purgeInvalidContacts() {
+    const invalid = processedContacts.filter(contact => !contact.isValid);
+    if (!invalid.length) return;
+
+    if (!confirm(`Excluir ${invalid.length} contato(s) classificados como inválidos? Essa ação não pode ser desfeita nesta sessão.`)) {
+        return;
+    }
+
+    const invalidIds = new Set(invalid.map(contact => contact.id));
+    rawContacts = rawContacts.filter(item => !invalidIds.has(item.id));
+    processAllContacts();
+}
+
+function addNewBlankContact() {
+    const maxId = rawContacts.reduce((max, item) => Math.max(max, item.id), 0);
+
+    rawContacts.push({
+        id: maxId + 1,
+        originalName: 'Novo Contato',
+        originalPhone: '',
+        originalPhones: [],
+        email: '',
+        org: ''
+    });
+
+    processAllContacts();
+}
+
+function escapeHtml(str) {
+    return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function escapeVCardValue(value) {
+    return String(value || '')
+        .replace(/\\/g, '\\\\')
+        .replace(/\r\n|\r|\n/g, '\\n')
+        .replace(/;/g, '\\;')
+        .replace(/,/g, '\\,');
+}
+
+function exportVCF() {
+    const contacts = processedContacts.filter(contact => contact.isValid);
+
+    if (!contacts.length) {
+        alert('Não há contatos válidos para exportar.');
+        return;
+    }
+
+    let content = '';
+
+    contacts.forEach(contact => {
+        const name = contact.name || 'Sem Nome';
+        content += 'BEGIN:VCARD\r\n';
+        content += 'VERSION:3.0\r\n';
+        content += `FN:${escapeVCardValue(name)}\r\n`;
+        content += `N:;${escapeVCardValue(name)};;;\r\n`;
+
+        if (contact.phone) {
+            content += `TEL;TYPE=CELL:${escapeVCardValue(contact.phone)}\r\n`;
+        }
+        if (contact.email) {
+            content += `EMAIL:${escapeVCardValue(contact.email)}\r\n`;
+        }
+        if (contact.org) {
+            content += `ORG:${escapeVCardValue(contact.org)}\r\n`;
         }
 
-        function addNewBlankContact() {
-            const maxId = rawContacts.reduce((acc, curr) => Math.max(acc, curr.id), 0);
+        content += 'END:VCARD\r\n';
+    });
 
-            rawContacts.push({
-                id: maxId + 1,
-                originalName: 'Novo Contato',
-                originalPhone: '',
-                email: '',
-                org: ''
-            });
+    downloadFile(content, 'contatos_limpos.vcf', 'text/vcard;charset=utf-8');
+}
 
-            processAllContacts();
-        }
+function exportCSV() {
+    const contacts = processedContacts.filter(contact => contact.isValid);
 
-        function escapeHtml(str) {
-            return String(str || '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
-        }
+    if (!contacts.length) {
+        alert('Não há contatos válidos para exportar.');
+        return;
+    }
 
-        function exportVCF() {
-            const validOnly = processedContacts.filter(c => c.isValid);
+    let content = 'Nome,Telefone,DDD,Email,Organizacao\r\n';
 
-            if (validOnly.length === 0) {
-                alert('Não há contatos válidos para exportar.');
-                return;
-            }
+    contacts.forEach(contact => {
+        const fields = [
+            contact.name,
+            contact.phone,
+            contact.ddd,
+            contact.email,
+            contact.org
+        ].map(value => `"${String(value || '').replace(/"/g, '""')}"`);
 
-            let vcfContent = '';
+        content += fields.join(',') + '\r\n';
+    });
 
-            validOnly.forEach(c => {
-                vcfContent += 'BEGIN:VCARD\r\n';
-                vcfContent += 'VERSION:3.0\r\n';
-                vcfContent += `FN:${c.name}\r\n`;
-                vcfContent += `N:;${c.name};;;\r\n`;
+    downloadFile('\uFEFF' + content, 'contatos_limpos.csv', 'text/csv;charset=utf-8;');
+}
 
-                if (c.phone) vcfContent += `TEL;TYPE=CELL:${c.phone}\r\n`;
-                if (c.email) vcfContent += `EMAIL:${c.email}\r\n`;
-                if (c.org) vcfContent += `ORG:${c.org}\r\n`;
+function downloadFile(content, fileName, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
 
-                vcfContent += 'END:VCARD\r\n';
-            });
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
 
-            downloadFile(vcfContent, 'contatos_limpos.vcf', 'text/vcard;charset=utf-8');
-        }
-
-        function exportCSV() {
-            const validOnly = processedContacts.filter(c => c.isValid);
-
-            if (validOnly.length === 0) {
-                alert('Não há contatos válidos para exportar.');
-                return;
-            }
-
-            let csvContent = 'Nome,Telefone,DDD,Email,Organizacao\n';
-
-            validOnly.forEach(c => {
-                const name = `"${c.name.replace(/"/g, '""')}"`;
-                const phone = `"${c.phone.replace(/"/g, '""')}"`;
-                const ddd = `"${c.ddd}"`;
-                const email = `"${(c.email || '').replace(/"/g, '""')}"`;
-                const org = `"${(c.org || '').replace(/"/g, '""')}"`;
-
-                csvContent += `${name},${phone},${ddd},${email},${org}\n`;
-            });
-
-            downloadFile('\uFEFF' + csvContent, 'contatos_limpos.csv', 'text/csv;charset=utf-8;');
-        }
-
-        function downloadFile(content, fileName, mimeType) {
-            const blob = new Blob([content], { type: mimeType });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-
-            setTimeout(() => URL.revokeObjectURL(url), 1000);
-        }
-    </script>
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+</script>
 </body>
 </html>
