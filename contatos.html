@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador e Limpador de VCF</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #4b5563;
+        }
+    </style>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col font-sans antialiased">
+
+    <header class="bg-gray-900 border-b border-gray-800 sticky top-0 z-30 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 p-2 rounded-lg text-white">
+                    <i class="fa-solid fa-address-book text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight text-white">Limpador & Sanitizador VCF</h1>
+                    <p class="text-xs text-gray-400">Tratamento avançado, normalização e prefixação de DDD</p>
+                </div>
+            </div>
+            
+            <div id="headerActions" class="hidden flex items-center gap-2">
+                <button onclick="document.getElementById('fileInput').click()" class="bg-gray-800 hover:bg-gray-700 text-gray-200 text-sm font-medium px-3 py-1.5 rounded-lg border border-gray-700 transition flex items-center gap-2">
+                    <i class="fa-solid fa-file-import"></i>
+                    <span>Novo Arquivo</span>
+                </button>
+                <div class="h-6 w-px bg-gray-800 mx-1"></div>
+                <button onclick="exportVCF()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium px-3 py-1.5 rounded-lg transition flex items-center gap-2 shadow">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Exportar VCF</span>
+                </button>
+                <button onclick="exportCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium px-3 py-1.5 rounded-lg transition flex items-center gap-2 shadow">
+                    <i class="fa-solid fa-file-excel"></i>
+                    <span>Exportar CSV</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col">
+        <input type="file" id="fileInput" accept=".vcf,text/vcard" class="hidden" onchange="handleFileUpload(event)">
+
+        <div id="dropZone" class="flex-1 border-2 border-dashed border-gray-800 hover:border-indigo-500/50 bg-gray-900/50 rounded-2xl flex flex-col items-center justify-center p-8 transition cursor-pointer group my-auto min-h-[400px]" onclick="document.getElementById('fileInput').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+            <div class="w-20 h-20 bg-gray-800 group-hover:bg-indigo-600/20 text-gray-400 group-hover:text-indigo-400 rounded-full flex items-center justify-center mb-5 transition shadow-inner">
+                <i class="fa-solid fa-cloud-arrow-up text-3xl"></i>
+            </div>
+            <h2 class="text-xl font-bold text-gray-200 mb-2">Importar Arquivo de Contatos (.vcf)</h2>
+            <p class="text-sm text-gray-400 text-center max-w-md mb-6">
+                Arraste seu arquivo vCard aqui ou clique para selecionar. Nenhum dado é enviado para servidor algum, todo processamento é 100% local e seguro.
+            </p>
+            <div class="flex items-center gap-3">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gray-800 text-gray-300 border border-gray-700">
+                    <i class="fa-solid fa-shield-halved text-indigo-400"></i> Processamento Local
+                </span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gray-800 text-gray-300 border border-gray-700">
+                    <i class="fa-solid fa-bolt text-yellow-400"></i> Limpeza Instantânea
+                </span>
+            </div>
+        </div>
+
+        <div id="appView" class="hidden flex-1 flex flex-col gap-6">
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Total Carregados</p>
+                        <p id="statTotal" class="text-2xl font-bold text-white mt-1">0</p>
+                    </div>
+                    <div class="bg-blue-500/10 text-blue-400 p-3 rounded-lg border border-blue-500/20">
+                        <i class="fa-solid fa-users text-xl"></i>
+                    </div>
+                </div>
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Contatos Válidos</p>
+                        <p id="statValid" class="text-2xl font-bold text-emerald-400 mt-1">0</p>
+                    </div>
+                    <div class="bg-emerald-500/10 text-emerald-400 p-3 rounded-lg border border-emerald-500/20">
+                        <i class="fa-solid fa-circle-check text-xl"></i>
+                    </div>
+                </div>
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Inválidos / Problemáticos</p>
+                        <p id="statInvalid" class="text-2xl font-bold text-amber-400 mt-1">0</p>
+                    </div>
+                    <div class="bg-amber-500/10 text-amber-400 p-3 rounded-lg border border-amber-500/20">
+                        <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                    </div>
+                </div>
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Duplicados Identificados</p>
+                        <p id="statDuplicates" class="text-2xl font-bold text-rose-400 mt-1">0</p>
+                    </div>
+                    <div class="bg-rose-500/10 text-rose-400 p-3 rounded-lg border border-rose-500/20">
+                        <i class="fa-solid fa-clone text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 shadow-sm">
+                <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-800">
+                    <h3 class="font-semibold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles text-indigo-400"></i>
+                        Opções de Sanitização e Sanitização Automática
+                    </h3>
+                    <span class="text-xs bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-2.5 py-1 rounded-full font-medium">Auto-Ajustado ao Carregar</span>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <label class="flex items-start gap-3 p-3 bg-gray-950/60 rounded-lg border border-gray-800/80 cursor-pointer hover:border-gray-700 transition">
+                        <input type="checkbox" id="optNormalizeFont" checked onchange="processAllContacts()" class="mt-1 rounded bg-gray-900 border-gray-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-gray-900">
+                        <div>
+                            <span class="text-sm font-medium text-gray-200 block">Normalizar Fontes & Remover Emojis</span>
+                            <span class="text-xs text-gray-400 block mt-0.5">Converte letras em negrito/itálico/estilizadas para caracteres normais e apaga emojis/símbolos.</span>
+                        </div>
+                    </label>
+
+                    <label class="flex items-start gap-3 p-3 bg-gray-950/60 rounded-lg border border-gray-800/80 cursor-pointer hover:border-gray-700 transition">
+                        <input type="checkbox" id="optAlphanumericOnly" checked onchange="processAllContacts()" class="mt-1 rounded bg-gray-900 border-gray-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-gray-900">
+                        <div>
+                            <span class="text-sm font-medium text-gray-200 block">Apenas Letras e Números no Nome</span>
+                            <span class="text-xs text-gray-400 block mt-0.5">Remove rigorosamente pontuações, traços, caracteres especiais, acentos bugados e símbolos.</span>
+                        </div>
+                    </label>
+
+                    <label class="flex items-start gap-3 p-3 bg-gray-950/60 rounded-lg border border-gray-800/80 cursor-pointer hover:border-gray-700 transition">
+                        <input type="checkbox" id="optAddDddPrefix" checked onchange="processAllContacts()" class="mt-1 rounded bg-gray-900 border-gray-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-gray-900">
+                        <div>
+                            <span class="text-sm font-medium text-gray-200 block">Adicionar "DDD + [DDD]" no Nome</span>
+                            <span class="text-xs text-gray-400 block mt-0.5">Extrai o DDD do número (ex: 11) e prefixa no nome (ex: "DDD 11 João Silva").</span>
+                        </div>
+                    </label>
+
+                    <label class="flex items-start gap-3 p-3 bg-gray-950/60 rounded-lg border border-gray-800/80 cursor-pointer hover:border-gray-700 transition">
+                        <input type="checkbox" id="optRequirePhone" checked onchange="processAllContacts()" class="mt-1 rounded bg-gray-900 border-gray-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-gray-900">
+                        <div>
+                            <span class="text-sm font-medium text-gray-200 block">Exigir Telefone Válido</span>
+                            <span class="text-xs text-gray-400 block mt-0.5">Marca como inválido contatos sem número de telefone cadastrado.</span>
+                        </div>
+                    </label>
+
+                    <label class="flex items-start gap-3 p-3 bg-gray-950/60 rounded-lg border border-gray-800/80 cursor-pointer hover:border-gray-700 transition">
+                        <input type="checkbox" id="optMinPhoneLength" checked onchange="processAllContacts()" class="mt-1 rounded bg-gray-900 border-gray-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-gray-900">
+                        <div>
+                            <span class="text-sm font-medium text-gray-200 block">Mínimo de Dígitos no Telefone</span>
+                            <span class="text-xs text-gray-400 block mt-0.5">Rejeita telefones com menos de 8 dígitos (desconsiderando código de país).</span>
+                        </div>
+                    </label>
+
+                    <label class="flex items-start gap-3 p-3 bg-gray-950/60 rounded-lg border border-gray-800/80 cursor-pointer hover:border-gray-700 transition">
+                        <input type="checkbox" id="optRequireName" checked onchange="processAllContacts()" class="mt-1 rounded bg-gray-900 border-gray-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-gray-900">
+                        <div>
+                            <span class="text-sm font-medium text-gray-200 block">Exigir Nome Válido</span>
+                            <span class="text-xs text-gray-400 block mt-0.5">Marca como inválido se o nome ficar em branco após a remoção de caracteres.</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 items-center justify-between bg-gray-900/80 p-4 rounded-xl border border-gray-800">
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <button id="tabValidBtn" onclick="switchTab('valid')" class="flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow">
+                        <i class="fa-solid fa-check-circle"></i>
+                        <span>Válidos (<span id="tabValidCount">0</span>)</span>
+                    </button>
+                    <button id="tabInvalidBtn" onclick="switchTab('invalid')" class="flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2 bg-gray-800 text-gray-400 hover:text-gray-200 border border-gray-700">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>Inválidos / Para Remover (<span id="tabInvalidCount">0</span>)</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+                    <div class="relative w-full sm:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+                        <input type="text" id="searchInput" oninput="renderTable()" placeholder="Buscar contato ou número..." class="w-full bg-gray-950 border border-gray-800 rounded-lg pl-9 pr-3 py-1.5 text-sm text-gray-200 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <button id="btnRemoveInvalid" onclick="purgeInvalidContacts()" class="hidden bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/30 text-xs font-semibold px-3 py-2 rounded-lg transition whitespace-nowrap flex items-center gap-1.5">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span>Apagar Todos Inválidos</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden flex-1 flex flex-col shadow-lg">
+                <div class="overflow-x-auto custom-scrollbar flex-1">
+                    <table class="w-full text-left text-sm text-gray-300">
+                        <thead class="bg-gray-950 text-xs uppercase text-gray-400 border-b border-gray-800 sticky top-0 z-10">
+                            <tr>
+                                <th class="px-4 py-3.5 w-12 text-center">#</th>
+                                <th class="px-4 py-3.5">Nome Tratado</th>
+                                <th class="px-4 py-3.5">Telefone</th>
+                                <th class="px-4 py-3.5">DDD Extraído</th>
+                                <th class="px-4 py-3.5" id="colStatusHeader">Status / Motivo</th>
+                                <th class="px-4 py-3.5 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contactTableBody" class="divide-y divide-gray-800/60 bg-gray-900/40">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="bg-gray-950 px-4 py-3 border-t border-gray-800 flex items-center justify-between text-xs text-gray-400">
+                    <div>
+                        Exibindo <span id="showingCount" class="font-medium text-gray-200">0</span> de <span id="totalFilterCount" class="font-medium text-gray-200">0</span> contatos
+                    </div>
+                    <div id="tableFooterAction">
+                        <button onclick="addNewBlankContact()" class="text-indigo-400 hover:text-indigo-300 font-medium flex items-center gap-1">
+                            <i class="fa-solid fa-plus-circle"></i> Adicionar Manualmente
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        let rawContacts = [];
+        let processedContacts = [];
+        let activeTab = 'valid';
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) readFile(file);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) readFile(files[0]);
+        }
+
+        function readFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                parseVCF(text);
+                document.getElementById('dropZone').classList.add('hidden');
+                document.getElementById('appView').classList.remove('hidden');
+                document.getElementById('headerActions').classList.remove('hidden');
+                document.getElementById('headerActions').classList.add('flex');
+                processAllContacts();
+            };
+            reader.readAsText(file);
+        }
+
+        function parseVCF(vcfText) {
+            rawContacts = [];
+            const vcards = vcfText.split(/END:VCARD/i);
+            
+            vcards.forEach((card, idx) => {
+                if (!card.trim()) return;
+                
+                let name = '';
+                let phone = '';
+                let email = '';
+                let org = '';
+
+                const lines = card.split(/\r\n|\r|\n/);
+                lines.forEach(line => {
+                    if (line.toUpperCase().startsWith('FN:')) {
+                        name = line.substring(3).trim();
+                    } else if (!name && line.toUpperCase().startsWith('N:')) {
+                        const parts = line.substring(2).split(';');
+                        name = parts.filter(p => p.trim()).reverse().join(' ').trim();
+                    } else if (line.toUpperCase().includes('TEL')) {
+                        const colonIdx = line.indexOf(':');
+                        if (colonIdx !== -1) {
+                            const val = line.substring(colonIdx + 1).trim();
+                            if (val && !phone) phone = val;
+                        }
+                    } else if (line.toUpperCase().includes('EMAIL')) {
+                        const colonIdx = line.indexOf(':');
+                        if (colonIdx !== -1) {
+                            const val = line.substring(colonIdx + 1).trim();
+                            if (val && !email) email = val;
+                        }
+                    } else if (line.toUpperCase().startsWith('ORG:')) {
+                        org = line.substring(4).trim();
+                    }
+                });
+
+                rawContacts.push({
+                    id: idx + 1,
+                    originalName: name || '',
+                    originalPhone: phone || '',
+                    email: email,
+                    org: org
+                });
+            });
+        }
+
+        function toNormalText(str) {
+            if (!str) return '';
+            
+            let normalized = str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+            let result = '';
+            for (let i = 0; i < normalized.length; i++) {
+                const code = normalized.codePointAt(i);
+                
+                if (code >= 0x1D400 && code <= 0x1D7FF) {
+                    let offset = 0;
+                    if (code >= 0x1D400 && code <= 0x1D419) offset = code - 0x1D400 + 65;
+                    else if (code >= 0x1D41A && code <= 0x1D433) offset = code - 0x1D41A + 97;
+                    else if (code >= 0x1D434 && code <= 0x1D44D) offset = code - 0x1D434 + 65;
+                    else if (code >= 0x1D44E && code <= 0x1D467) offset = code - 0x1D44E + 97;
+                    else if (code >= 0x1D468 && code <= 0x1D481) offset = code - 0x1D468 + 65;
+                    else if (code >= 0x1D482 && code <= 0x1D49B) offset = code - 0x1D482 + 97;
+                    else if (code >= 0x1D5D4 && code <= 0x1D5ED) offset = code - 0x1D5D4 + 65;
+                    else if (code >= 0x1D5EE && code <= 0x1D607) offset = code - 0x1D5EE + 97;
+                    else if (code >= 0x1D7CE && code <= 0x1D7D7) offset = code - 0x1D7CE + 48;
+                    
+                    if (offset > 0) {
+                        result += String.fromCharCode(offset);
+                        if (code > 0xFFFF) i++;
+                        continue;
+                    }
+                }
+                result += normalized[i];
+            }
+
+            return result;
+        }
+
+        function cleanAlphanumericOnly(str) {
+            if (!str) return '';
+            return str.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+        }
+
+        function extractDDD(phoneStr) {
+            if (!phoneStr) return '';
+            const digits = phoneStr.replace(/\D/g, '');
+            if (!digits) return '';
+
+            let localDigits = digits;
+            if (localDigits.startsWith('55') && localDigits.length >= 10) {
+                localDigits = localDigits.substring(2);
+            }
+
+            if (localDigits.length >= 10) {
+                return localDigits.substring(0, 2);
+            }
+            return '';
+        }
+
+        function processAllContacts() {
+            const optNormalizeFont = document.getElementById('optNormalizeFont').checked;
+            const optAlphanumericOnly = document.getElementById('optAlphanumericOnly').checked;
+            const optAddDddPrefix = document.getElementById('optAddDddPrefix').checked;
+            const optRequirePhone = document.getElementById('optRequirePhone').checked;
+            const optMinPhoneLength = document.getElementById('optMinPhoneLength').checked;
+            const optRequireName = document.getElementById('optRequireName').checked;
+
+            const seenPhones = new Set();
+            let validCount = 0;
+            let invalidCount = 0;
+            let duplicateCount = 0;
+
+            processedContacts = rawContacts.map(item => {
+                let cleanPhone = item.originalPhone.trim();
+                let digitsOnly = cleanPhone.replace(/\D/g, '');
+                let ddd = extractDDD(cleanPhone);
+
+                let cleanedName = item.originalName;
+
+                if (optNormalizeFont) {
+                    cleanedName = toNormalText(cleanedName);
+                }
+
+                if (optAlphanumericOnly) {
+                    cleanedName = cleanAlphanumericOnly(cleanedName);
+                }
+
+                if (optAddDddPrefix && ddd) {
+                    cleanedName = `DDD ${ddd} ${cleanedName}`.trim();
+                }
+
+                cleanedName = cleanedName.replace(/\s+/g, ' ').trim();
+
+                let isValid = true;
+                let reasons = [];
+
+                if (optRequirePhone && !digitsOnly) {
+                    isValid = false;
+                    reasons.push('Sem telefone registrado');
+                }
+
+                if (optMinPhoneLength && digitsOnly) {
+                    let relativeDigits = digitsOnly.startsWith('55') ? digitsOnly.substring(2) : digitsOnly;
+                    if (relativeDigits.length < 8) {
+                        isValid = false;
+                        reasons.push('Telefone menor que 8 dígitos');
+                    }
+                }
+
+                if (optRequireName && !cleanedName) {
+                    isValid = false;
+                    reasons.push('Nome em branco após sanitização');
+                }
+
+                if (digitsOnly) {
+                    if (seenPhones.has(digitsOnly)) {
+                        isValid = false;
+                        reasons.push('Número duplicado');
+                        duplicateCount++;
+                    } else {
+                        seenPhones.add(digitsOnly);
+                    }
+                }
+
+                if (isValid) validCount++;
+                else invalidCount++;
+
+                return {
+                    id: item.id,
+                    name: cleanedName || item.originalName || 'Sem Nome',
+                    phone: cleanPhone,
+                    ddd: ddd || 'N/A',
+                    email: item.email,
+                    org: item.org,
+                    isValid: isValid,
+                    reasons: reasons
+                };
+            });
+
+            document.getElementById('statTotal').innerText = processedContacts.length;
+            document.getElementById('statValid').innerText = validCount;
+            document.getElementById('statInvalid').innerText = invalidCount;
+            document.getElementById('statDuplicates').innerText = duplicateCount;
+
+            document.getElementById('tabValidCount').innerText = validCount;
+            document.getElementById('tabInvalidCount').innerText = invalidCount;
+
+            renderTable();
+        }
+
+        function switchTab(tab) {
+            activeTab = tab;
+            const validBtn = document.getElementById('tabValidBtn');
+            const invalidBtn = document.getElementById('tabInvalidBtn');
+            const removeInvalidBtn = document.getElementById('btnRemoveInvalid');
+
+            if (tab === 'valid') {
+                validBtn.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow';
+                invalidBtn.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2 bg-gray-800 text-gray-400 hover:text-gray-200 border border-gray-700';
+                removeInvalidBtn.classList.add('hidden');
+            } else {
+                invalidBtn.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2 bg-rose-600 text-white shadow';
+                validBtn.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2 bg-gray-800 text-gray-400 hover:text-gray-200 border border-gray-700';
+                removeInvalidBtn.classList.remove('hidden');
+            }
+
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('contactTableBody');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            const filtered = processedContacts.filter(c => {
+                const matchesTab = activeTab === 'valid' ? c.isValid : !c.isValid;
+                const matchesSearch = c.name.toLowerCase().includes(searchTerm) || c.phone.toLowerCase().includes(searchTerm);
+                return matchesTab && matchesSearch;
+            });
+
+            document.getElementById('showingCount').innerText = filtered.length;
+            document.getElementById('totalFilterCount').innerText = processedContacts.filter(c => activeTab === 'valid' ? c.isValid : !c.isValid).length;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-4 py-12 text-center text-gray-500">
+                            <i class="fa-solid fa-folder-open text-3xl mb-2 block"></i>
+                            Nenhum contato encontrado nesta visualização.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map((c, index) => `
+                <tr class="hover:bg-gray-800/40 transition group">
+                    <td class="px-4 py-3 text-center text-xs text-gray-500 font-mono">${index + 1}</td>
+                    <td class="px-4 py-3">
+                        <input type="text" value="${escapeHtml(c.name)}" onchange="updateContactField(${c.id}, 'name', this.value)" class="bg-transparent border border-transparent hover:border-gray-700 focus:border-indigo-500 rounded px-2 py-1 text-sm font-medium text-gray-100 w-full focus:outline-none focus:bg-gray-950 transition">
+                    </td>
+                    <td class="px-4 py-3">
+                        <input type="text" value="${escapeHtml(c.phone)}" onchange="updateContactField(${c.id}, 'phone', this.value)" class="bg-transparent border border-transparent hover:border-gray-700 focus:border-indigo-500 rounded px-2 py-1 text-sm text-gray-300 font-mono w-full focus:outline-none focus:bg-gray-950 transition">
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${c.ddd !== 'N/A' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-gray-800 text-gray-500'} font-mono">
+                            ${c.ddd}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3">
+                        ${c.isValid 
+                            ? `<span class="inline-flex items-center gap-1 text-xs text-emerald-400 font-medium"><i class="fa-solid fa-check"></i> Válido</span>`
+                            : `<span class="inline-flex items-center gap-1 text-xs text-rose-400 font-medium bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded"><i class="fa-solid fa-xmark"></i> ${c.reasons.join(', ')}</span>`
+                        }
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        <button onclick="deleteContact(${c.id})" title="Excluir Contato" class="text-gray-500 hover:text-rose-400 p-1.5 rounded transition">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateContactField(id, field, value) {
+            const raw = rawContacts.find(r => r.id === id);
+            if (raw) {
+                if (field === 'name') raw.originalName = value;
+                if (field === 'phone') raw.originalPhone = value;
+                processAllContacts();
+            }
+        }
+
+        function deleteContact(id) {
+            rawContacts = rawContacts.filter(r => r.id !== id);
+            processAllContacts();
+        }
+
+        function purgeInvalidContacts() {
+            const invalidIds = new Set(processedContacts.filter(c => !c.isValid).map(c => c.id));
+            rawContacts = rawContacts.filter(r => !invalidIds.has(r.id));
+            processAllContacts();
+        }
+
+        function addNewBlankContact() {
+            const maxId = rawContacts.reduce((acc, curr) => Math.max(acc, curr.id), 0);
+            rawContacts.push({
+                id: maxId + 1,
+                originalName: 'Novo Contato',
+                originalPhone: '',
+                email: '',
+                org: ''
+            });
+            processAllContacts();
+        }
+
+        function escapeHtml(str) {
+            return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        function exportVCF() {
+            const validOnly = processedContacts.filter(c => c.isValid);
+            if (validOnly.length === 0) {
+                alert('Não há contatos válidos para exportar.');
+                return;
+            }
+
+            let vcfContent = '';
+            validOnly.forEach(c => {
+                vcfContent += 'BEGIN:VCARD\r\n';
+                vcfContent += 'VERSION:3.0\r\n';
+                vcfContent += `FN:${c.name}\r\n`;
+                vcfContent += `N:;${c.name};;;\r\n`;
+                if (c.phone) vcfContent += `TEL;TYPE=CELL:${c.phone}\r\n`;
+                if (c.email) vcfContent += `EMAIL:${c.email}\r\n`;
+                if (c.org) vcfContent += `ORG:${c.org}\r\n`;
+                vcfContent += 'END:VCARD\r\n';
+            });
+
+            downloadFile(vcfContent, 'contatos_limpos.vcf', 'text/vcard');
+        }
+
+        function exportCSV() {
+            const validOnly = processedContacts.filter(c => c.isValid);
+            if (validOnly.length === 0) {
+                alert('Não há contatos válidos para exportar.');
+                return;
+            }
+
+            let csvContent = 'Nome,Telefone,DDD,Email,Organizacao\n';
+            validOnly.forEach(c => {
+                const name = `"${c.name.replace(/"/g, '""')}"`;
+                const phone = `"${c.phone.replace(/"/g, '""')}"`;
+                const ddd = `"${c.ddd}"`;
+                const email = `"${(c.email || '').replace(/"/g, '""')}"`;
+                const org = `"${(c.org || '').replace(/"/g, '""')}"`;
+                csvContent += `${name},${phone},${ddd},${email},${org}\n`;
+            });
+
+            downloadFile(csvContent, 'contatos_limpos.csv', 'text/csv;charset=utf-8;');
+        }
+
+        function downloadFile(content, fileName, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
