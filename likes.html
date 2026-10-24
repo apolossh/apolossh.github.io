@@ -20,7 +20,8 @@ label{display:block;font-size:13px;color:#c1c9d8;margin:13px 0 7px}
 input,select{width:100%;min-height:46px;border-radius:11px;border:1px solid var(--line);background:#0b0f18;color:var(--text);padding:12px;font-size:15px;outline:none}
 button{width:100%;min-height:47px;border:0;border-radius:12px;background:var(--accent);color:white;font-size:15px;font-weight:750;padding:13px;margin-top:12px}
 button:disabled{opacity:.5}
-.status{display:none;padding:12px;border-radius:10px;font-size:13px;line-height:1.5;margin-top:13px;overflow-wrap:anywhere}
+.secondary{background:#20283a}
+.status{display:none;padding:12px;border-radius:10px;font-size:13px;line-height:1.5;margin-top:13px;overflow-wrap:anywhere;white-space:pre-wrap}
 .status.show{display:block}
 .status.info{background:#17213a;color:#b8caff}
 .status.success{background:#102d25;color:#78f0bd}
@@ -28,11 +29,12 @@ button:disabled{opacity:.5}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .stat{background:#0b0f18;border:1px solid var(--line);border-radius:12px;padding:13px;min-width:0}
 .stat .k{font-size:12px;color:var(--muted);margin-bottom:7px}
-.stat .v{font-size:16px;font-weight:750;overflow-wrap:anywhere}
+.stat .v{font-size:16px;font-weight:750;overflow-wrap:anywhere;white-space:pre-wrap}
 .full{grid-column:1/-1}
 .hidden{display:none}
 .note{font-size:12px;line-height:1.55;color:var(--muted);margin-top:12px;overflow-wrap:anywhere}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:8px}
+@media(min-width:520px){body{padding-top:35px}.panel{padding:22px}}
 </style>
 </head>
 <body>
@@ -61,54 +63,74 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:8px}
 <button id="run">Consultar API</button>
 <button id="sessionOnly" class="secondary">Testar autenticação e sessão</button>
 <div id="status" class="status" role="status" aria-live="polite"></div>
-<div class="note">O refresh token está configurado no código JavaScript. Evite compartilhar este arquivo, pois ele contém uma credencial de autenticação.</div>
+<div class="note">A autenticação é executada na sequência necessária. O navegador controla automaticamente cabeçalhos como Origin e User-Agent. Se a API bloquear CORS, será necessário um intermediário autorizado.</div>
 </section>
 <section id="profilePanel" class="panel hidden">
-<h2>Perfil</h2>
+<h2>Informações do perfil</h2>
 <div id="profile" class="grid"></div>
 </section>
 <section id="resultPanel" class="panel hidden">
-<h2>Resultado da API</h2>
+<h2>Resposta da API</h2>
 <div id="result" class="grid"></div>
 </section>
 <footer>LikesFF · Ferramenta de testes</footer>
 </main>
 <script>
 "use strict";
-const FIREBASE_REFRESH_TOKEN = "AMf-vBxGtWQfGRsh7YSnT3ocnsJGFtqjzXYJu3C4wLCe3KVi0sjCAC8W5Xi0c6FQDitiyVfyam1WTlDvwd7FCn-dK_2HPJe17If01vqsDX7QLeaHIA3LXKed1s_lGUKLKQvJTY1D8zhVUob_eNbGD5FC8YezY6L-NblBMr2g5UN1ENb6ehaYxE1tpBJhJVpOCpy8Y4kOsO2RfET9TXJtOsw_s2ocI9_R4BB09HhRs_GyIncN6szkO7R17fWhnhh9RrH0NFG-jtnjkXQJyUjZ8cgmTxxrIjvMBmiKLLcsAdedDvWZKnsNz4EEB53iwQbuftjrD8-L3ogYCNi-o-HNfWQ2P2ZJ778j1i5ouBdpS8GMTP1XYAi8c1mnnccK3y6KYOEfLF9tow2j8PW0v9wrOgp8BwRAUw-mHnd3yBWOfzXWpVEdjWThgL9sQd-flaKbHB_xw5I_D9Pj";
+const FIREBASE_REFRESH_TOKEN = "COLE_SEU_REFRESH_TOKEN_AQUI";
 const FIREBASE_API_KEY = "AIzaSyD0DB6YABYB68oZYL8EycimIrJfrapA_jk";
 const FIREBASE_TOKEN_URL = "https://securetoken.googleapis.com/v1/token?key=" + FIREBASE_API_KEY;
+const FIREBASE_CLIENT_VERSION = "Safari/JsCore/9.6.10/FirebaseCore-web";
+const FIREBASE_GMPID = "1:985234296060:web:22568dc0387c35cb81db79";
 const API_BASE = "https://likesff.app";
 const $ = id => document.getElementById(id);
-const fields = [
-["nickname","Nickname"],["id","UID"],["region","Região"],
-["release_version","Versão"],["likes_before","Likes anteriores"],
-["likes_end","Likes finais"],["likes_added","Likes adicionados"],
-["likes_failed","Likes falhos"],["level","Nível"],["xp","XP"],
-["prime_level","Prime"],["key","Chave"],["key_remaining","Chaves restantes"],
+const RESULT_FIELDS = [
+["nickname","Nickname"],
+["id","UID"],
+["region","Região"],
+["release_version","Versão"],
+["likes_before","Likes anteriores"],
+["likes_end","Likes finais"],
+["likes_added","Likes adicionados"],
+["likes_failed","Likes falhos"],
+["level","Nível"],
+["xp","XP"],
+["prime_level","Prime"],
+["key","Chave"],
+["key_remaining","Chaves restantes"],
 ["key_time_remaining","Tempo restante da chave"],
-["likes_request_time","Tempo da requisição"],["cache_time","Cache"],
-["status","Status"]
+["likes_request_time","Tempo da requisição"],
+["cache_time","Cache"],
+["status","Status"],
+["res","Resposta da API"]
 ];
+let activeAccessToken = null;
+let activeSession = null;
 function showStatus(message,type="info"){
 const el=$("status");
 el.textContent=message;
 el.className="status show "+type;
 }
+function displayValue(value){
+if(value===null)return "null";
+if(value===undefined)return "—";
+if(typeof value==="object")return JSON.stringify(value,null,2);
+return String(value);
+}
 function render(targetId,data,entries){
 const target=$(targetId);
 target.replaceChildren();
 for(const [key,label] of entries){
-if(data[key]===undefined||data[key]===null)continue;
+if(!Object.prototype.hasOwnProperty.call(data,key))continue;
 const card=document.createElement("div");
 card.className="stat";
-const k=document.createElement("div");
-k.className="k";
-k.textContent=label;
-const v=document.createElement("div");
-v.className="v";
-v.textContent=typeof data[key]==="object"?JSON.stringify(data[key]):String(data[key]);
-card.append(k,v);
+const title=document.createElement("div");
+title.className="k";
+title.textContent=label;
+const value=document.createElement("div");
+value.className="v";
+value.textContent=displayValue(data[key]);
+card.append(title,value);
 target.append(card);
 }
 if(!target.children.length){
@@ -119,57 +141,99 @@ target.append(card);
 }
 }
 async function request(url,options={}){
-const response=await fetch(url,{...options,cache:"no-store"});
-const text=await response.text();
+const response=await fetch(url,{
+cache:"no-store",
+...options
+});
+const raw=await response.text();
 let data;
-try{data=JSON.parse(text)}catch{data={raw:text}}
-if(!response.ok)throw new Error("HTTP "+response.status+": "+JSON.stringify(data));
+try{
+data=raw?JSON.parse(raw):{};
+}catch{
+data={raw};
+}
+if(!response.ok){
+throw new Error("HTTP "+response.status+" — "+displayValue(data));
+}
 return data;
 }
 async function authenticate(){
-if(!FIREBASE_REFRESH_TOKEN||FIREBASE_REFRESH_TOKEN==="AMf-vBxGtWQfGRsh7YSnT3ocnsJGFtqjzXYJu3C4wLCe3KVi0sjCAC8W5Xi0c6FQDitiyVfyam1WTlDvwd7FCn-dK_2HPJe17If01vqsDX7QLeaHIA3LXKed1s_lGUKLKQvJTY1D8zhVUob_eNbGD5FC8YezY6L-NblBMr2g5UN1ENb6ehaYxE1tpBJhJVpOCpy8Y4kOsO2RfET9TXJtOsw_s2ocI9_R4BB09HhRs_GyIncN6szkO7R17fWhnhh9RrH0NFG-jtnjkXQJyUjZ8cgmTxxrIjvMBmiKLLcsAdedDvWZKnsNz4EEB53iwQbuftjrD8-L3ogYCNi-o-HNfWQ2P2ZJ778j1i5ouBdpS8GMTP1XYAi8c1mnnccK3y6KYOEfLF9tow2j8PW0v9wrOgp8BwRAUw-mHnd3yBWOfzXWpVEdjWThgL9sQd-flaKbHB_xw5I_D9Pj"){
-throw new Error("Edite FIREBASE_REFRESH_TOKEN no início do código e coloque seu token.");
+if(
+!FIREBASE_REFRESH_TOKEN ||
+FIREBASE_REFRESH_TOKEN==="AMf-vBxGtWQfGRsh7YSnT3ocnsJGFtqjzXYJu3C4wLCe3KVi0sjCAC8W5Xi0c6FQDitiyVfyam1WTlDvwd7FCn-dK_2HPJe17If01vqsDX7QLeaHIA3LXKed1s_lGUKLKQvJTY1D8zhVUob_eNbGD5FC8YezY6L-NblBMr2g5UN1ENb6ehaYxE1tpBJhJVpOCpy8Y4kOsO2RfET9TXJtOsw_s2ocI9_R4BB09HhRs_GyIncN6szkO7R17fWhnhh9RrH0NFG-jtnjkXQJyUjZ8cgmTxxrIjvMBmiKLLcsAdedDvWZKnsNz4EEB53iwQbuftjrD8-L3ogYCNi-o-HNfWQ2P2ZJ778j1i5ouBdpS8GMTP1XYAi8c1mnnccK3y6KYOEfLF9tow2j8PW0v9wrOgp8BwRAUw-mHnd3yBWOfzXWpVEdjWThgL9sQd-flaKbHB_xw5I_D9Pj"
+){
+throw new Error("Configure FIREBASE_REFRESH_TOKEN no início do JavaScript.");
 }
-const body=new URLSearchParams({
-grant_type:"refresh_token",
-refresh_token:FIREBASE_REFRESH_TOKEN
-});
+const form=new URLSearchParams();
+form.set("grant_type","refresh_token");
+form.set("refresh_token",FIREBASE_REFRESH_TOKEN);
 const data=await request(FIREBASE_TOKEN_URL,{
 method:"POST",
-headers:{"Content-Type":"application/x-www-form-urlencoded"},
-body:body.toString()
+headers:{
+"Content-Type":"application/x-www-form-urlencoded",
+"Accept":"application/json",
+"x-client-version":FIREBASE_CLIENT_VERSION,
+"x-firebase-gmpid":FIREBASE_GMPID
+},
+body:form.toString()
 });
-if(!data.access_token)throw new Error("Firebase não retornou access_token: "+JSON.stringify(data));
-return data.access_token;
+if(!data.access_token){
+throw new Error("Firebase não retornou access_token: "+JSON.stringify(data));
+}
+activeAccessToken=data.access_token;
+return data;
 }
 async function createSession(accessToken){
-return await request(API_BASE+"/api/session",{
+const data=await request(API_BASE+"/api/session",{
 method:"POST",
+credentials:"include",
 headers:{
-"x-firebase-token":accessToken,
-"Accept":"application/json"
+"Accept":"application/json",
+"x-firebase-token":accessToken
 }
 });
+activeSession=data;
+return data;
 }
 async function getProfile(uid){
-return await request(API_BASE+"/api/LIKE-SITE?id="+encodeURIComponent(uid)+"&mode=process_info",{
+return await request(
+API_BASE+"/api/LIKE-SITE?id="+encodeURIComponent(uid)+"&mode=process_info",
+{
 method:"GET",
-headers:{"Accept":"application/json"}
-});
+credentials:"include",
+headers:{
+"Accept":"application/json"
+}
+}
+);
 }
 async function getLikes(uid,region){
-return await request(API_BASE+"/api/LIKE-SITE?id="+encodeURIComponent(uid)+"&region="+encodeURIComponent(region),{
+return await request(
+API_BASE+"/api/LIKE-SITE?id="+encodeURIComponent(uid)+"&region="+encodeURIComponent(region),
+{
 method:"GET",
-headers:{"Accept":"application/json"}
-});
+credentials:"include",
+headers:{
+"Accept":"application/json"
 }
-function showData(data){
-render("profile",data,[
-["nickname","Nickname"],["id","UID"],["region","Região"],
-["level","Nível"],["xp","XP"],["prime_level","Prime"]
-]);
+}
+);
+}
+function showProfile(data){
+const fields=[
+["nickname","Nickname"],
+["id","UID"],
+["region","Região"],
+["release_version","Versão"],
+["level","Nível"],
+["xp","XP"],
+["prime_level","Prime"]
+];
+render("profile",data,fields);
 $("profilePanel").classList.remove("hidden");
-render("result",data,fields);
+}
+function showResults(data){
+render("result",data,RESULT_FIELDS);
 $("resultPanel").classList.remove("hidden");
 }
 async function execute(sessionOnly=false){
@@ -184,34 +248,43 @@ $("sessionOnly").disabled=true;
 $("profilePanel").classList.add("hidden");
 $("resultPanel").classList.add("hidden");
 try{
-showStatus("Renovando token Firebase…");
-const accessToken=await authenticate();
-showStatus("Criando sessão na API…");
-const session=await createSession(accessToken);
+showStatus("Etapa 1/4 — Renovando o token Firebase…");
+const firebaseData=await authenticate();
+showStatus("Etapa 2/4 — Criando a sessão da API…");
+const sessionData=await createSession(firebaseData.access_token);
 if(sessionOnly){
-render("result",session,Object.keys(session).map(k=>[k,k]));
-$("resultPanel").classList.remove("hidden");
-showStatus("Resposta da sessão recebida.","success");
+showResults({
+firebase:{
+token_type:firebaseData.token_type,
+expires_in:firebaseData.expires_in,
+refresh_token_received:!!firebaseData.refresh_token
+},
+session:sessionData
+});
+showStatus("Autenticação e criação de sessão concluídas.","success");
 return;
 }
-showStatus("Consultando perfil…");
-let profile={};
+showStatus("Etapa 3/4 — Consultando informações do perfil…");
+let profileData={};
 try{
-profile=await getProfile(uid);
+profileData=await getProfile(uid);
 }catch(error){
-profile={profile_lookup_error:error.message};
+profileData={profile_request_error:error.message};
 }
-showStatus("Consultando dados do endpoint…");
-const likes=await getLikes(uid,region);
-const data={...profile,...likes};
-showData(data);
-if(likes.res){
-showStatus("Resposta da API: "+String(likes.res),"error");
+showStatus("Etapa 4/4 — Consultando dados de likes…");
+const likesData=await getLikes(uid,region);
+showProfile({...profileData,...likesData});
+showResults(likesData);
+if(likesData.res){
+showStatus("A API retornou uma mensagem: "+displayValue(likesData.res),"error");
 }else{
-showStatus("Consulta concluída. Confira os dados retornados.","success");
+showStatus("Requisições concluídas. Confira os dados retornados.","success");
 }
 }catch(error){
-showStatus("Falha: "+error.message+" Se for um erro de CORS, será necessário um servidor intermediário que permita essas requisições.","error");
+showStatus(
+"Falha na sequência de requisições:\n"+error.message+
+"\n\nSe o erro indicar CORS ou falha de rede, verifique as permissões da API. O navegador não permite contornar CORS apenas adicionando cabeçalhos."
+,"error");
 }finally{
 $("run").disabled=false;
 $("sessionOnly").disabled=false;
