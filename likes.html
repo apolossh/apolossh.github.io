@@ -2,259 +2,223 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LikesFF API</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080a10">
+<title>LikesFF Panel</title>
 <style>
-
-*{
-box-sizing:border-box;
-margin:0;
-padding:0;
-font-family:Arial, sans-serif;
-}
-
-body{
-background:#0f172a;
-color:#fff;
-display:flex;
-align-items:center;
-justify-content:center;
-min-height:100vh;
-padding:20px;
-}
-
-.container{
-width:100%;
-max-width:500px;
-background:#020617;
-border-radius:16px;
-box-shadow:0 20px 50px rgba(0,0,0,0.5);
-overflow:hidden;
-}
-
-.header{
-background:#1e293b;
-padding:18px;
-text-align:center;
-font-size:20px;
-font-weight:bold;
-}
-
-.body{
-padding:16px;
-display:flex;
-flex-direction:column;
-gap:12px;
-}
-
-.input{
-width:100%;
-padding:12px;
-border:none;
-border-radius:10px;
-outline:none;
-font-size:15px;
-background:#0b1220;
-color:#fff;
-}
-
-.button{
-padding:12px;
-border:none;
-border-radius:10px;
-background:#22c55e;
-color:#fff;
-font-size:15px;
-font-weight:bold;
-cursor:pointer;
-transition:0.2s;
-}
-
-.button:hover{
-background:#16a34a;
-}
-
-.status{
-text-align:center;
-font-size:13px;
-}
-
-.results{
-margin-top:10px;
-display:flex;
-flex-direction:column;
-gap:14px;
-}
-
-.profile{
-background:#0f172a;
-border-radius:12px;
-padding:14px;
-display:flex;
-flex-direction:column;
-gap:6px;
-}
-
-.nickname{
-font-size:18px;
-font-weight:bold;
-}
-
-.uid{
-font-size:12px;
-opacity:0.7;
-}
-
-.stats{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-}
-
-.card{
-background:#0b1220;
-padding:12px;
-border-radius:10px;
-text-align:center;
-}
-
-.title{
-font-size:11px;
-opacity:0.7;
-margin-bottom:4px;
-}
-
-.value{
-font-size:18px;
-font-weight:bold;
-}
-
-.small{
-font-size:13px;
-}
-
-.footer{
-text-align:center;
-font-size:11px;
-padding:10px;
-background:#020617;
-opacity:0.7;
-}
-
-@media (max-width:480px){
-
-.container{
-max-width:100%;
-}
-
-.stats{
-grid-template-columns:1fr 1fr;
-}
-
-}
-
+:root{color-scheme:dark;--bg:#080a10;--panel:#111622;--line:#252d3d;--text:#f4f6fc;--muted:#929db2;--accent:#7c5cff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:24px 16px calc(32px + env(safe-area-inset-bottom))}
+main{max-width:680px;margin:auto}
+header{text-align:center;margin:14px 0 26px}
+.logo{display:inline-grid;place-items:center;width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#8967ff,#4c36cf);font-size:27px;font-weight:900}
+h1{font-size:27px;margin:13px 0 6px}
+.subtitle{color:var(--muted);font-size:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:15px}
+h2{font-size:16px;margin:0 0 16px}
+label{display:block;font-size:13px;color:#c1c9d8;margin:13px 0 7px}
+input,select{width:100%;min-height:46px;border-radius:11px;border:1px solid var(--line);background:#0b0f18;color:var(--text);padding:12px;font-size:15px;outline:none}
+button{width:100%;min-height:47px;border:0;border-radius:12px;background:var(--accent);color:white;font-size:15px;font-weight:750;padding:13px;margin-top:12px}
+button:disabled{opacity:.5}
+.status{display:none;padding:12px;border-radius:10px;font-size:13px;line-height:1.5;margin-top:13px;overflow-wrap:anywhere}
+.status.show{display:block}
+.status.info{background:#17213a;color:#b8caff}
+.status.success{background:#102d25;color:#78f0bd}
+.status.error{background:#351923;color:#ff9cac}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.stat{background:#0b0f18;border:1px solid var(--line);border-radius:12px;padding:13px;min-width:0}
+.stat .k{font-size:12px;color:var(--muted);margin-bottom:7px}
+.stat .v{font-size:16px;font-weight:750;overflow-wrap:anywhere}
+.full{grid-column:1/-1}
+.hidden{display:none}
+.note{font-size:12px;line-height:1.55;color:var(--muted);margin-top:12px;overflow-wrap:anywhere}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:8px}
 </style>
 </head>
-
 <body>
-
-<div class="container">
-
-<div class="header">
-LikesFF API
-</div>
-
-<div class="body">
-
-<input id="uid" class="input" value="7818609746" readonly>
-
-<button id="send" class="button">
-Enviar Likes
-</button>
-
-<div id="status" class="status">
-Aguardando...
-</div>
-
-<div id="results" class="results"></div>
-
-</div>
-
-<div class="footer">
-API Panel
-</div>
-
-</div>
-
+<main>
+<header>
+<div class="logo">L</div>
+<h1>LikesFF Panel</h1>
+<div class="subtitle">Consulta de perfil e informações da API</div>
+</header>
+<section class="panel">
+<h2>Consulta</h2>
+<label for="uid">UID do jogador</label>
+<input id="uid" inputmode="numeric" value="2228716424" placeholder="UID do jogador">
+<label for="region">Região</label>
+<select id="region">
+<option value="BR">Brasil (BR)</option>
+<option value="US">Estados Unidos (US)</option>
+<option value="IND">Índia (IND)</option>
+<option value="SG">Singapura (SG)</option>
+<option value="TH">Tailândia (TH)</option>
+<option value="VN">Vietnã (VN)</option>
+<option value="ME">Oriente Médio (ME)</option>
+<option value="EU">Europa (EU)</option>
+<option value="TW">Taiwan (TW)</option>
+</select>
+<button id="run">Consultar API</button>
+<button id="sessionOnly" class="secondary">Testar autenticação e sessão</button>
+<div id="status" class="status" role="status" aria-live="polite"></div>
+<div class="note">O refresh token está configurado no código JavaScript. Evite compartilhar este arquivo, pois ele contém uma credencial de autenticação.</div>
+</section>
+<section id="profilePanel" class="panel hidden">
+<h2>Perfil</h2>
+<div id="profile" class="grid"></div>
+</section>
+<section id="resultPanel" class="panel hidden">
+<h2>Resultado da API</h2>
+<div id="result" class="grid"></div>
+</section>
+<footer>LikesFF · Ferramenta de testes</footer>
+</main>
 <script>
-
-document.getElementById("send").onclick = async ()=>{
-
-const uid = document.getElementById("uid").value
-const status = document.getElementById("status")
-const results = document.getElementById("results")
-
-status.innerText="Enviando..."
-results.innerHTML=""
-
+"use strict";
+const FIREBASE_REFRESH_TOKEN = "COLE_SEU_REFRESH_TOKEN_AQUI";
+const FIREBASE_API_KEY = "AIzaSyD0DB6YABYB68oZYL8EycimIrJfrapA_jk";
+const FIREBASE_TOKEN_URL = "https://securetoken.googleapis.com/v1/token?key=" + FIREBASE_API_KEY;
+const API_BASE = "https://likesff.app";
+const $ = id => document.getElementById(id);
+const fields = [
+["nickname","Nickname"],["id","UID"],["region","Região"],
+["release_version","Versão"],["likes_before","Likes anteriores"],
+["likes_end","Likes finais"],["likes_added","Likes adicionados"],
+["likes_failed","Likes falhos"],["level","Nível"],["xp","XP"],
+["prime_level","Prime"],["key","Chave"],["key_remaining","Chaves restantes"],
+["key_time_remaining","Tempo restante da chave"],
+["likes_request_time","Tempo da requisição"],["cache_time","Cache"],
+["status","Status"]
+];
+function showStatus(message,type="info"){
+const el=$("status");
+el.textContent=message;
+el.className="status show "+type;
+}
+function render(targetId,data,entries){
+const target=$(targetId);
+target.replaceChildren();
+for(const [key,label] of entries){
+if(data[key]===undefined||data[key]===null)continue;
+const card=document.createElement("div");
+card.className="stat";
+const k=document.createElement("div");
+k.className="k";
+k.textContent=label;
+const v=document.createElement("div");
+v.className="v";
+v.textContent=typeof data[key]==="object"?JSON.stringify(data[key]):String(data[key]);
+card.append(k,v);
+target.append(card);
+}
+if(!target.children.length){
+const card=document.createElement("div");
+card.className="stat full";
+card.textContent=JSON.stringify(data,null,2);
+target.append(card);
+}
+}
+async function request(url,options={}){
+const response=await fetch(url,{...options,cache:"no-store"});
+const text=await response.text();
+let data;
+try{data=JSON.parse(text)}catch{data={raw:text}}
+if(!response.ok)throw new Error("HTTP "+response.status+": "+JSON.stringify(data));
+return data;
+}
+async function authenticate(){
+if(!FIREBASE_REFRESH_TOKEN||FIREBASE_REFRESH_TOKEN==="AMf-vBxGtWQfGRsh7YSnT3ocnsJGFtqjzXYJu3C4wLCe3KVi0sjCAC8W5Xi0c6FQDitiyVfyam1WTlDvwd7FCn-dK_2HPJe17If01vqsDX7QLeaHIA3LXKed1s_lGUKLKQvJTY1D8zhVUob_eNbGD5FC8YezY6L-NblBMr2g5UN1ENb6ehaYxE1tpBJhJVpOCpy8Y4kOsO2RfET9TXJtOsw_s2ocI9_R4BB09HhRs_GyIncN6szkO7R17fWhnhh9RrH0NFG-jtnjkXQJyUjZ8cgmTxxrIjvMBmiKLLcsAdedDvWZKnsNz4EEB53iwQbuftjrD8-L3ogYCNi-o-HNfWQ2P2ZJ778j1i5ouBdpS8GMTP1XYAi8c1mnnccK3y6KYOEfLF9tow2j8PW0v9wrOgp8BwRAUw-mHnd3yBWOfzXWpVEdjWThgL9sQd-flaKbHB_xw5I_D9Pj"){
+throw new Error("Edite FIREBASE_REFRESH_TOKEN no início do código e coloque seu token.");
+}
+const body=new URLSearchParams({
+grant_type:"refresh_token",
+refresh_token:FIREBASE_REFRESH_TOKEN
+});
+const data=await request(FIREBASE_TOKEN_URL,{
+method:"POST",
+headers:{"Content-Type":"application/x-www-form-urlencoded"},
+body:body.toString()
+});
+if(!data.access_token)throw new Error("Firebase não retornou access_token: "+JSON.stringify(data));
+return data.access_token;
+}
+async function createSession(accessToken){
+return await request(API_BASE+"/api/session",{
+method:"POST",
+headers:{
+"x-firebase-token":accessToken,
+"Accept":"application/json"
+}
+});
+}
+async function getProfile(uid){
+return await request(API_BASE+"/api/LIKE-SITE?id="+encodeURIComponent(uid)+"&mode=process_info",{
+method:"GET",
+headers:{"Accept":"application/json"}
+});
+}
+async function getLikes(uid,region){
+return await request(API_BASE+"/api/LIKE-SITE?id="+encodeURIComponent(uid)+"&region="+encodeURIComponent(region),{
+method:"GET",
+headers:{"Accept":"application/json"}
+});
+}
+function showData(data){
+render("profile",data,[
+["nickname","Nickname"],["id","UID"],["region","Região"],
+["level","Nível"],["xp","XP"],["prime_level","Prime"]
+]);
+$("profilePanel").classList.remove("hidden");
+render("result",data,fields);
+$("resultPanel").classList.remove("hidden");
+}
+async function execute(sessionOnly=false){
+const uid=$("uid").value.trim();
+const region=$("region").value;
+if(!sessionOnly&&!uid){
+showStatus("Informe o UID do jogador.","error");
+return;
+}
+$("run").disabled=true;
+$("sessionOnly").disabled=true;
+$("profilePanel").classList.add("hidden");
+$("resultPanel").classList.add("hidden");
 try{
-
-const res = await fetch(`https://likesff.online/api/LIKE?uid=${uid}&cache=true&key=LIKESFF-Panel-key-bielmotam&region=BR`)
-const data = await res.json()
-
-status.innerText=data.message
-
-results.innerHTML = `
-<div class="profile">
-<div class="nickname">${data.nickname}</div>
-<div class="uid">UID: ${data.id} • Região: ${data.region}</div>
-</div>
-
-<div class="stats">
-
-<div class="card">
-<div class="title">Likes Antes</div>
-<div class="value">${data.likes_before}</div>
-</div>
-
-<div class="card">
-<div class="title">Likes Depois</div>
-<div class="value">${data.likes_end}</div>
-</div>
-
-<div class="card">
-<div class="title">Likes Enviados</div>
-<div class="value">${data.likes_added}</div>
-</div>
-
-<div class="card">
-<div class="title">Falhas</div>
-<div class="value">${data.likes_failed}</div>
-</div>
-
-<div class="card">
-<div class="title">Key Uso</div>
-<div class="value small">${data.key}</div>
-</div>
-
-<div class="card">
-<div class="title">Restante</div>
-<div class="value">${data.key_remaining}</div>
-</div>
-
-</div>
-`
-
-}catch{
-
-status.innerText="Erro na requisição"
-
+showStatus("Renovando token Firebase…");
+const accessToken=await authenticate();
+showStatus("Criando sessão na API…");
+const session=await createSession(accessToken);
+if(sessionOnly){
+render("result",session,Object.keys(session).map(k=>[k,k]));
+$("resultPanel").classList.remove("hidden");
+showStatus("Resposta da sessão recebida.","success");
+return;
 }
-
+showStatus("Consultando perfil…");
+let profile={};
+try{
+profile=await getProfile(uid);
+}catch(error){
+profile={profile_lookup_error:error.message};
 }
-
+showStatus("Consultando dados do endpoint…");
+const likes=await getLikes(uid,region);
+const data={...profile,...likes};
+showData(data);
+if(likes.res){
+showStatus("Resposta da API: "+String(likes.res),"error");
+}else{
+showStatus("Consulta concluída. Confira os dados retornados.","success");
+}
+}catch(error){
+showStatus("Falha: "+error.message+" Se for um erro de CORS, será necessário um servidor intermediário que permita essas requisições.","error");
+}finally{
+$("run").disabled=false;
+$("sessionOnly").disabled=false;
+}
+}
+$("run").addEventListener("click",()=>execute(false));
+$("sessionOnly").addEventListener("click",()=>execute(true));
 </script>
-
 </body>
 </html>
